@@ -6,7 +6,7 @@ from os.path import exists
 
 
 class IPPlotter:
-    def __init__(self, experiment=None, logfile_savepath='Log/losses/'):
+    def __init__(self, experiment=None, logfile_savepath='Log/losses/IP_loss/'):
         self.experiment = experiment
         self.logfile_savepath = logfile_savepath
 
@@ -55,23 +55,35 @@ class IPPlotter:
         else:
             plt.show()
 
-    def plot_rmsd_distribution(self, plot_epoch=1, show=False, eval_only=True):
+    def plot_rmsd_distribution(self, plot_epoch=1, show=False, save=True):
         plt.close()
         # Plot RMSD distribution of all samples across epoch
         train_log = self.logfile_savepath+'log_RMSDsTRAINset_epoch' + str(plot_epoch) + self.experiment + ".txt"
         valid_log = self.logfile_savepath+'log_RMSDsVALIDset_epoch' + str(plot_epoch) + self.experiment + ".txt"
         test_log = self.logfile_savepath+'log_RMSDsTESTset_epoch' + str(plot_epoch) + self.experiment + ".txt"
         train, valid, test, avg_validRMSD, avg_testRMSD = None, None, None, None, None
+        subplot_count = 0
+
+        print('average RMSDs:')
         if exists(train_log):
+            subplot_count += 1
             train = pd.read_csv(train_log, sep='\t', header=0, names=['RMSD'])
+            avg_trainRMSD = str(train['RMSD'].mean())[:4]
+            print('train:', avg_trainRMSD)
+
         if exists(valid_log):
+            subplot_count += 1
             valid = pd.read_csv(valid_log, sep='\t', header=0, names=['RMSD'])
             avg_validRMSD = str(valid['RMSD'].mean())[:4]
+            print('valid:', avg_validRMSD)
+
         if exists(test_log):
+            subplot_count += 1
             test = pd.read_csv(test_log, sep='\t', header=0, names=['RMSD'])
             avg_testRMSD = str(test['RMSD'].mean())[:4]
+            print('test:', avg_testRMSD)
 
-        fig, ax = plt.subplots(3, figsize=(10, 30))
+        fig, ax = plt.subplots(3, figsize=(20, 10))
         plt.suptitle('RMSD distribution: epoch' + str(plot_epoch) + ' ' + self.experiment)
         plt.legend(('train rmsd', 'valid rmsd', 'test rmsd'))
         plt.xlabel('RMSD')
@@ -94,16 +106,16 @@ class IPPlotter:
             ax[2].grid(visible=True)
             ax[2].set_xticks(np.arange(0, 100, 10))
 
-        if not show:
+        if save:
             plt.savefig('Figs/IP_RMSD_distribution_plots/RMSDplot_epoch' + str(
-                plot_epoch) + '_vRMSD' + avg_validRMSD + '_tRMSD' + avg_testRMSD + self.experiment + '.png')
-        else:
+                plot_epoch) + self.experiment + '.png')
+        if show:
             plt.show()
 
 
 if __name__ == "__main__":
-    loadpath = '../Models/ReducedSampling/Log/losses/'
-    experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_5ep'
+    loadpath = 'Log/losses/IP_loss/'
+    experiment = 'BF_IP_NEWDATA_CHECK_400pool_30ep'
     Plotter = IPPlotter(experiment, logfile_savepath=loadpath)
-    Plotter.plot_loss()
-    Plotter.plot_rmsd_distribution(plot_epoch=4, show=True)
+    Plotter.plot_loss(show=True)
+    Plotter.plot_rmsd_distribution(plot_epoch=30, show=True)
