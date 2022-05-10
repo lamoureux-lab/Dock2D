@@ -152,11 +152,6 @@ class EnergyBasedInteractionTrainer:
             with torch.no_grad():
                 return self.classify(pred_interact, gt_interact)
 
-        # if self.plotting and not training:
-        #     # if plot_count % self.plot_freq == 0:
-        #     with torch.no_grad():
-        #         self.plot_pose(fft_score, receptor, ligand, gt_rot, gt_txy, plot_count, stream_name)
-
         return loss.item(), F.item(), F_0.item(), gt_interact.item()
 
     @staticmethod
@@ -173,7 +168,6 @@ class EnergyBasedInteractionTrainer:
             FN += 1
         elif p < threshold and a < threshold:
             TN += 1
-        # print('returning', TP, FP, TN, FN)
         return TP, FP, TN, FN
 
     def train_model(self, train_epochs, train_stream, valid_stream, test_stream, resume_training=False,
@@ -345,9 +339,7 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_1000ex50ep10step'
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_1000ex50ep100step'
     # experiment = 'BF_FI_400pool_1000ex_100ep_10steps_filr1e-1_gamma95'
-
     experiment = 'BF_FI_400pool_1000ex_50ep_50steps_filr1e-1_noFreg'
-
     ######################
     train_epochs = 50
     lr_interaction = 10 ** -1
@@ -356,23 +348,17 @@ if __name__ == '__main__':
     gamma = 0.95
     sigma_alpha = 3.0
 
-
     debug = False
     plotting = False
     show = False
 
     interaction_model = Interaction().to(device=0)
     interaction_optimizer = optim.Adam(interaction_model.parameters(), lr=lr_interaction)
-
     # F_0_scheduler = optim.lr_scheduler.ExponentialLR(interaction_optimizer, gamma=gamma)
-
     sigma_scheduler = optim.lr_scheduler.ExponentialLR(interaction_optimizer, gamma=gamma)
-
     dockingFFT = TorchDockingFFT(num_angles=1, angle=None, swap_plot_quadrants=False, debug=debug)
     docking_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0)
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
-
-    # continue_epochs = 1
     ######################
     ### Train model from beginning
     EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
@@ -382,7 +368,7 @@ if __name__ == '__main__':
     # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
     #                              ).run_trainer(resume_training=True, resume_epoch=13, train_epochs=27,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
-    #
+
     ### Evaluate model at chosen epoch
     eval_model = SamplingModel(dockingFFT, num_angles=360, sample_steps=1, FI=True, debug=debug).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0) ## eval with monte carlo
@@ -390,6 +376,6 @@ if __name__ == '__main__':
                                   ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
-    ### Plot free energy distributions with learned F_0 decision threshold
+    ### Plot loss and free energy distributions with learned F_0 decision threshold
     FIPlotter(experiment).plot_loss()
     FIPlotter(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)

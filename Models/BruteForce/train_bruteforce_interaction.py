@@ -120,7 +120,6 @@ class BruteForceInteractionTrainer:
             FN += 1
         elif p < threshold and a < threshold:
             TN += 1
-        # print('returning', TP, FP, TN, FN)
         return TP, FP, TN, FN
 
     def train_model(self, train_epochs, train_stream, valid_stream, test_stream, resume_training=False,
@@ -337,21 +336,14 @@ if __name__ == '__main__':
     train_stream = get_interaction_stream(trainset + '.pkl', batch_size=batch_size, number_of_pairs=number_of_pairs)
     valid_stream = get_interaction_stream(validset + '.pkl', batch_size=1, number_of_pairs=number_of_pairs)
     test_stream = get_interaction_stream(testset + '.pkl', batch_size=1, number_of_pairs=number_of_pairs)
-
     ######################
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_1000ex50ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_2000ex50ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_5000ex30ep'
-
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_10000ex30ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_20000ex30ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_20000ex30ep'
-
-    # experiment = 'BF_FI_400pool_1000ex_100ep_filr1e-1_noFreg'
-
     experiment = 'BF_FI_400pool_100pairs_100ep_filr1e-1_noFreg'
-
-
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -376,6 +368,6 @@ if __name__ == '__main__':
                                  ).run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
                                                resume_training=True, resume_epoch=train_epochs)
 
-    ### Plot free energy distributions with learned F_0 decision threshold
+    ### Plot loss and free energy distributions with learned F_0 decision threshold
     FIPlotter(experiment).plot_loss(show=True)
     FIPlotter(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)

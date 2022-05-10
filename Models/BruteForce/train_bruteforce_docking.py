@@ -91,11 +91,9 @@ class BruteForceDockingTrainer:
 
         ### Continue training on existing model?
         start_epoch = self.resume_training_or_not(resume_training, resume_epoch)
-
         num_epochs = start_epoch + train_epochs
 
         for epoch in range(start_epoch, num_epochs):
-
             checkpoint_dict = {
                 'epoch': epoch,
                 'state_dict': self.model.state_dict(),
@@ -211,6 +209,7 @@ if __name__ == '__main__':
     ### testing set
     testset = '../../Datasets/docking_test_400pool'
     #########################
+
     #### initialization torch settings
     random_seed = 42
     np.random.seed(random_seed)
@@ -221,6 +220,7 @@ if __name__ == '__main__':
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     ######################
+
     batch_size = 1
     max_size = 1000
     if batch_size > 1:
@@ -244,27 +244,16 @@ if __name__ == '__main__':
     BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
         train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
 
-    # # warm-up ^^^
-    # import torch.autograd.profiler as profiler
-    #
-    # with profiler.profile(with_stack=True, profile_memory=True) as prof:
-    #     BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
-    #         train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
-    #
-    # # print(prof.key_averages(group_by_stack_n=5).table(sort_by='self_cpu_time_total', row_limit=5))
-    # print(prof.key_averages().table())
-
     ### Resume training model at chosen epoch
     # BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
     #     train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
     #     resume_training=True, resume_epoch=13, train_epochs=17)
-
 
     # ### Evaluate model on chosen dataset only and plot at chosen epoch and dataset frequency
     # BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
     #         train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
     #         resume_training=True, resume_epoch=15, train_epochs=1)
 
-    ## Plot loss from current experiment
-    IPPlotter(experiment).plot_loss()
+    ## Plot loss and RMSDs from current experiment
+    IPPlotter(experiment).plot_loss(show=True)
     IPPlotter(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)

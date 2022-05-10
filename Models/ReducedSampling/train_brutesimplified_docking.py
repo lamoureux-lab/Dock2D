@@ -301,14 +301,11 @@ if __name__ == '__main__':
     valid_stream = get_docking_stream(validset + '.pkl', batch_size=1, max_size=max_size)
     test_stream = get_docking_stream(testset + '.pkl', batch_size=1, max_size=max_size)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
-
     ######################
     # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_30ep'
     # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_5ep'
     # experiment = 'BS_IP_FINAL_DATASET_400pool_ALLex_30ep'
-
     experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_10ep'
-
     ######################
     train_epochs = 10
     lr = 10 ** -2
@@ -324,7 +321,17 @@ if __name__ == '__main__':
     ### Train model from beginning
     # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, debug=debug).run_trainer(train_epochs, train_stream=train_stream)
 
-    ## Brute force eval and plotting
+    ### Resume training model at chosen epoch
+    # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, plotting=True, debug=debug).run_trainer(
+    #     train_epochs=1, train_stream=train_stream, valid_stream=None, test_stream=None,
+    #     resume_training=True, resume_epoch=train_epochs)
+
+    ### Resume training for validation sets
+    # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, plotting=plotting, debug=debug).run_trainer(
+    #     train_epochs=1, train_stream=None, valid_stream=valid_stream, #test_stream=valid_stream,
+    #     resume_training=True, resume_epoch=train_epochs)
+
+    ## Brute force evaluation and plotting
     start = train_epochs-1
     stop = train_epochs
     eval_angles = 360
@@ -337,16 +344,6 @@ if __name__ == '__main__':
             train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
             resume_training=True, resume_epoch=epoch)
 
-    ## Plot loss from current experiment
+    ## Plot loss and RMSDs from current experiment
     IPPlotter(experiment).plot_loss(ylim=None)
     IPPlotter(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
-
-    ### Resume training model at chosen epoch
-    # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, plotting=True, debug=debug).run_trainer(
-    #     train_epochs=1, train_stream=train_stream, valid_stream=None, test_stream=None,
-    #     resume_training=True, resume_epoch=train_epochs)
-
-    ### Resume training for validation sets
-    # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, plotting=plotting, debug=debug).run_trainer(
-    #     train_epochs=1, train_stream=None, valid_stream=valid_stream, #test_stream=valid_stream,
-    #     resume_training=True, resume_epoch=train_epochs)
