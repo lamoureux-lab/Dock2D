@@ -7,8 +7,17 @@ Welcome to Dock2D's documentation!
 ==================================
 
 .. autoclass:: DeepProteinDocking2D.Models.model_docking.Docking
-   :members: forward,
-   :special-members: __init__,
+   :special-members: __init__, forward
+
+.. autoclass:: DeepProteinDocking2D.Models.model_interaction.Interaction
+   :special-members: __init__, forward
+
+.. autoclass:: DeepProteinDocking2D.DatasetGeneration.Protein.Protein
+   :special-members: __init__
+   :members: generateConvex, generateConcave
+
+
+
 
 .. toctree::
    :maxdepth: 2
