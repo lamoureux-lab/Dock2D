@@ -61,7 +61,7 @@ class BruteSimplifiedDockingTrainer:
         self.eval_freq = 1
         self.save_freq = 1
         self.model_savepath = 'Log/saved_models/'
-        self.logfile_savepath = 'Log/losses/'
+        self.logfile_savepath = 'Log/losses/IP_loss/'
         self.plot_freq = Docking().plot_freq
 
         self.log_header = 'Epoch\tLoss\trmsd\n'
@@ -75,13 +75,14 @@ class BruteSimplifiedDockingTrainer:
         self.optimizer = cur_optimizer
         self.experiment = cur_experiment
 
-        ## sample buffer for MC eval on ideal learned energy surface
+        ## sample buffer for BF or MC eval on ideal learned energy surface
+        self.evalbuffer = SampleBuffer(num_examples=sample_buffer_length)
+
         self.MC_eval = MC_eval
         self.MC_eval_num_epochs = MC_eval_num_epochs
         if self.MC_eval:
             self.eval_epochs = self.MC_eval_num_epochs
             self.sig_alpha = sigma_scheduler.get_last_lr()[0]
-            self.evalbuffer = SampleBuffer(num_examples=sample_buffer_length)
             print('sigma alpha', self.sig_alpha)
         else:
             self.eval_epochs = 1
@@ -299,14 +300,17 @@ if __name__ == '__main__':
     train_stream = get_docking_stream(trainset + '.pkl', batch_size, max_size=max_size)
     valid_stream = get_docking_stream(validset + '.pkl', batch_size=1, max_size=max_size)
     test_stream = get_docking_stream(testset + '.pkl', batch_size=1, max_size=max_size)
+    sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
 
     ######################
     # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_30ep'
-    experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_5ep'
+    # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_5ep'
     # experiment = 'BS_IP_FINAL_DATASET_400pool_ALLex_30ep'
 
+    experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_10ep'
+
     ######################
-    train_epochs = 5
+    train_epochs = 10
     lr = 10 ** -2
     debug = False
     plotting = False
@@ -329,13 +333,13 @@ if __name__ == '__main__':
         ### Evaluate model using all 360 angles (or less).
         if stop-1 == epoch:
             plotting = False
-            BruteSimplifiedDockingTrainer(dockingFFT, eval_model, optimizer, experiment, plotting=plotting).run_trainer(
+            BruteSimplifiedDockingTrainer(dockingFFT, eval_model, optimizer, experiment, plotting=plotting, sample_buffer_length=sample_buffer_length).run_trainer(
             train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
             resume_training=True, resume_epoch=epoch)
 
     ## Plot loss from current experiment
     IPPlotter(experiment).plot_loss(ylim=None)
-    IPPlotter(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show, eval_only=True)
+    IPPlotter(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
 
     ### Resume training model at chosen epoch
     # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, plotting=True, debug=debug).run_trainer(

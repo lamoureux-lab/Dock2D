@@ -22,7 +22,7 @@ class BruteForceDockingTrainer:
         self.eval_freq = 1
         self.save_freq = 1
         self.model_savepath = 'Log/saved_models/'
-        self.logfile_savepath = 'Log/losses/'
+        self.logfile_savepath = 'Log/losses/IP_loss/'
         self.plot_freq = Docking().plot_freq
 
         self.log_header = 'Epoch\tLoss\tRMSD\n'

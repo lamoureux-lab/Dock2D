@@ -245,7 +245,7 @@ class EnergyBasedInteractionTrainer:
 
         loss_logfile = self.logfile_savepath + self.logloss_prefix + self.experiment + '.txt'
         avg_loss = np.average(stream_loss, axis=0)[0, :]
-        print('\nEpoch', epoch, 'Train Loss: epoch, loss', avg_loss)
+        print('\nEpoch', epoch, 'Train Loss: loss', avg_loss[0])
         with open(loss_logfile, 'a') as fout:
             fout.write(self.loss_log_format % (epoch, avg_loss[0]))
 

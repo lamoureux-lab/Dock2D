@@ -32,7 +32,7 @@ class BruteForceInteractionTrainer:
         self.save_freq = 1
         ## set paths
         self.model_savepath = 'Log/saved_models/'
-        self.logfile_savepath = 'Log/losses/'
+        self.logfile_savepath = 'Log/losses/FI_loss/'
         self.logtraindF_prefix = 'log_deltaF_TRAINset_epoch'
         self.logloss_prefix = 'log_loss_TRAINset_'
         self.logAPR_prefix = 'log_validAPR_'
@@ -148,6 +148,9 @@ class BruteForceInteractionTrainer:
 
             if train_stream:
                 self.run_epoch(train_stream, epoch, training=True)
+
+                # plot loss and free energy distributions
+                FIPlotter(self.experiment).plot_loss(show=False)
                 FIPlotter(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
                 # F_0_scheduler.step()
@@ -360,12 +363,12 @@ if __name__ == '__main__':
     experiment = training_case + '_' + experiment
     #####################
     ### Train model from beginning
-    BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
-                                 ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
+    #                              ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
-    # BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
-    #                              ).run_trainer(resume_training=True, resume_epoch=400, train_epochs=100, train_stream=train_stream, valid_stream=None, test_stream=None)
+    BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
+                                 ).run_trainer(resume_training=True, resume_epoch=60, train_epochs=40, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
 
     ### Validate model at chosen epoch
@@ -374,5 +377,5 @@ if __name__ == '__main__':
                                                resume_training=True, resume_epoch=train_epochs)
 
     ### Plot free energy distributions with learned F_0 decision threshold
-    FIPlotter(experiment).plot_loss()
+    FIPlotter(experiment).plot_loss(show=True)
     FIPlotter(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
