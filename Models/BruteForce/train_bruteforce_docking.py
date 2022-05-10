@@ -144,7 +144,7 @@ class BruteForceDockingTrainer:
         self.model.eval()
         torch.save(state, filename)
 
-    def load_ckp(self, checkpoint_fpath):
+    def load_checkpoint(self, checkpoint_fpath):
         self.model.eval()
         checkpoint = torch.load(checkpoint_fpath)
         self.model.load_state_dict(checkpoint['state_dict'], strict=True)
@@ -152,12 +152,20 @@ class BruteForceDockingTrainer:
         return self.model, self.optimizer, checkpoint['epoch']
 
     def check_model_gradients(self):
+        '''
+        Check current model parameters and gradients in-place.
+        Specifically if weights are frozen or updating
+        '''
         for n, p in self.model.named_parameters():
             if p.requires_grad:
                 print('name', n, 'param', p, 'gradient', p.grad)
 
     ## Unused, SE2 net has own Kaiming He weight initialization.
     def weights_init(self):
+        '''
+        Initialize weights for SE(2)-equivariant convolutional network.
+        Generally unused for SE(2) network, as e2nn library has its own Kaiming He weight initialization.
+        '''
         if isinstance(self.model, torch.nn.Conv2d):
             print('updating convnet weights to kaiming uniform initialization')
             torch.nn.init.kaiming_uniform_(self.model.weight)
@@ -166,7 +174,7 @@ class BruteForceDockingTrainer:
     def resume_training_or_not(self, resume_training, resume_epoch):
         if resume_training:
             ckp_path = self.model_savepath + self.experiment + str(resume_epoch) + '.th'
-            self.model, self.optimizer, start_epoch = self.load_ckp(ckp_path)
+            self.model, self.optimizer, start_epoch = self.load_checkpoint(ckp_path)
             start_epoch += 1
 
             # print(self.model)
