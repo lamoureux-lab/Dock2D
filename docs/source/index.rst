@@ -19,14 +19,14 @@ Cite Us
 -------
 
 This code is part of the work done in `our paper <https://arxiv.org/abs/>`_ .
-Please, cite us if you use this code in your own work::
+Please cite us if you use this code in your own work::
 
-    @article{Dock2D,
-        title={{Dock2D: Toy datasets for the molecular recognition problem}},
-        author={Bhadra-Lobo, Derevyanko, Lamoureux},
-        booktitle={TBA},
-        year={2022},
-    }
+@article{Dock2D,
+  title={{Dock2D: Toy datasets for the molecular recognition problem}},
+  author={Bhadra-Lobo, Derevyanko, Lamoureux},
+  booktitle={TBA},
+  year={2022},
+}
 
 Indices and tables
 ==================
