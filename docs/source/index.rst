@@ -7,7 +7,7 @@ Welcome to Dock2D's documentation!
 ==================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    api/Dock2D.DatasetGeneration
