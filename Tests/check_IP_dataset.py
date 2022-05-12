@@ -1,4 +1,4 @@
-from DeepProteinDocking2D.Utility.utility_functions import *
+from Dock2D.Utility.utility_functions import *
 
 if __name__ == '__main__':
     set = 'toy_concave_data/interaction_data_train'

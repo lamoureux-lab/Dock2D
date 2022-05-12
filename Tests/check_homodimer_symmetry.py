@@ -1,11 +1,11 @@
 import torch
-from DeepProteinDocking2D.Utility.torchDataLoader import get_docking_stream
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 
-from DeepProteinDocking2D.Utility.torchDockingFFT import TorchDockingFFT
-from DeepProteinDocking2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.torchDataLoader import get_docking_stream
+from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.utility_functions import UtilityFuncs
 
 if __name__ == "__main__":
 

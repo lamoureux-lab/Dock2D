@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from DeepProteinDocking2D.DatasetGeneration.ProteinPool import ProteinPool, Protein
 import seaborn as sea
 sea.set_style("whitegrid")
 from collections import Counter
@@ -10,6 +9,7 @@ from matplotlib.ticker import FormatStrFormatter
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 
+from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, Protein
 
 class ShapeDistributions:
     def __init__(self, protein_pool, dataset_name, show=False):

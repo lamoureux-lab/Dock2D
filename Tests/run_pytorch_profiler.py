@@ -1,7 +1,7 @@
 from torch import optim
 import torch.autograd.profiler as profiler
 
-from DeepProteinDocking2D.Models.BruteForce.train_bruteforce_docking import BruteForceDockingTrainer, Docking, get_docking_stream
+from Dock2D.Models.BruteForce.train_bruteforce_docking import BruteForceDockingTrainer, Docking, get_docking_stream
 
 experiment = 'BF_IP_FINAL_DATASET_400pool_1000ex_30ep'
 

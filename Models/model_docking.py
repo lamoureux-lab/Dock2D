@@ -1,11 +1,8 @@
 import torch
 from torch import nn
-import torch.nn.functional as F
-import numpy as np
 
-import matplotlib.pyplot as plt
-from DeepProteinDocking2D.Utility.torchDockingFFT import TorchDockingFFT
-from DeepProteinDocking2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.utility_functions import UtilityFuncs
 from e2cnn import nn as enn
 from e2cnn import gspaces
 

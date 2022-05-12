@@ -1,4 +1,4 @@
-from DeepProteinDocking2D.Models.ReducedSampling.train_brutesimplified_docking import *
+from Dock2D.Models.ReducedSampling.train_brutesimplified_docking import *
 
 if __name__ == '__main__':
     #################################################################################

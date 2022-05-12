@@ -5,7 +5,7 @@ from matplotlib import colors
 import numpy as np
 import torch
 from torch.nn import functional as F
-from DeepProteinDocking2D.Utility.validation_metrics import RMSD
+from Dock2D.Utility.validation_metrics import RMSD
 
 
 class UtilityFuncs():

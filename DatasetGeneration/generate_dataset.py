@@ -2,11 +2,11 @@ import torch
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from os.path import exists
-from DeepProteinDocking2D.DatasetGeneration.ProteinPool import ProteinPool, ParamDistribution
-from DeepProteinDocking2D.Utility.torchDockingFFT import TorchDockingFFT
-from DeepProteinDocking2D.Utility.utility_functions import UtilityFuncs
-from DeepProteinDocking2D.Utility.plot_FI import FIPlotter
-from DeepProteinDocking2D.Tests.check_shape_distributions import ShapeDistributions
+from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, ParamDistribution
+from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.plot_FI import FIPlotter
+from Dock2D.Tests.check_shape_distributions import ShapeDistributions
 
 
 def generate_shapes(params, pool_savepath, pool_savefile, num_proteins=500):

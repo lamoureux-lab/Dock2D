@@ -5,7 +5,7 @@ import _pickle as pkl
 import seaborn as sea
 sea.set_style("whitegrid")
 
-from DeepProteinDocking2D.DatasetGeneration.Protein import Protein
+from Dock2D.DatasetGeneration.Protein import Protein
 from tqdm import tqdm
 import inspect
 

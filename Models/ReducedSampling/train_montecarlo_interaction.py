@@ -6,13 +6,13 @@ sys.path.append('/home/sb1638/') ## path for cluster
 
 import numpy as np
 from tqdm import tqdm
-from DeepProteinDocking2D.Utility.torchDataLoader import get_interaction_stream
-from DeepProteinDocking2D.Utility.torchDockingFFT import TorchDockingFFT
-from DeepProteinDocking2D.Models.BruteForce.train_bruteforce_interaction import Interaction
+from Dock2D.Utility.torchDataLoader import get_interaction_stream
+from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
+from Dock2D.Models.BruteForce.train_bruteforce_interaction import Interaction
 
-from DeepProteinDocking2D.Models.ReducedSampling.model_sampling import SamplingModel
-from DeepProteinDocking2D.Utility.validation_metrics import APR
-from DeepProteinDocking2D.Utility.plot_FI import FIPlotter
+from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
+from Dock2D.Utility.validation_metrics import APR
+from Dock2D.Utility.plot_FI import FIPlotter
 
 
 class SampleBuffer:
