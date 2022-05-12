@@ -9,10 +9,11 @@ sys.path.append('/home/sb1638/')
 import numpy as np
 from tqdm import tqdm
 from Dock2D.Utility.torchDataLoader import get_interaction_stream
-from Dock2D.Models.model_interaction import Interaction
 from Dock2D.Utility.validation_metrics import APR
-from Dock2D.Models.model_docking import Docking
 from Dock2D.Utility.plot_FI import FIPlotter
+from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Models.model_interaction import Interaction
+from Dock2D.Models.model_docking import Docking
 
 
 class BruteForceInteractionTrainer:
@@ -56,6 +57,8 @@ class BruteForceInteractionTrainer:
         self.wReg = 1e-5
         self.zero_value = torch.zeros(1).squeeze().cuda()
 
+        self.UtilityFuncs = UtilityFuncs()
+
     def run_model(self, data, training=True):
         receptor, ligand, gt_interact = data
 
@@ -75,8 +78,8 @@ class BruteForceInteractionTrainer:
         ### check parameters and gradients
         ### if weights are frozen or updating
         if self.debug:
-            self.check_model_gradients(self.docking_model)
-            self.check_model_gradients(self.interaction_model)
+            self.UtilityFuncs.check_model_gradients(self.docking_model)
+            self.UtilityFuncs.check_model_gradients(self.interaction_model)
 
         #### Loss functions
         BCEloss = torch.nn.BCELoss()
@@ -220,11 +223,11 @@ class BruteForceInteractionTrainer:
         if resume_training:
             print('Loading docking model at', str(resume_epoch))
             docking_ckp_path = self.model_savepath+'docking_' + self.experiment + str(resume_epoch) + '.th'
-            self.docking_model, self.docking_optimizer, _ = self.load_ckp(
+            self.docking_model, self.docking_optimizer, _ = self.load_checkpoint(
                 docking_ckp_path, self.docking_model, self.docking_optimizer)
             print('Loading interaction model at', str(resume_epoch))
             interaction_ckp_path = self.model_savepath + self.experiment + str(resume_epoch) + '.th'
-            self.interaction_model, self.interaction_optimizer, start_epoch = self.load_ckp(
+            self.interaction_model, self.interaction_optimizer, start_epoch = self.load_checkpoint(
                 interaction_ckp_path, self.interaction_model, self.interaction_optimizer)
 
             start_epoch += 1
@@ -253,18 +256,12 @@ class BruteForceInteractionTrainer:
         torch.save(state, filename)
 
     @staticmethod
-    def load_ckp(checkpoint_fpath, model, optimizer):
+    def load_checkpoint(checkpoint_fpath, model, optimizer):
         model.eval()
         checkpoint = torch.load(checkpoint_fpath)
         model.load_state_dict(checkpoint['state_dict'], strict=True)
         optimizer.load_state_dict(checkpoint['optimizer'])
         return model, optimizer, checkpoint['epoch']
-
-    @staticmethod
-    def check_model_gradients(model):
-        for n, p in model.named_parameters():
-            if p.requires_grad:
-                print('Name', n, '\nParam', p, '\nGradient', p.grad)
 
     def set_docking_model_state(self):
         # CaseA: train with docking model frozen

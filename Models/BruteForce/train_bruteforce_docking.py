@@ -36,6 +36,8 @@ class BruteForceDockingTrainer:
         self.optimizer = cur_optimizer
         self.experiment = cur_experiment
 
+        self.UtilityFuncs = UtilityFuncs()
+
     def run_model(self, data, training=True, pos_idx=0, stream_name='trainset'):
         receptor, ligand, gt_rot, gt_txy = data
 
@@ -79,7 +81,7 @@ class BruteForceDockingTrainer:
         if self.plotting and not training:
             if pos_idx % self.plot_freq == 0:
                 with torch.no_grad():
-                    UtilityFuncs().plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot, pred_txy, pos_idx,stream_name)
+                    self.UtilityFuncs.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot, pred_txy, pos_idx,stream_name)
 
         return loss.item(), rmsd_out.item()
 
@@ -150,26 +152,6 @@ class BruteForceDockingTrainer:
         self.model.load_state_dict(checkpoint['state_dict'], strict=True)
         self.optimizer.load_state_dict(checkpoint['optimizer'])
         return self.model, self.optimizer, checkpoint['epoch']
-
-    def check_model_gradients(self):
-        '''
-        Check current model parameters and gradients in-place.
-        Specifically if weights are frozen or updating
-        '''
-        for n, p in self.model.named_parameters():
-            if p.requires_grad:
-                print('name', n, 'param', p, 'gradient', p.grad)
-
-    ## Unused, SE2 net has own Kaiming He weight initialization.
-    def weights_init(self):
-        '''
-        Initialize weights for SE(2)-equivariant convolutional network.
-        Generally unused for SE(2) network, as e2nn library has its own Kaiming He weight initialization.
-        '''
-        if isinstance(self.model, torch.nn.Conv2d):
-            print('updating convnet weights to kaiming uniform initialization')
-            torch.nn.init.kaiming_uniform_(self.model.weight)
-            # torch.nn.init.kaiming_normal_(model.weight)
 
     def resume_training_or_not(self, resume_training, resume_epoch):
         if resume_training:

@@ -45,6 +45,25 @@ class UtilityFuncs():
             fout.write(str(example)[1:-1] + '\n')
         fout.close()
 
+    def check_model_gradients(self, model):
+        '''
+        Check current model parameters and gradients in-place.
+        Specifically if weights are frozen or updating
+        '''
+        for n, p in model.named_parameters():
+            if p.requires_grad:
+                print('name', n, 'param', p, 'gradient', p.grad)
+
+    def weights_init(self, model):
+        '''
+        Initialize weights for SE(2)-equivariant convolutional network.
+        Generally unused for SE(2) network, as e2nn library has its own Kaiming He weight initialization.
+        '''
+        if isinstance(model, torch.nn.Conv2d):
+            print('updating convnet weights to kaiming uniform initialization')
+            torch.nn.init.kaiming_uniform_(model.weight)
+            # torch.nn.init.kaiming_normal_(model.weight)
+
     def plot_coords(self, ax, poly, plot_alpha=0.25):
         x, y = poly.exterior.xy
         ax.fill(x, y, alpha=plot_alpha)

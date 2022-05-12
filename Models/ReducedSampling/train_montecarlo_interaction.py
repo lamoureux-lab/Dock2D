@@ -8,60 +8,13 @@ import numpy as np
 from tqdm import tqdm
 from Dock2D.Utility.torchDataLoader import get_interaction_stream
 from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
-from Dock2D.Models.BruteForce.train_bruteforce_interaction import Interaction
-
-from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
 from Dock2D.Utility.validation_metrics import APR
 from Dock2D.Utility.plot_FI import FIPlotter
+from Dock2D.Utility.sampleBuffer import SampleBuffer
+from Dock2D.Utility.utility_functions import UtilityFuncs
 
-
-class SampleBuffer:
-    def __init__(self, num_examples, max_pos=100):
-        self.num_examples = num_examples
-        self.max_pos = max_pos
-        self.buffer = {}
-        for i in range(num_examples):
-            self.buffer[i] = []
-
-    def __len__(self, i):
-        return len(self.buffer[i])
-
-    def push(self, alphas, index):
-        alphas = alphas.clone().detach().float().to(device='cpu')
-        for alpha, idx in zip(alphas, index):
-            i = idx.item()
-            self.buffer[i].append((alpha))
-            if len(self.buffer[i]) > self.max_pos:
-                self.buffer[i].pop(0)
-            # print('buffer push\n', self.buffer[i])
-
-    def get(self, index, samples_per_example, device='cuda', training=True):
-        alphas = []
-        if not training:
-            # print('EVAL zeros init')
-            alpha = torch.zeros(samples_per_example, 1)
-            alphas.append(alpha)
-        else:
-            for idx in index:
-                i = idx.item()
-                buffer_idx_len = len(self.buffer[i])
-                if buffer_idx_len < samples_per_example:
-                    # print('epoch 0 init')
-                    alpha = torch.zeros(samples_per_example, 1)
-                    alphas.append(alpha)
-                else:
-                    # print('continuous LD picking previous rotation')
-                    # alpha = torch.rand(samples_per_example, 1) * 2 * np.pi - np.pi
-                    alpha = self.buffer[i][-1]
-                    alphas.append(alpha)
-                # print('buffer get\n', self.buffer[i])
-
-        # print('\nalpha', alpha)
-        # print('dr', dr)
-
-        alphas = torch.stack(alphas, dim=0).to(device=device)
-
-        return alphas
+from Dock2D.Models.BruteForce.train_bruteforce_interaction import Interaction
+from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
 
 
 class EnergyBasedInteractionTrainer:
@@ -102,6 +55,8 @@ class EnergyBasedInteractionTrainer:
         self.zero_value = torch.zeros(1).squeeze().cuda()
         self.sigma_scheduler_initial = sigma_scheduler.get_last_lr()[0]
 
+        self.UtilityFuncs = UtilityFuncs()
+
     def run_model(self, data, pos_idx=torch.tensor([0]), training=True, stream_name='trainset'):
         receptor, ligand, gt_interact = data
 
@@ -128,8 +83,8 @@ class EnergyBasedInteractionTrainer:
         ### check parameters and gradients
         ### if weights are frozen or updating
         if self.debug:
-            self.check_model_gradients(self.docking_model)
-            self.check_model_gradients(self.interaction_model)
+            self.UtilityFuncs.check_model_gradients(self.docking_model)
+            self.UtilityFuncs.check_model_gradients(self.interaction_model)
 
         #### Loss functions
         BCEloss = torch.nn.BCELoss()
@@ -258,19 +213,19 @@ class EnergyBasedInteractionTrainer:
         if resume_training:
             print('Loading docking model at', str(resume_epoch))
             ckp_path = self.model_savepath+'docking_' + self.experiment + str(resume_epoch) + '.th'
-            self.docking_model, self.docking_optimizer, _ = self.load_ckp(ckp_path, self.docking_model, self.docking_optimizer)
+            self.docking_model, self.docking_optimizer, _ = self.load_checkpoint(ckp_path, self.docking_model, self.docking_optimizer)
             print('Loading interaction model at', str(resume_epoch))
             ckp_path = self.model_savepath + self.experiment + str(resume_epoch) + '.th'
-            self.interaction_model, self.interaction_optimizer, start_epoch = self.load_ckp(ckp_path, self.interaction_model, self.interaction_optimizer)
+            self.interaction_model, self.interaction_optimizer, start_epoch = self.load_checkpoint(ckp_path, self.interaction_model, self.interaction_optimizer)
 
             start_epoch += 1
 
             print('\ndocking model:\n', self.docking_model)
             ## print model and params being loaded
-            self.check_model_gradients(self.docking_model)
+            self.UtilityFuncs.check_model_gradients(self.docking_model)
             print('\ninteraction model:\n', self.interaction_model)
             ## print model and params being loaded
-            self.check_model_gradients(self.interaction_model)
+            self.UtilityFuncs.check_model_gradients(self.interaction_model)
 
             print('\nLOADING MODEL AT EPOCH', start_epoch, '\n')
         else:
@@ -289,18 +244,12 @@ class EnergyBasedInteractionTrainer:
         torch.save(state, filename)
 
     @staticmethod
-    def load_ckp(checkpoint_fpath, model, optimizer):
+    def load_checkpoint(checkpoint_fpath, model, optimizer):
         model.eval()
         checkpoint = torch.load(checkpoint_fpath)
         model.load_state_dict(checkpoint['state_dict'], strict=True)
         optimizer.load_state_dict(checkpoint['optimizer'])
         return model, optimizer, checkpoint['epoch']
-
-    @staticmethod
-    def check_model_gradients(model):
-        for n, p in model.named_parameters():
-            if p.requires_grad:
-                print('Name', n, '\nParam', p, '\nGradient', p.grad)
 
     def run_trainer(self, train_epochs, train_stream=None, valid_stream=None, test_stream=None, resume_training=False, resume_epoch=0):
         self.train_model(train_epochs, train_stream, valid_stream, test_stream,

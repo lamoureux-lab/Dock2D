@@ -5,51 +5,15 @@ import sys
 sys.path.append('/home/sb1638/') ## path for cluster
 
 import numpy as np
-
 from tqdm import tqdm
 from Dock2D.Utility.torchDataLoader import get_docking_stream
 from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
-from Dock2D.Models.BruteForce.train_bruteforce_docking import Docking
 from Dock2D.Utility.utility_functions import UtilityFuncs
 from Dock2D.Utility.validation_metrics import RMSD
 from Dock2D.Utility.plot_IP import IPPlotter
+from Dock2D.Utility.sampleBuffer import SampleBuffer
+from Dock2D.Models.BruteForce.train_bruteforce_docking import Docking
 from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
-
-
-class SampleBuffer:
-    def __init__(self, num_examples, max_pos=100):
-        self.num_examples = num_examples
-        self.max_pos = max_pos
-        self.buffer = {}
-        for i in range(num_examples):
-            self.buffer[i] = []
-
-    def __len__(self, i):
-        return len(self.buffer[i])
-
-    def push(self, alphas, index):
-        alphas = alphas.clone().detach().float().to(device='cpu')
-        for alpha, idx in zip(alphas, index):
-            i = idx.item()
-            self.buffer[i].append((alpha))
-            if len(self.buffer[i]) > self.max_pos:
-                self.buffer[i].pop(0)
-
-    def get(self, index, samples_per_example, device='cuda'):
-        alphas = []
-        for idx in index:
-            i = idx.item()
-            buffer_idx_len = len(self.buffer[i])
-            if buffer_idx_len < samples_per_example:
-                alpha = torch.rand(samples_per_example, 1) * 2 * np.pi - np.pi
-                alphas.append(alpha)
-            else:
-                alpha = self.buffer[i][-1]
-                alphas.append(alpha)
-
-        alphas = torch.stack(alphas, dim=0).to(device=device)
-
-        return alphas
 
 
 class BruteSimplifiedDockingTrainer:
@@ -88,6 +52,8 @@ class BruteSimplifiedDockingTrainer:
             self.eval_epochs = 1
             self.sig_alpha = 1
 
+        self.UtilityFuncs = UtilityFuncs()
+
     def run_model(self, data, training=True, pos_idx=0, stream_name='trainset'):
         receptor, ligand, gt_rot, gt_txy = data
 
@@ -125,7 +91,7 @@ class BruteSimplifiedDockingTrainer:
         ### check parameters and gradients
         ### if weights are frozen or updating
         if self.debug:
-            self.check_model_gradients()
+            self.UtilityFuncs.check_model_gradients(self.model)
 
         if training:
             #### Loss functions
@@ -139,7 +105,7 @@ class BruteSimplifiedDockingTrainer:
             self.model.eval()
             if self.plotting and pos_idx % self.plot_freq == 0:
                 with torch.no_grad():
-                    UtilityFuncs().plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot.squeeze(), pred_txy.squeeze(), pos_idx, stream_name)
+                    UtilityFuncs.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot.squeeze(), pred_txy.squeeze(), pos_idx, stream_name)
 
         return loss.item(), rmsd_out.item()
 
@@ -213,29 +179,17 @@ class BruteSimplifiedDockingTrainer:
         self.model.eval()
         torch.save(state, filename)
 
-    def load_ckp(self, checkpoint_fpath):
+    def load_checkpoint(self, checkpoint_fpath):
         self.model.eval()
         checkpoint = torch.load(checkpoint_fpath)
         self.model.load_state_dict(checkpoint['state_dict'], strict=True)
         self.optimizer.load_state_dict(checkpoint['optimizer'])
         return self.model, self.optimizer, checkpoint['epoch']
 
-    def check_model_gradients(self):
-        for n, p in self.model.named_parameters():
-            if p.requires_grad:
-                print('name', n, 'param', p, 'gradient', p.grad)
-
-    ## Unused SE2 net has own Kaiming He weight initialization.
-    def weights_init(self):
-        if isinstance(self.model, torch.nn.Conv2d):
-            print('updating convnet weights to kaiming uniform initialization')
-            torch.nn.init.kaiming_uniform_(self.model.weight)
-            # torch.nn.init.kaiming_normal_(model.weight)
-
     def resume_training_or_not(self, resume_training, resume_epoch):
         if resume_training:
             ckp_path = self.model_savepath + self.experiment + str(resume_epoch) + '.th'
-            self.model, self.optimizer, start_epoch = self.load_ckp(ckp_path)
+            self.model, self.optimizer, start_epoch = self.load_checkpoint(ckp_path)
             start_epoch += 1
 
             # print(self.model)
