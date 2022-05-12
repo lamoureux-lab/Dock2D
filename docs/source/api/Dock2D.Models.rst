@@ -1,14 +1,14 @@
 Models
 ======
 
-.. automodule:: DeepProteinDocking2D.Models
+.. automodule:: Dock2D.Models
    :no-members:
 
-.. autoclass:: DeepProteinDocking2D.Models.model_docking.Docking
+.. autoclass:: Dock2D.Models.model_docking.Docking
    :special-members: __init__, forward
    :undoc-members:
 
-.. autoclass:: DeepProteinDocking2D.Models.model_interaction.Interaction
+.. autoclass:: Dock2D.Models.model_interaction.Interaction
    :special-members: __init__, forward
    :undoc-members:
 

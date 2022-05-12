@@ -1,5 +1,5 @@
 Reduced Sampling
 ================
 
-.. automodule:: DeepProteinDocking2D.Models.ReducedSampling
+.. automodule:: Dock2D.Models.ReducedSampling
    :no-members:
