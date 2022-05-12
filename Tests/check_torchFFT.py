@@ -51,18 +51,24 @@ if __name__ == '__main__':
     gaussian_input1 = gaussian2D(boxsize, mean=mean1, sigma=sigma1, a=amp1)
     gaussian_input2 = gaussian2D(boxsize, mean=mean2, sigma=sigma2, a=amp2)
 
-    ### Torch v1.10 FFT calls
+    ### Torch >=v1.8 FFT call norms
     ## Normalization
     # norm = None
     norm = 'ortho'
     # norm = 'forward'
     # norm = 'backward'
 
+    correlation = True # else do correlation
+    # correlation = False # else do convolution
+
     cplx_G1 = torch.fft.rfft2(gaussian_input1, dim=(-2, -1), norm=norm)
     cplx_G2 = torch.fft.rfft2(gaussian_input2, dim=(-2, -1), norm=norm)
-    # gaussian_FFT = torch.fft.irfft2(torch.conj(cplx_G1) * torch.conj(cplx_G2), dim=(-2, -1), norm=norm) ## this performs a convolution of the two shapes
-    # gaussian_FFT = torch.fft.irfft2(cplx_G1 * cplx_G2, dim=(-2, -1), norm=norm) ## this also performs a convolution of the two shapes
-    gaussian_FFT = torch.fft.irfft2(cplx_G1 * torch.conj(cplx_G2), dim=(-2, -1), norm=norm) ## this performs a proper correlation (what we want)
+
+    if correlation:
+        gaussian_FFT = torch.fft.irfft2(cplx_G1 * torch.conj(cplx_G2), dim=(-2, -1), norm=norm) ## this performs a proper correlation (what we want)
+    else:
+        gaussian_FFT = torch.fft.irfft2(cplx_G1 * cplx_G2, dim=(-2, -1),norm=norm) ## this performs a convolution of the two shapes
+        # gaussian_FFT = torch.fft.irfft2(torch.conj(cplx_G1) * torch.conj(cplx_G2), dim=(-2, -1), norm=norm)   ## this also performs a fft of the two shapes
 
     ### Plotting 2D Gaussian inputs
     fig, ax = plt.subplots(1,5, figsize=(20,5))
@@ -72,25 +78,32 @@ if __name__ == '__main__':
     ax[1].set_title('Guassian2 '+'$\mu_2$='+str(mean2)+' $\sigma_1=$'+str(sigma2))
 
     ### Plotting Convolution Output
-    convolution = swap_quadrants(gaussian_FFT)
-    conv = ax[2].imshow(convolution, cmap=cmap, vmin=vmin, vmax=vmax)
+    fft = swap_quadrants(gaussian_FFT)
+    conv = ax[2].imshow(fft, cmap=cmap, vmin=vmin, vmax=vmax)
     ax[2].set_title(r'Gaussian1 $\bigstar$ Gaussian2')
 
     ### Checking with output distribution of ~N(mean1+mean2, sigma1^2 + sigma2^2)
     result_sigma = np.sqrt(sigma1**2+sigma2**2)
-    # result_mean = mean1 + mean2 ## used sum for convolution
-    result_mean = mean1 - mean2 ## use difference for correlation (correlation == -convolution)
+
+    if correlation:
+        ## use difference for correlation (correlation == -fft; sign shifted mean due to reverse order of kernel operations compared to convolution)
+        result_mean = mean1 - mean2
+        fft_output = 'correlation'
+    else:
+        result_mean = mean1 + mean2 ## used sum for fft
+        fft_output = 'convolution'
 
     gaussian_check = gaussian2D(boxsize, mean=result_mean, sigma=result_sigma, a=ampcheck)
     scaled_gaussiancheck = gaussian_check
     gaussian_summedvariance = ax[3].imshow(scaled_gaussiancheck, cmap=cmap, vmin=vmin, vmax=vmax)
-    ax[3].set_title('Check '+' $\mu_1+\mu_2$='+str(mean1+mean2) + ' $\sqrt{\sigma_1^2 + \sigma_2^2}=$'+str(result_sigma)[:3])
+    ax[3].set_title('Check '+' $\mu_1+\mu_2$='+str(result_mean) + ' $\sqrt{\sigma_1^2 + \sigma_2^2}=$'+str(result_sigma)[:3])
 
-    ## Difference between convolution output and gaussian check
-    diff = ax[4].imshow(convolution - gaussian_check, cmap=cmap, vmin=vmin, vmax=vmax)
+    ## Difference between fft output and gaussian check
+    diff = ax[4].imshow(fft - gaussian_check, cmap=cmap, vmin=vmin, vmax=vmax)
     ax[4].set_title(r'Convolution - expected Gaussian')
 
     ax[2].grid(color='w')
     ax[3].grid(color='w')
 
+    plt.savefig('Figs/check_torchFFT_'+fft_output)
     plt.show()
