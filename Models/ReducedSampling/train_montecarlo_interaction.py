@@ -294,7 +294,7 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE'
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE_logsumexp'
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_uniqueEnergies_zerosangleslist'
-    experiment = 'BF_FI_400pool_1000ex_50ep_50steps_uniqueEnergies_zerosangleslist'
+    experiment = 'BF_FI_400pool_1000ex_50ep_50steps_labmeetingcheck'
 
     ######################
     train_epochs = 50

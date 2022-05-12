@@ -74,8 +74,7 @@ class SamplingModel(nn.Module):
         self.IP_LD = IP_LD
 
         self.FI = FI
-        self.log_volume = torch.log(torch.tensor(100 ** 2))
-        self.slice_free_energy = torch.logsumexp(torch.zeros(100,100), dim=(0,1))
+        self.log_slice_volume = torch.log(torch.tensor(100 ** 2))
 
     def forward(self, alpha, receptor, ligand, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
@@ -149,7 +148,7 @@ class SamplingModel(nn.Module):
         self.docker.eval()
 
         betaE = -self.BETA * FFT_score
-        free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)) - self.log_volume)
+        free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)) - self.log_slice_volume)
 
         noise_alpha = torch.zeros_like(alpha)
         prob_list = []
@@ -168,7 +167,14 @@ class SamplingModel(nn.Module):
                                                       plot_count=plot_count, stream_name=stream_name,
                                                       plotting=plotting)
             betaE_new = -self.BETA * FFT_score_new
-            free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)) - self.log_volume)
+            free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)) - self.log_slice_volume)
+
+            deg_index_alpha = (((alpha_new * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
+            if free_energies_encountered[deg_index_alpha] != 0:
+                # print('re-encountered angle', deg_index_alpha)
+                # print(free_energies_encountered[deg_index_alpha])
+                continue
+            # print('index', i)
 
             if free_energy_new <= free_energy:
                 acceptance.append(1)
