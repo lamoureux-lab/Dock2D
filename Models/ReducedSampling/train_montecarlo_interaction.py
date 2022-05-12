@@ -119,11 +119,11 @@ class EnergyBasedInteractionTrainer:
         ### run model and loss calculation
         ##### call model
         alpha = self.buffer.get(pos_idx, samples_per_example=1)
-        energy, pred_rot, pred_txy, FFT_score_stack = self.docking_model(alpha, receptor, ligand, sig_alpha=self.sig_alpha, plot_count=pos_idx.item(),
+        free_energies_stack, pred_rot, pred_txy, fft_score_stack = self.docking_model(alpha, receptor, ligand, sig_alpha=self.sig_alpha, plot_count=pos_idx.item(),
                                                            stream_name=stream_name, plotting=self.plotting,
                                                            training=training)
         self.buffer.push(pred_rot, pos_idx)
-        pred_interact, deltaF, F, F_0 = self.interaction_model(FFT_score_stack.unsqueeze(0), plotting=self.plotting, debug=False)
+        pred_interact, deltaF, F, F_0 = self.interaction_model(fft_scores=None, free_energies=free_energies_stack, debug=False)
 
         ### check parameters and gradients
         ### if weights are frozen or updating
@@ -339,7 +339,14 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_1000ex50ep10step'
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_1000ex50ep100step'
     # experiment = 'BF_FI_400pool_1000ex_100ep_10steps_filr1e-1_gamma95'
-    experiment = 'BF_FI_400pool_1000ex_50ep_50steps_filr1e-1_noFreg'
+    # experiment = 'BF_FI_400pool_1000ex_50ep_50steps_filr1e-1_noFreg'
+
+    # experiment = 'BF_FI_400pool_1000ex_50ep_50steps_uniqueEnergies'
+    # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE'
+    # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE_logsumexp'
+    # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_uniqueEnergies_zerosangleslist'
+    experiment = 'BF_FI_400pool_1000ex_50ep_50steps_uniqueEnergies_zerosangleslist'
+
     ######################
     train_epochs = 50
     lr_interaction = 10 ** -1

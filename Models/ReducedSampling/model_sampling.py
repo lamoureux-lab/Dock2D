@@ -67,14 +67,15 @@ class SamplingModel(nn.Module):
         self.experiment = experiment
         self.sig_alpha = sig_alpha
         self.step_size = self.sig_alpha
-        self.BETA = 1
+        self.BETA = torch.tensor(1.0)
 
         self.IP = IP
         self.IP_MC = IP_MC
         self.IP_LD = IP_LD
 
         self.FI = FI
-        self.logdimsq = torch.log(torch.tensor(100 ** 2))
+        self.log_volume = torch.log(torch.tensor(100 ** 2))
+        self.slice_free_energy = torch.logsumexp(torch.zeros(100,100), dim=(0,1))
 
     def forward(self, alpha, receptor, ligand, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
@@ -140,8 +141,7 @@ class SamplingModel(nn.Module):
                 # return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, debug=False)
 
     def MCsampling(self, alpha, receptor, ligand, plot_count, stream_name, debug=False):
-        if debug:
-            print('scheduled alpha in MC forward', self.sig_alpha)
+
         _, _, dr, FFT_score = self.docker(receptor, ligand, alpha,
                                           plot_count=plot_count, stream_name=stream_name,
                                           plotting=False)
@@ -149,13 +149,13 @@ class SamplingModel(nn.Module):
         self.docker.eval()
 
         betaE = -self.BETA * FFT_score
-        free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)) - self.logdimsq)
+        free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)) - self.log_volume)
 
         noise_alpha = torch.zeros_like(alpha)
         prob_list = []
         acceptance = []
         fft_score_list = []
-
+        free_energies_encountered = torch.zeros(360)
         for i in range(self.sample_steps):
             if i == self.sample_steps - 1:
                 plotting = True
@@ -168,7 +168,7 @@ class SamplingModel(nn.Module):
                                                       plot_count=plot_count, stream_name=stream_name,
                                                       plotting=plotting)
             betaE_new = -self.BETA * FFT_score_new
-            free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)) - self.logdimsq)
+            free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)) - self.log_volume)
 
             if free_energy_new <= free_energy:
                 acceptance.append(1)
@@ -181,8 +181,9 @@ class SamplingModel(nn.Module):
                 alpha = alpha_new
                 dr = dr_new
                 FFT_score = FFT_score_new
-                if self.FI:
-                    fft_score_list.append(FFT_score)
+                fft_score_list.append(FFT_score)
+                deg_index_alpha = (((alpha * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
+                free_energies_encountered[deg_index_alpha] = free_energy
             else:
                 prob = min(torch.exp(-self.BETA * (free_energy_new - free_energy)).item(), 1)
                 rand0to1 = torch.rand(1).cuda()
@@ -197,14 +198,18 @@ class SamplingModel(nn.Module):
                     alpha = alpha_new
                     dr = dr_new
                     FFT_score = FFT_score_new
-                    if self.FI:
-                        fft_score_list.append(FFT_score)
+                    fft_score_list.append(FFT_score)
+                    deg_index_alpha = (((alpha * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
+                    free_energies_encountered[deg_index_alpha] = free_energy
                 else:
-                    if self.FI:
-                        fft_score_list.append(FFT_score)
+                    fft_score_list.append(FFT_score)
                     # if debug:
                     #     print('reject')
                     pass
+
+        # print(alphas_encountered)
+
+        self.docker.train()
 
         if debug:
             print('acceptance rate', acceptance)
@@ -214,10 +219,9 @@ class SamplingModel(nn.Module):
             fft_score_stack = torch.stack(fft_score_list)
         else:
             fft_score_stack = FFT_score
+            free_energies_encountered = free_energy
 
-        self.docker.train()
-
-        return free_energy, alpha.clone(), dr.clone(), fft_score_stack.squeeze()
+        return free_energies_encountered, alpha.clone(), dr.clone(), fft_score_stack.squeeze()
 
     def langevin_dynamics(self, alpha, receptor, ligand, plot_count, stream_name):
 
@@ -237,7 +241,7 @@ class SamplingModel(nn.Module):
             langevin_opt.zero_grad()
 
             energy, _, dr, fft_score = self.docker(receptor, ligand, alpha, plot_count, stream_name, plotting=plotting)
-            # energy = -(torch.logsumexp(fft_score, dim=(0, 1)) - torch.log(torch.tensor(100 ** 2)))
+            # energy = -(torch.logsumexp(fft_scores, dim=(0, 1)) - torch.log(torch.tensor(100 ** 2)))
 
             energy.backward()
             langevin_opt.step()

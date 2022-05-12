@@ -6,25 +6,35 @@ class Interaction(nn.Module):
     def __init__(self):
         super(Interaction, self).__init__()
         self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
-        self.volume = torch.log(torch.tensor(100 ** 2))
+        self.log_volume = torch.log(torch.tensor(100 ** 2))
 
-    def forward(self, fft_score, plotting=False, debug=False):
+    def forward(self, fft_scores=None, free_energies=None, debug=False):
         ##TODO: pass BETA, has to be returned from MC docker
+        ##TODO: include only unique angles, remove redundant visits
+        ##TODO: include grid of alphas with sample E and unsampled as 0
 
-        E = -fft_score.squeeze()
-        if len(E.shape) < 3:
-            E = E.unsqueeze(0)
-        if E.shape[0] > 1:
-            self.volume = torch.log(E.shape[0]*torch.tensor(100 ** 2))
+        if fft_scores:
+            E = -fft_scores.squeeze()
+            if len(E.shape) < 3:
+                E = E.unsqueeze(0)
+            F = -(torch.logsumexp(-E, dim=(0, 1, 2)))
+        else:
+            F = torch.sum(free_energies)
+            # F = -(torch.logsumexp(free_energies, dim=(0, 1, 2)))
+        # if E.shape[0] > 1:
+        #     self.log_volume = torch.log(E.shape[0]*torch.tensor(100 ** 2))
 
         # if E.shape[0] == 360:
-        #     F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.volume)
+        #     F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.log_volume)
         # else:
         #     translationsF = torch.logsumexp(-E, dim=(1, 2))
-        #     F = -(translationsF - self.volume)
+        #     F = -(translationsF - self.log_volume)
         #     F = torch.mean(F, dim=0)
 
-        F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.volume)
+        # E_adjusted = 1
+
+        # print('unique E values', E.shape[0])
+        # F = -(torch.logsumexp(-E, dim=(0, 1, 2)))
 
         deltaF = F - self.F_0
         pred_interact = torch.sigmoid(-deltaF)
