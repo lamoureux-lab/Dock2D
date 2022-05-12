@@ -125,7 +125,7 @@ class UtilityFuncs():
     def plot_predicted_pose(self, receptor, ligand, gt_rot, gt_txy, pred_rot, pred_txy, plot_count, stream_name):
         plt.close()
         plt.figure(figsize=(8, 8))
-        # pred_rot, pred_txy = self.dockingFFT.extract_transform(fft_score)
+        # pred_rot, pred_txy = self.dockingFFT.extract_transform(fft_scores)
         print('extracted predicted indices', pred_rot, pred_txy)
         print('gt indices', gt_rot, gt_txy)
         rmsd_out = RMSD(ligand, gt_rot, gt_txy, pred_rot, pred_txy).calc_rmsd()
