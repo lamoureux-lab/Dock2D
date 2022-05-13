@@ -2,17 +2,20 @@ import torch
 from torch import nn
 from torch import optim
 
-class ModelClass(nn.Module):
-    def __init__(self):
-        super(ModelClass, self).__init__()
+
+class DummyModel(nn.Module):
+    def __init__(self, send_init_to_cuda=False):
+        super(DummyModel, self).__init__()
         self.net = nn.Sequential(
-                nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1),
+                nn.Conv2d(1, 1, kernel_size=(3,3), stride=(1,1), padding=1),
                 nn.ReLU()
         )
-        ### with cuda
-        # self.learnedW = nn.Parameter(torch.rand(1)).cuda()
-        ### no cuda
-        self.learnedW = nn.Parameter(torch.rand(1))
+        if send_init_to_cuda:
+            ### with cuda
+            self.learnedW = nn.Parameter(torch.rand(1)).cuda()
+        else:
+            ### no cuda
+            self.learnedW = nn.Parameter(torch.rand(1))
 
     def forward(self, x):
         x = self.net(x.unsqueeze(0).unsqueeze(0))
@@ -25,7 +28,7 @@ class ModelClass(nn.Module):
         torch.save(state, filename)
 
     @staticmethod
-    def load_ckp(checkpoint_fpath, model, optimizer):
+    def load_checkpoint(checkpoint_fpath, model, optimizer):
         # model.eval()
         checkpoint = torch.load(checkpoint_fpath)
         model.load_state_dict(checkpoint['state_dict'], strict=True)
@@ -34,7 +37,7 @@ class ModelClass(nn.Module):
 
 if __name__ == "__main__":
     torch.cuda.set_device(0)
-    pretrain_model = ModelClass().to(device=0)
+    pretrain_model = DummyModel().to(device=0)
     optimizer_pretrain = optim.Adam(pretrain_model.parameters(), lr=1e-3)
     input = torch.rand(50,50).cuda()
     output = pretrain_model(input)
@@ -42,10 +45,10 @@ if __name__ == "__main__":
         'state_dict': pretrain_model.state_dict(),
         'optimizer': optimizer_pretrain.state_dict(),
     }
-    ModelClass().save_checkpoint(checkpoint_dict, 'train.th')
+    DummyModel().save_checkpoint(checkpoint_dict, 'train.th')
     path_pretrain = 'train.th'
     # pretrain_model.load_state_dict(torch.load(path_pretrain)['state_dict'])
-    pretrain_model, _, = ModelClass().load_ckp(path_pretrain, pretrain_model, optimizer_pretrain)
+    pretrain_model, _, = DummyModel().load_checkpoint(path_pretrain, pretrain_model, optimizer_pretrain)
 
     for name, param in pretrain_model.named_parameters():
         print(name)

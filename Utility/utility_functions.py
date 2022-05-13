@@ -83,6 +83,9 @@ class UtilityFuncs():
     #     return x
 
     def swap_quadrants(self, input_volume):
+        """
+        FFT returns features centered around the center of the image, not the corner origin.
+        """
         num_features = input_volume.size(0)
         L = input_volume.size(-1)
         L2 = int(L / 2)
