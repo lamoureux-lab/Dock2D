@@ -1,9 +1,6 @@
 torchDataLoader.py
 ==================
 
-.. automodule:: Dock2D.Utility.torchDataLoader
-   :no-members:
-
 .. autoclass:: Dock2D.Utility.torchDataLoader.ToyDockingDataset
    :special-members: __init__, __getitem__, __len__
    :members:

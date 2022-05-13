@@ -24,7 +24,7 @@ copyright = '2022, Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux
 author = 'Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux'
 
 # The full version, including alpha/beta/rc tags
-release = 'May 2022'
+# release = 'May 2022'
 
 
 # -- General configuration ---------------------------------------------------
