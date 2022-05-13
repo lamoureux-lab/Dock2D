@@ -1,19 +1,14 @@
-Utility
-=======
+Utility/
+========
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+
+   ../api/Dock2D.Utility/Dock2D.Utility.torchDataLoader.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.torchDockingFFT.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.utility_functions.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.validation_metrics.rst
 
 .. automodule:: Dock2D.Utility
    :no-members:
-
-.. autoclass:: Dock2D.Utility.torchDataLoader.ToyDockingDataset
-   :special-members: __init__, __getitem__, __len__
-   :members:
-   :undoc-members:
-
-.. autoclass:: Dock2D.Utility.torchDataLoader.ToyInteractionDataset
-   :special-members: __init__, __getitem__, __len__
-   :members:
-   :undoc-members:
-
-.. autofunction:: Dock2D.Utility.torchDataLoader.get_docking_stream
-
-.. autofunction:: Dock2D.Utility.torchDataLoader.get_interaction_stream

@@ -1,4 +1,4 @@
-Reduced Sampling
+ReducedSampling/
 ================
 
 .. automodule:: Dock2D.Models.ReducedSampling

@@ -1,4 +1,4 @@
-Brute Force
+BruteForce/
 ===========
 
 .. automodule:: Dock2D.Models.BruteForce

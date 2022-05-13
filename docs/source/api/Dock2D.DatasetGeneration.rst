@@ -1,5 +1,5 @@
-DatasetGeneration
-=================
+DatasetGeneration/
+==================
 
 .. automodule:: Dock2D.DatasetGeneration
    :no-members:

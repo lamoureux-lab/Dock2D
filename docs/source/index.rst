@@ -15,6 +15,21 @@ Welcome to Dock2D's documentation!
    api/Dock2D.Tests
    api/Dock2D.Utility
 
+
+Directory Reference
+-------------------
+
+The library is structured into five directories to build a toy protein dataset and models to solve the docking (IP) and interaction (FI) tasks for molecular recognition:
+
+* :doc:`Dock2D.DatasetGeneration <api/Dock2D.DatasetGeneration>`         Generate a protein pool to create IP and FI datasets.
+
+* :doc:`Dock2D.Models <api/Dock2D.Models>`     Four models, two :doc:`BruteForce <api/Dock2D.Models/Dock2D.Models.BruteForce>` and two :doc:`ReducedSampling <api/Dock2D.Models/Dock2D.Models.ReducedSampling>` models for the IP and FI tasks each.
+
+* :doc:`Dock2D.Tests <api/Dock2D.Tests>`     Testing scripts to check dataset, algorithm, and model functionality.
+
+* :doc:`Dock2D.Utility <api/Dock2D.Utility>`     Utility classes ranging from data loading to plotting.
+
+
 Cite Us
 -------
 
