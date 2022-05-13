@@ -202,7 +202,7 @@ class EnergyBasedInteractionTrainer:
         log_APRheader = 'Accuracy\tPrecision\tRecall\tF1score\tMCC\n'
         log_APRformat = '%f\t%f\t%f\t%f\t%f\n'
         print('Evaluating ', stream_name)
-        Accuracy, Precision, Recall, F1score, MCC = APR().calcAPR(datastream, self.run_model, check_epoch)
+        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch)
         with open(self.logfile_savepath + self.logAPR_prefix + self.experiment + '.txt', 'a') as fout:
             fout.write('Epoch '+str(check_epoch)+'\n')
             fout.write(log_APRheader)
