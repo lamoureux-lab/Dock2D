@@ -32,6 +32,7 @@ release = 'May 2022'
 # ones.
 extensions = ['myst_parser',
               'sphinx.ext.autodoc',
+              # 'sphinx.ext.mathbase'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,3 +56,6 @@ html_theme = 'default'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# html_logo = "_static/comp_overlay.png"
