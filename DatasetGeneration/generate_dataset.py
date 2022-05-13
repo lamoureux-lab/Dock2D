@@ -5,7 +5,7 @@ from os.path import exists
 from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, ParamDistribution
 from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
 from Dock2D.Utility.utility_functions import UtilityFuncs
-from Dock2D.Utility.plot_FI import FIPlotter
+from Dock2D.Utility.plotFI import PlotterFI
 from Dock2D.Tests.check_shape_distributions import ShapeDistributions
 
 
@@ -299,11 +299,11 @@ if __name__ == '__main__':
         ## Dataset free energy distributions
         ## Plot interaction training/validation set
         training_filename = log_savepath+'log_rawdata_FI_'+trainvalidset_protein_pool[:-4]+'.txt'
-        FIPlotter(trainvalidset_protein_pool[:-4]).plot_deltaF_distribution(filename=training_filename, binwidth=1, show=True)
+        PlotterFI(trainvalidset_protein_pool[:-4]).plot_deltaF_distribution(filename=training_filename, binwidth=1, show=True)
 
         ## Plot interaction testing set
         testing_filename = log_savepath+'log_rawdata_FI_'+testset_protein_pool[:-4]+'.txt'
-        FIPlotter(testset_protein_pool[:-4]).plot_deltaF_distribution(filename=testing_filename, binwidth=1, show=True)
+        PlotterFI(testset_protein_pool[:-4]).plot_deltaF_distribution(filename=testing_filename, binwidth=1, show=True)
 
         ## Plot protein pool distribution summary
         ShapeDistributions(pool_savepath+trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()

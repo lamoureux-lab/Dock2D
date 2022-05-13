@@ -62,4 +62,4 @@ if __name__ == '__main__':
         resume_training=True, resume_epoch=train_epochs,
         sigma_scheduler=sigma_scheduler, sigma_optimizer=sigma_optimizer)
     # Plot loss from current experiment
-    IPPlotter(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)
+    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)

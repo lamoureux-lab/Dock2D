@@ -9,7 +9,7 @@ from tqdm import tqdm
 from Dock2D.Utility.torchDataLoader import get_interaction_stream
 from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
 from Dock2D.Utility.validation_metrics import APR
-from Dock2D.Utility.plot_FI import FIPlotter
+from Dock2D.Utility.plotFI import PlotterFI
 from Dock2D.Utility.sampleBuffer import SampleBuffer
 from Dock2D.Utility.utility_functions import UtilityFuncs
 
@@ -53,7 +53,7 @@ class EnergyBasedInteractionTrainer:
         self.sig_alpha = 3.0
         self.wReg = 1e-5
         self.zero_value = torch.zeros(1).squeeze().cuda()
-        self.sigma_scheduler_initial = sigma_scheduler.get_last_lr()[0]
+        # self.sigma_scheduler_initial = sigma_scheduler.get_last_lr()[0]
 
         self.UtilityFuncs = UtilityFuncs()
 
@@ -152,15 +152,15 @@ class EnergyBasedInteractionTrainer:
                 print('sig_alpha = ', self.sig_alpha)
 
                 self.run_epoch(train_stream, epoch, training=True)
-                FIPlotter(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
+                PlotterFI(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
                 # F_0_scheduler.step()
                 # print('last learning rate', F_0_scheduler.get_last_lr())
                 # self.sig_alpha = self.sig_alpha * F_0_scheduler.get_last_lr()[0]
                 # print('sigma alpha stepped', self.sig_alpha)
 
-                sigma_scheduler.step()
-                self.sig_alpha = self.sig_alpha * (sigma_scheduler.get_last_lr()[0]/self.sigma_scheduler_initial)
+                # sigma_scheduler.step()
+                # self.sig_alpha = self.sig_alpha * (sigma_scheduler.get_last_lr()[0]/self.sigma_scheduler_initial)
 
             ### evaluate on training and valid set
             ### training set to False downstream in calcAPR() run_model()
@@ -274,13 +274,10 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = int(number_of_pairs + (number_of_pairs**2 - number_of_pairs)/2)
-    number_of_pairs = 100
-    batch_size = 1
-    if batch_size > 1:
-        raise NotImplementedError()
-    train_stream = get_interaction_stream(trainset + '.pkl', batch_size=batch_size, number_of_pairs=number_of_pairs)
-    valid_stream = get_interaction_stream(validset + '.pkl', batch_size=1, number_of_pairs=number_of_pairs)
-    test_stream = get_interaction_stream(testset + '.pkl', batch_size=1, number_of_pairs=number_of_pairs)
+    number_of_pairs = 25
+    train_stream = get_interaction_stream(trainset + '.pkl', number_of_pairs=number_of_pairs)
+    valid_stream = get_interaction_stream(validset + '.pkl', number_of_pairs=number_of_pairs)
+    test_stream = get_interaction_stream(testset + '.pkl', number_of_pairs=number_of_pairs)
     ######################
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_5000ex30ep'
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_10000ex50ep'
@@ -294,13 +291,14 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE'
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE_logsumexp'
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_uniqueEnergies_zerosangleslist'
-    experiment = 'BF_FI_400pool_1000ex_50ep_50steps_labmeetingcheck'
+    # experiment = 'BF_FI_400pool_1000ex_50ep_50steps_labmeetingcheck'
+    experiment = 'BF_FI_400pool_25pairs_50ep_10steps_labmeetingcheck_fixedsigma'
 
     ######################
     train_epochs = 50
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
-    sample_steps = 50
+    sample_steps = 10
     gamma = 0.95
     sigma_alpha = 3.0
 
@@ -311,7 +309,7 @@ if __name__ == '__main__':
     interaction_model = Interaction().to(device=0)
     interaction_optimizer = optim.Adam(interaction_model.parameters(), lr=lr_interaction)
     # F_0_scheduler = optim.lr_scheduler.ExponentialLR(interaction_optimizer, gamma=gamma)
-    sigma_scheduler = optim.lr_scheduler.ExponentialLR(interaction_optimizer, gamma=gamma)
+    # sigma_scheduler = optim.lr_scheduler.ExponentialLR(interaction_optimizer, gamma=gamma)
     dockingFFT = TorchDockingFFT(num_angles=1, angle=None, swap_plot_quadrants=False, debug=debug)
     docking_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0)
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
@@ -333,5 +331,5 @@ if __name__ == '__main__':
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
-    FIPlotter(experiment).plot_loss()
-    FIPlotter(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
+    PlotterFI(experiment).plot_loss()
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)

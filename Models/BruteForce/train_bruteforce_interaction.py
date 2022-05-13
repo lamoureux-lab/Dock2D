@@ -10,7 +10,7 @@ import numpy as np
 from tqdm import tqdm
 from Dock2D.Utility.torchDataLoader import get_interaction_stream
 from Dock2D.Utility.validation_metrics import APR
-from Dock2D.Utility.plot_FI import FIPlotter
+from Dock2D.Utility.plotFI import PlotterFI
 from Dock2D.Utility.utility_functions import UtilityFuncs
 from Dock2D.Models.model_interaction import Interaction
 from Dock2D.Models.model_docking import Docking
@@ -152,8 +152,8 @@ class BruteForceInteractionTrainer:
                 self.run_epoch(train_stream, epoch, training=True)
 
                 # plot loss and free energy distributions
-                FIPlotter(self.experiment).plot_loss(show=False)
-                FIPlotter(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
+                PlotterFI(self.experiment).plot_loss(show=False)
+                PlotterFI(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
                 # F_0_scheduler.step()
                 print('last F_0 learning rate', F_0_scheduler.get_last_lr())
@@ -366,5 +366,5 @@ if __name__ == '__main__':
                                                resume_training=True, resume_epoch=train_epochs)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
-    FIPlotter(experiment).plot_loss(show=True)
-    FIPlotter(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
+    PlotterFI(experiment).plot_loss(show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)

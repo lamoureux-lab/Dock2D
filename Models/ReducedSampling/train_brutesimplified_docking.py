@@ -10,7 +10,7 @@ from Dock2D.Utility.torchDataLoader import get_docking_stream
 from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
 from Dock2D.Utility.utility_functions import UtilityFuncs
 from Dock2D.Utility.validation_metrics import RMSD
-from Dock2D.Utility.plot_IP import IPPlotter
+from Dock2D.Utility.plotIP import PlotterIP
 from Dock2D.Utility.sampleBuffer import SampleBuffer
 from Dock2D.Models.BruteForce.train_bruteforce_docking import Docking
 from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
@@ -299,5 +299,5 @@ if __name__ == '__main__':
             resume_training=True, resume_epoch=epoch)
 
     ## Plot loss and RMSDs from current experiment
-    IPPlotter(experiment).plot_loss(ylim=None)
-    IPPlotter(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
+    PlotterIP(experiment).plot_loss(ylim=None)
+    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
