@@ -25,7 +25,15 @@ class TorchDockingFFT:
         self.norm = normalization
         self.onehot_3Dgrid = torch.zeros([self.num_angles, self.dim, self.dim], dtype=torch.double).cuda()
 
+        self.UtilityFuncs = UtilityFuncs()
+
     def encode_transform(self, gt_rot, gt_txy):
+        '''
+        One hot encoded ground truth transformation into a 3D array.
+        :param gt_rot: ground truth rotation in radians `[[gt_rot]]`.
+        :param gt_txy: ground truth translation `[[x], [y]]`.
+        :return: flattened one hot encoded array.
+        '''
         deg_index_rot = (((gt_rot * 180.0/np.pi) + 180.0) % self.num_angles).type(torch.long)
         index_txy = gt_txy.type(torch.long)
 
@@ -73,22 +81,13 @@ class TorchDockingFFT:
 
         return feat_stack.squeeze()
 
-    @staticmethod
-    def rotate(repr, angle):
-        alpha = angle.detach()
-        T0 = torch.stack([torch.cos(alpha), -torch.sin(alpha), torch.zeros_like(alpha)], dim=1)
-        T1 = torch.stack([torch.sin(alpha), torch.cos(alpha), torch.zeros_like(alpha)], dim=1)
-        R = torch.stack([T0, T1], dim=1)
-        curr_grid = F.affine_grid(R, size=repr.size(), align_corners=True).type(torch.float)
-        return F.grid_sample(repr, curr_grid, align_corners=True)
-
     def dock_global(self, receptor, ligand, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
         initbox_size = receptor.shape[-1]
         pad_size = initbox_size // 2
 
         f_rec = receptor.unsqueeze(0).repeat(self.num_angles,1,1,1)
         f_lig = ligand.unsqueeze(0).repeat(self.num_angles,1,1,1)
-        rot_lig = self.rotate(f_lig, self.angles)
+        rot_lig = self.UtilityFuncs.rotate(f_lig, self.angles)
 
         if initbox_size % 2 == 0:
             f_rec = F.pad(f_rec, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
@@ -144,7 +143,7 @@ class TorchDockingFFT:
         score = weight_bound * trans_bound + weight_crossterm1 * trans_bulk_bound + weight_crossterm2 * trans_bound_bulk - weight_bulk * trans_bulk
 
         if self.swap_plot_quadrants:
-            return self.swap_quadrants(score)
+            return self.UtilityFuncs.swap_quadrants(score)
         else:
             return score
 
@@ -174,24 +173,6 @@ class TorchDockingFFT:
                                             pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy())
         plt.imshow(pair.transpose())
         plt.show()
-
-    def swap_quadrants(self, input_volume):
-        num_features = input_volume.size(0)
-        L = input_volume.size(-1)
-        L2 = int(L / 2)
-        output_volume = torch.zeros(num_features, L, L, device=input_volume.device, dtype=input_volume.dtype)
-
-        output_volume[:, :L2, :L2] = input_volume[:, L2:L, L2:L]
-        output_volume[:, L2:L, L2:L] = input_volume[:, :L2, :L2]
-
-        output_volume[:, L2:L, :L2] = input_volume[:, :L2, L2:L]
-        output_volume[:, :L2, L2:L] = input_volume[:, L2:L, :L2]
-
-        output_volume[:, L2:L, L2:L] = input_volume[:, :L2, :L2]
-        output_volume[:, :L2, :L2] = input_volume[:, L2:L, L2:L]
-
-        return output_volume
-
 
 if __name__ == '__main__':
 

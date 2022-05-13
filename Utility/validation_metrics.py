@@ -14,8 +14,13 @@ class RMSD:
         self.epsilon = 1e-5
 
     def get_XC(self):
-        """
-        Analog of inertia tensor and center of mass for rmsd calc. Return 2/W * X and C
+        r"""
+        Analog of inertia tensor and center of mass for rmsd calc.
+        Where `X` is the inertia tensor, `W` is the sum of the bulk shape, and `C` is the center of mass.
+
+        :return:
+            .. math::
+                \frac{2*X}{W}, \frac{C}{W}
         """
         X = torch.zeros(2, 2)
         C = torch.zeros(2)
@@ -35,7 +40,10 @@ class RMSD:
         C[1] = torch.sum(x_i)
         return 2.0 * X / (W + self.epsilon), C / (W + self.epsilon)
 
-    def rmsd(self):
+    def calc_rmsd(self):
+        """
+        :return: RMSD of predicted versus ground truth shapes.
+        """
         rotation1, translation1, rotation2, translation2 = self.gt_rot, self.gt_txy, self.pr_rot, self.pr_txy
         X, C = self.get_XC()
         X = X.type(torch.float).cuda()
@@ -71,16 +79,12 @@ class RMSD:
 
         return sqrt_rmsd
 
-    def calc_rmsd(self):
-        rmsd = self.rmsd()
-        return rmsd
-
 
 class APR:
     def __init__(self):
         self.epsilon = 1e-5
 
-    def calcAPR(self, stream, run_model, epoch=0):
+    def calc_APR(self, stream, run_model, epoch=0):
         print('Calculating Accuracy, Precision, Recall')
         TP, FP, TN, FN = 0, 0, 0, 0
 
@@ -112,105 +116,3 @@ class APR:
 
 if __name__ == '__main__':
     pass
-    # from DeepProteinDocking2D.Models.model_docking import Docking
-    #
-    # def load_ckp(checkpoint_fpath, model):
-    #     model.eval()
-    #     checkpoint = torch.load(checkpoint_fpath)
-    #     model.load_state_dict(checkpoint['state_dict'], strict=True)
-    #     return model
-    #
-    # def extract_transform(pred_score):
-    #     dim = 100
-    #     # dim = 52
-    #     pred_argmax = torch.argmax(pred_score)
-    #     # print(pred_argmax)
-    #     pred_rot = ((pred_argmax / dim ** 2) * np.pi / 180.0) - np.pi
-    #     # print(pred_score_rot)
-    #     XYind = torch.remainder(pred_argmax, dim ** 2)
-    #     # print(XYind)
-    #     pred_X = XYind // dim
-    #     pred_Y = XYind % dim
-    #     if pred_X > dim//2:
-    #         pred_X = pred_X - dim
-    #     if pred_Y > dim//2:
-    #         pred_Y = pred_Y - dim
-    #     # print(pred_X, plot_Y)
-    #     return pred_rot, torch.stack((pred_X, pred_Y), dim=0)
-    #
-    # def check_RMSD(model, data, index, plotting):
-    #     receptor, ligand, gt_txy, gt_rot = data
-    #     # print(gt_rot)
-    #     # gt_rot = gt_rot + np.pi
-    #     receptor = torch.from_numpy(receptor).type(torch.float).unsqueeze(0).cuda()
-    #     ligand = torch.from_numpy(ligand).type(torch.float).unsqueeze(0).cuda()
-    #     gt_rot = torch.tensor(gt_rot, dtype=torch.float)
-    #     gt_txy = torch.tensor(gt_txy, dtype=torch.float)
-    #     pred_score = model(receptor, ligand, plotting=plotting)
-    #     pred_rot, pred_txy = extract_transform(pred_score)
-    #     # print('extracted predicted indices', pred_rot.item(), pred_txy)
-    #     # print('ground truth indices', gt_rot, gt_txy)
-    #
-    #     rmsd_out = RMSD(ligand, gt_rot, gt_txy, pred_rot, pred_txy).calc_rmsd()
-    #
-    #     print('RMSD',rmsd_out.item())
-    #
-    #     pair = plot_assembly(receptor.squeeze().detach().cpu().numpy(), ligand.squeeze().detach().cpu().numpy(),
-    #                          pred_rot.detach().cpu().numpy(), (pred_txy[0].detach().cpu().numpy(), pred_txy[1].detach().cpu().numpy()),
-    #                          gt_rot.squeeze().detach().cpu().numpy(), gt_txy.squeeze().detach().cpu().numpy())
-    #
-    #     plt.imshow(pair.transpose())
-    #     plt.title('Ground Truth                      Input                       Predicted Pose')
-    #     plt.text(10,10, "Ligand RMSD="+str(rmsd_out.item()), backgroundcolor='w')
-    #     if plotting:
-    #         plt.savefig('figs/RMSDCheck_Ligand'+str(index)+'_RMSD_'+str(rmsd_out.item()) + '.png')
-    #         plt.show()
-    #
-    #     return rmsd_out
-    #
-    #
-    # #### initialization torch settings
-    # np.random.seed(42)
-    # torch.manual_seed(42)
-    # random.seed(42)
-    # torch.cuda.manual_seed(42)
-    # torch.backends.cudnn.determininistic = True
-    # torch.cuda.set_device(0)
-    #
-    # plotting = False
-    #
-    # experiment = 'docking_pretrain_bruteforce_allLearnedWs_10epochs_'
-    # dataset = 'docking'
-    # setid = 'test'
-    # testset = 'toy_concave_data/' + dataset + '_data_' + setid
-    # resume_epoch = 10
-    #
-    # # experiment = 'TEST_interactionL2loss_B*smax(B)relu()_BruteForce_training_'
-    # # dataset = 'interaction'
-    # # setid = 'valid'
-    # # testset = 'toy_concave_data/'+dataset+'_data_'+setid
-    # # resume_epoch = 5
-    #
-    # data = UtilityFuncs().read_pkl(testset)
-    # model = Docking().to(device=0)
-    # ckp_path = 'Log/' + experiment + str(resume_epoch) + '.th'
-    # model = load_ckp(ckp_path, model)
-    #
-    # log_header = 'Example\tRMSD\n'
-    # with open('Log/log_RMSD_'+dataset+'_'+setid+'_' + experiment + '.txt', 'w') as fout:
-    #     fout.write(log_header)
-    #
-    #     rmsd_list = []
-    #     index_range = len(data)
-    #     print(index_range)
-    #     for index in range(index_range):
-    #         rmsd_out = check_RMSD(model, data[index], index, plotting=plotting)
-    #         fout.write(str(index)+'\t'+str(rmsd_out.item())+'\n')
-    #         rmsd_list.append(rmsd_out)
-    #
-    #
-    #     print()
-    #     avg_rmsd = torch.mean(torch.as_tensor(rmsd_list))
-    #     print('Avg RMSD', avg_rmsd.item())
-    #     fout.write('Avg RMSD\t'+str(avg_rmsd.item())+'\n')
-    #     fout.close()

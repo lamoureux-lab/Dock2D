@@ -53,7 +53,7 @@ class ToyInteractionDataset(Dataset):
 		:param number_of_pairs: Then sets data stream max_size based on `N` interaction pairs. If `N == None` all of the upper triangle and diagonal of the interaction pairs array are used.
 
 			.. math::
-				\frac{(N^2 - N)}{2} + N
+				\frac{(N^2 + N)}{2}
 
 
 		"""

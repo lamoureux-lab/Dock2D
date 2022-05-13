@@ -9,9 +9,6 @@ from Dock2D.Utility.validation_metrics import RMSD
 
 
 class UtilityFuncs():
-    def __init__(self):
-        pass
-
     def write_pkl(self, data, fileprefix):
         '''
         :param data:
@@ -75,15 +72,40 @@ class UtilityFuncs():
         for poly in multipolygon:
             self.plot_coords(ax, poly)
 
-    def get_rot_mat(self, theta):
-        return torch.tensor([[torch.cos(theta), -torch.sin(theta), 0],
-                             [torch.sin(theta), torch.cos(theta), 0]]).cuda()
+    # def get_rot_mat(self, theta):
+    #     return torch.tensor([[torch.cos(theta), -torch.sin(theta), 0],
+    #                          [torch.sin(theta), torch.cos(theta), 0]]).cuda()
+    #
+    # def rot_img(self, x, theta, dtype):
+    #     rot_mat = self.get_rot_mat(theta)[None, ...].type(dtype).repeat(x.shape[0],1,1)
+    #     grid = F.affine_grid(rot_mat, x.size()).type(dtype)
+    #     x = F.grid_sample(x, grid)
+    #     return x
 
-    def rot_img(self, x, theta, dtype):
-        rot_mat = self.get_rot_mat(theta)[None, ...].type(dtype).repeat(x.shape[0],1,1)
-        grid = F.affine_grid(rot_mat, x.size()).type(dtype)
-        x = F.grid_sample(x, grid)
-        return x
+    def swap_quadrants(self, input_volume):
+        num_features = input_volume.size(0)
+        L = input_volume.size(-1)
+        L2 = int(L / 2)
+        output_volume = torch.zeros(num_features, L, L, device=input_volume.device, dtype=input_volume.dtype)
+
+        output_volume[:, :L2, :L2] = input_volume[:, L2:L, L2:L]
+        output_volume[:, L2:L, L2:L] = input_volume[:, :L2, :L2]
+
+        output_volume[:, L2:L, :L2] = input_volume[:, :L2, L2:L]
+        output_volume[:, :L2, L2:L] = input_volume[:, L2:L, :L2]
+
+        output_volume[:, L2:L, L2:L] = input_volume[:, :L2, :L2]
+        output_volume[:, :L2, :L2] = input_volume[:, L2:L, L2:L]
+
+        return output_volume
+
+    def rotate(self, repr, angle):
+        alpha = angle.detach()
+        T0 = torch.stack([torch.cos(alpha), -torch.sin(alpha), torch.zeros_like(alpha)], dim=1)
+        T1 = torch.stack([torch.sin(alpha), torch.cos(alpha), torch.zeros_like(alpha)], dim=1)
+        R = torch.stack([T0, T1], dim=1)
+        curr_grid = F.affine_grid(R, size=repr.size(), align_corners=True).type(torch.float)
+        return F.grid_sample(repr, curr_grid, align_corners=True)
 
     def rotate_gridligand(self, ligand, rotation_angle):
         ligand = ndimage.rotate(ligand, rotation_angle, reshape=False, order=3, mode='nearest', cval=0.0)
