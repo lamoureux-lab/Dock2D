@@ -5,7 +5,7 @@ import sys
 from os.path import exists
 
 
-class IPPlotter:
+class PlotterIP:
     def __init__(self, experiment=None, logfile_savepath='Log/losses/IP_loss/'):
         self.experiment = experiment
         self.logfile_savepath = logfile_savepath
@@ -116,6 +116,6 @@ class IPPlotter:
 if __name__ == "__main__":
     loadpath = 'Log/losses/IP_loss/'
     experiment = 'BF_IP_NEWDATA_CHECK_400pool_30ep'
-    Plotter = IPPlotter(experiment, logfile_savepath=loadpath)
+    Plotter = PlotterIP(experiment, logfile_savepath=loadpath)
     Plotter.plot_loss(show=True)
     Plotter.plot_rmsd_distribution(plot_epoch=30, show=True)

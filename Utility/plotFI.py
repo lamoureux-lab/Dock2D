@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import sys
 
 
-class FIPlotter:
+class PlotterFI:
     def __init__(self, experiment=None, logfile_savepath='Log/losses/'):
         self.experiment = experiment
         self.logfile_savepath = logfile_savepath
@@ -75,6 +75,6 @@ if __name__ == "__main__":
     load_path = 'Log/losses/FI_loss/'
     testcase = 'scratch_'
     experiment = testcase+'BF_FI_NEWDATA_CHECK_400pool_20000ex30ep'
-    Plotter = FIPlotter(experiment, logfile_savepath=load_path)
+    Plotter = PlotterFI(experiment, logfile_savepath=load_path)
     Plotter.plot_loss(show=True)
     Plotter.plot_deltaF_distribution(plot_epoch=30, show=True)
