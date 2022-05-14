@@ -1,7 +1,6 @@
 utility_functions.py
 ====================
 
-
 .. automodule:: Dock2D.Utility.utility_functions
    :undoc-members:
 

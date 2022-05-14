@@ -1,5 +1,6 @@
 sampleBuffer.py
 ==================
+
 .. automodule:: Dock2D.Utility.sampleBuffer
    :undoc-members:
 
