@@ -80,7 +80,7 @@ def plot_energy_distributions(weight_string, train_fft_score_list, test_fft_scor
 
 def plot_accepted_rejected_shapes(receptor, ligand, rot, trans, lowest_energy, fft_score, protein_pool_prefix, plot_count, plot_freq):
     r"""
-    Plot examples of accepted and rejected shape pairs, based on interaction thresholds set.
+    Plot examples of accepted and rejected shape pairs, based on docking and interaction decision thresholds set.
 
     :param receptor:
     :param ligand:
@@ -97,11 +97,11 @@ def plot_accepted_rejected_shapes(receptor, ligand, rot, trans, lowest_energy, f
         plt.close()
         pair = UtilityFuncs().plot_assembly(receptor.cpu(), ligand.cpu(), rot.cpu(), trans.cpu())
         plt.imshow(pair.transpose())
-        if lowest_energy < docking_decision_threshold:
+        if lowest_energy < docking_decision_threshold or lowest_energy < interaction_decision_threshold:
             acc_or_rej = 'ACCEPTED'
         else:
             acc_or_rej = 'REJECTED'
-        title = acc_or_rej + '_docking_energy' + str(lowest_energy.item())
+        title = acc_or_rej + '_energy' + str(lowest_energy.item()) + '_docking'+str(docking_decision_threshold)+'_interaction'+str(interaction_decision_threshold)
         plt.title(title)
         plt.savefig('Figs/AcceptRejectExamples/' + title + '.png')
         UtilityFuncs().plot_rotation_energysurface(fft_score, trans,
