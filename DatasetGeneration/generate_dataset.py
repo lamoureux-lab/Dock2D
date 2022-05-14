@@ -96,7 +96,6 @@ class DatasetGenerator:
                 shape_alpha = [(0.70, 1), (0.80, 4), (0.90, 6), (0.95, 4), (0.98, 1)]
                 num_points = [(40, 1), (60, 3), (80, 3), (100, 1)]
 
-        :param pool_savepath: path to saved protein pool .pkl
         :param pool_savefile: protein pool .pkl filename
         :param num_proteins: number of unique protein shapes to make
         :return: ``stats`` as observed parameter list of tuples (value, probs)
@@ -234,35 +233,36 @@ class DatasetGenerator:
 
     def run_generator(self):
         ### Generate training/validation set
-        self.train_fft_score_list, self.train_docking_set, self.train_interaction_set = self.generate_datasets(
+        train_fft_score_list, train_docking_set, train_interaction_set = self.generate_datasets(
             self.trainvalidset_protein_pool, self.trainpool_num_proteins)
         ### Generate testing set
-        self.test_fft_score_list, self.test_docking_set, self.test_interaction_set = self.generate_datasets(
+        test_fft_score_list, test_docking_set, test_interaction_set = self.generate_datasets(
             self.testset_protein_pool, self.testpool_num_proteins)
 
         ## Slice validation set out for training set
-        self.valid_docking_cutoff_index = int(len(self.train_docking_set) * self.validation_set_cutoff)
-        self.valid_docking_set = self.train_docking_set[self.valid_docking_cutoff_index:]
-        self.valid_interaction_cutoff_index = int(len(self.train_interaction_set[-1]) * self.validation_set_cutoff)
-        self.valid_interaction_set = [self.train_interaction_set[0],
-                                 self.train_interaction_set[1][self.valid_interaction_cutoff_index:],
-                                 self.train_interaction_set[2][self.valid_interaction_cutoff_index:]]
+        valid_docking_cutoff_index = int(len(train_docking_set) * self.validation_set_cutoff)
+        valid_docking_set = train_docking_set[valid_docking_cutoff_index:]
+        valid_interaction_cutoff_index = int(len(train_interaction_set[-1]) * self.validation_set_cutoff)
+        valid_interaction_set = [train_interaction_set[0],
+                                 train_interaction_set[1][valid_interaction_cutoff_index:],
+                                 train_interaction_set[2][valid_interaction_cutoff_index:]]
 
+        ### Print dataset stats
         print('\nProtein Pool:', self.trainpool_num_proteins)
         print('Docking decision threshold ', self.docking_decision_threshold)
         print('Interaction decision threshold ', self.interaction_decision_threshold)
 
         print('\nRaw Training set:')
-        print('Docking set length', len(self.train_docking_set))
-        print('Interaction set length', len(self.train_interaction_set[-1]))
+        print('Docking set length', len(train_docking_set))
+        print('Interaction set length', len(train_interaction_set[-1]))
 
         print('\nRaw Validation set:')
-        print('Docking set length', len(self.valid_docking_set))
-        print('Interaction set length', len(self.valid_interaction_set[-1]))
+        print('Docking set length', len(valid_docking_set))
+        print('Interaction set length', len(valid_interaction_set[-1]))
 
         print('\nRaw Testing set:')
-        print('Docking set length', len(self.test_docking_set))
-        print('Interaction set length', len(self.test_interaction_set[-1]))
+        print('Docking set length', len(test_docking_set))
+        print('Interaction set length', len(test_interaction_set[-1]))
 
 
         ## Write protein pool summary statistics to file
@@ -295,11 +295,11 @@ class DatasetGenerator:
             fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
             fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
             fout.write('\n\nRaw Training set:')
-            fout.write('\nDocking set length ' + str(len(self.train_docking_set)))
-            fout.write('\nInteraction set length ' + str(len(self.train_interaction_set[-1])))
+            fout.write('\nDocking set length ' + str(len(train_docking_set)))
+            fout.write('\nInteraction set length ' + str(len(train_interaction_set[-1])))
             fout.write('\n\nRaw Validation set:')
-            fout.write('\nDocking set length ' + str(len(self.valid_docking_set)))
-            fout.write('\nInteraction set length ' + str(len(self.valid_interaction_set[-1])))
+            fout.write('\nDocking set length ' + str(len(valid_docking_set)))
+            fout.write('\nInteraction set length ' + str(len(valid_interaction_set[-1])))
 
         with open(self.datastats_savepath + 'testset_dataset_stats_' + str(self.testpool_num_proteins) + 'pool.txt', 'w') as fout:
             fout.write('TEST DATASET STATS')
@@ -308,35 +308,35 @@ class DatasetGenerator:
             fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
             fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
             fout.write('\n\nRaw Testing set:')
-            fout.write('\nDocking set length ' + str(len(self.test_docking_set)))
-            fout.write('\nInteraction set length ' + str(len(self.test_interaction_set[-1])))
+            fout.write('\nDocking set length ' + str(len(test_docking_set)))
+            fout.write('\nInteraction set length ' + str(len(test_interaction_set[-1])))
 
         ## Save training sets
         docking_train_file = self.data_savepath + 'docking_train_' + str(self.trainpool_num_proteins) + 'pool'
         interaction_train_file = self.data_savepath + 'interaction_train_' + str(self.trainpool_num_proteins) + 'pool'
-        UtilityFuncs().write_pkl(data=self.train_docking_set, fileprefix=self.docking_train_file)
-        UtilityFuncs().write_pkl(data=self.train_interaction_set, fileprefix=self.interaction_train_file)
+        UtilityFuncs().write_pkl(data=train_docking_set, fileprefix=docking_train_file)
+        UtilityFuncs().write_pkl(data=train_interaction_set, fileprefix=interaction_train_file)
 
         ## Save validation sets
         docking_valid_file =self.data_savepath + 'docking_valid_' + str(self.trainpool_num_proteins) + 'pool'
         interaction_valid_file = self.data_savepath + 'interaction_valid_' + str(self.trainpool_num_proteins) + 'pool'
-        UtilityFuncs().write_pkl(data=self.valid_docking_set, fileprefix=self.docking_valid_file)
-        UtilityFuncs().write_pkl(data=self.valid_interaction_set, fileprefix=self.interaction_valid_file)
+        UtilityFuncs().write_pkl(data=valid_docking_set, fileprefix=docking_valid_file)
+        UtilityFuncs().write_pkl(data=valid_interaction_set, fileprefix=interaction_valid_file)
 
         ## Save testing sets
         docking_test_file = self.data_savepath + 'docking_test_' + str(self.testpool_num_proteins) + 'pool'
         interaction_test_file = self.data_savepath + 'interaction_test_' + str(self.testpool_num_proteins) + 'pool'
-        UtilityFuncs().write_pkl(data=self.test_docking_set, fileprefix=self.docking_test_file)
-        UtilityFuncs().write_pkl(data=self.test_interaction_set, fileprefix=self.interaction_test_file)
+        UtilityFuncs().write_pkl(data=test_docking_set, fileprefix=docking_test_file)
+        UtilityFuncs().write_pkl(data=test_interaction_set, fileprefix=interaction_test_file)
 
         if self.plotting:
             ## Dataset shape pair docking energies distributions
-            self.plot_energy_distributions(self.train_fft_score_list, self.test_fft_score_list, show=True)
+            self.plot_energy_distributions(train_fft_score_list, test_fft_score_list, show=True)
 
             ## Dataset free energy distributions
             ## Plot interaction training/validation set
             training_filename = self.log_savepath + 'log_rawdata_FI_' + self.trainvalidset_protein_pool[:-4] + '.txt'
-            PlotterFI(self.trainvalidset_protein_pool[:-4]).plot_deltaF_distribution(filename=self.training_filename, binwidth=1,
+            PlotterFI(self.trainvalidset_protein_pool[:-4]).plot_deltaF_distribution(filename=training_filename, binwidth=1,
                                                                                 show=True)
 
             ## Plot interaction testing set
