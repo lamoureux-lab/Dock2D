@@ -35,6 +35,7 @@ class ParamDistribution:
 		vals, prob = zip(*param)
 		return vals, prob
 
+
 class ProteinPool:
 	def __init__(self, proteins):
 		self.proteins = proteins
