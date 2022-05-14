@@ -1,8 +1,9 @@
 BruteForce/
 ===========
 
-.. automodule:: Dock2D.Models.BruteForce
-   :no-members:
+.. automodule:: Dock2D.Models.BruteForce.train_bruteforce_docking
+
+.. automodule:: Dock2D.Models.BruteForce.train_bruteforce_interaction
 
 .. autoclass:: Dock2D.Models.BruteForce.train_bruteforce_docking.BruteForceDockingTrainer
    :special-members: __init__

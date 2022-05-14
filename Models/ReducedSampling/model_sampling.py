@@ -12,9 +12,9 @@ from Dock2D.Models.model_docking import Docking
 from Dock2D.Utility.utility_functions import UtilityFuncs
 
 
-class Docker(nn.Module):
+class SamplingDocker(nn.Module):
     def __init__(self, dockingFFT, num_angles=1, debug=False):
-        super(Docker, self).__init__()
+        super(SamplingDocker, self).__init__()
         self.num_angles = num_angles
         self.dim = 100
         self.dockingConv = Docking(dim=self.dim, num_angles=self.num_angles, debug=debug)
@@ -58,7 +58,7 @@ class SamplingModel(nn.Module):
         self.debug = debug
         self.num_angles = num_angles
 
-        self.docker = Docker(dockingFFT, num_angles=self.num_angles, debug=self.debug)
+        self.docker = SamplingDocker(dockingFFT, num_angles=self.num_angles, debug=self.debug)
 
         self.sample_steps = sample_steps
         self.step_size = step_size

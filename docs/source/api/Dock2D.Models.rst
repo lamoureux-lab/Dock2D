@@ -8,9 +8,6 @@ Models/
    ../api/Dock2D.Models/Dock2D.Models.BruteForce.rst
    ../api/Dock2D.Models/Dock2D.Models.ReducedSampling.rst
 
-.. automodule:: Dock2D.Models
-   :no-members:
-
 .. autoclass:: Dock2D.Models.model_docking.Docking
    :special-members: __init__, forward
    :undoc-members:

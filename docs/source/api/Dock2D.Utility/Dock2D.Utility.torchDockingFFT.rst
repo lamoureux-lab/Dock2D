@@ -1,5 +1,7 @@
 torchDockingFFT.py
 ==================
+.. automodule:: Dock2D.Utility.torchDockingFFT
+   :undoc-members:
 
 .. autoclass:: Dock2D.Utility.torchDockingFFT.TorchDockingFFT
    :special-members: __init__

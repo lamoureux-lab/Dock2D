@@ -1,10 +1,13 @@
 ReducedSampling/
 ================
 
-.. automodule:: Dock2D.Models.ReducedSampling
-   :no-members:
+.. automodule:: Dock2D.Models.ReducedSampling.train_brutesimplified_docking
 
-.. autoclass:: Dock2D.Models.ReducedSampling.model_sampling.Docker
+.. automodule:: Dock2D.Models.ReducedSampling.train_montecarlo_interaction
+
+.. automodule:: Dock2D.Models.ReducedSampling.model_sampling
+
+.. autoclass:: Dock2D.Models.ReducedSampling.model_sampling.SamplingDocker
    :special-members: __init__, forward
    :members:
    :undoc-members:

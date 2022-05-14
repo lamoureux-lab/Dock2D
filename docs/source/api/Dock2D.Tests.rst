@@ -11,9 +11,6 @@ Testing scripts and classes to check dataset, algorithm, and model functionality
    ../api/Dock2D.Tests/Dock2D.Tests.check_torchFFT.rst
    ../api/Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.rst
 
-.. automodule:: Dock2D.Tests
-   :no-members:
-
 .. automodule:: Dock2D.Tests.check_FI_rawdata_Fdistributions
    :undoc-members:
 
