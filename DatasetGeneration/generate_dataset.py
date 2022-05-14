@@ -9,13 +9,40 @@ from Dock2D.Utility.plotFI import PlotterFI
 from Dock2D.Tests.check_shape_distributions import ShapeDistributions
 
 
-def generate_shapes(params, pool_savepath, pool_savefile, num_proteins=500):
+def generate_pool(params, pool_savepath, pool_savefile, num_proteins=500):
+    r"""
+    Generate the protein pool using parameters for concavity and number of points.
+
+
+    :param params: Pool generation parameters as a list of tuples for `alpha` and `number of points` as (value, relative freq).
+
+        .. code-block::
+
+            shape_alpha = [(0.70, 1), (0.80, 4), (0.90, 6), (0.95, 4), (0.98, 1)]
+            num_points = [(40, 1), (60, 3), (80, 3), (100, 1)]
+
+    :param pool_savepath: path to saved protein pool .pkl
+    :param pool_savefile: protein pool .pkl filename
+    :param num_proteins: number of unique protein shapes to make
+    :return: ``stats`` as observed parameter list of tuples (value, probs)
+    """
     pool, stats = ProteinPool.generate(num_proteins=num_proteins, params=params)
     pool.save(pool_savepath+pool_savefile)
     return stats
 
 
 def generate_interactions(receptor, ligand, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
+    r"""
+    Generate pairwise interactions through FFT scoring of shape bulk and boundary.
+
+    :param receptor: receptor shape
+    :param ligand: ligand shape
+    :param weight_bound: boundary scoring coefficient
+    :param weight_crossterm1: first crossterm scoring coefficient
+    :param weight_crossterm2: second crossterm scoring coefficient
+    :param weight_bulk: bulk scoring coefficient
+    :return: input shape pair and FFT score
+    """
     receptor = torch.tensor(receptor, dtype=torch.float).cuda()
     ligand = torch.tensor(ligand, dtype=torch.float).cuda()
     receptor_stack = FFT.make_boundary(receptor)
@@ -25,7 +52,17 @@ def generate_interactions(receptor, ligand, weight_bound, weight_crossterm1, wei
     return receptor, ligand, fft_score
 
 
-def plot_energy_dists(weight_string, train_fft_score_list, test_fft_score_list, trainpool_num_proteins, testpool_num_proteins, show=False):
+def plot_energy_distributions(weight_string, train_fft_score_list, test_fft_score_list, trainpool_num_proteins, testpool_num_proteins, show=False):
+    r"""
+    Plot histograms of all pairwise energies within training and testing set.
+
+    :param weight_string: str() of feature scoring coefficients
+    :param train_fft_score_list: training set FFT scores
+    :param test_fft_score_list: test set FFT scores
+    :param trainpool_num_proteins: number of proteins in training pool
+    :param testpool_num_proteins: number of proteins in testing pool
+    :param show: show plot in new window (does not affect plot saving)
+    """
     plt.close()
     plt.title('Docking energies of all pairs')
     plt.ylabel('Counts')
@@ -42,6 +79,20 @@ def plot_energy_dists(weight_string, train_fft_score_list, test_fft_score_list, 
 
 
 def plot_accepted_rejected_shapes(receptor, ligand, rot, trans, lowest_energy, fft_score, protein_pool_prefix, plot_count, plot_freq):
+    r"""
+    Plot examples of accepted and rejected shape pairs, based on interaction thresholds set.
+
+    :param receptor:
+    :param ligand:
+    :param rot:
+    :param trans:
+    :param lowest_energy:
+    :param fft_score:
+    :param protein_pool_prefix:
+    :param plot_count:
+    :param plot_freq:
+    :return:
+    """
     if plot_count % plot_freq == 0:
         plt.close()
         pair = UtilityFuncs().plot_assembly(receptor.cpu(), ligand.cpu(), rot.cpu(), trans.cpu())
@@ -182,7 +233,7 @@ if __name__ == '__main__':
     else:
         print('\n' + trainvalidset_protein_pool, 'does not exist yet...')
         print('Generating pool of', str(trainpool_num_proteins), 'protein shapes for training/validation set...')
-        trainset_pool_stats = generate_shapes(train_params, pool_savepath, trainvalidset_protein_pool, trainpool_num_proteins)
+        trainset_pool_stats = generate_pool(train_params, pool_savepath, trainvalidset_protein_pool, trainpool_num_proteins)
 
     ### Generate testing set protein pool
     ## dataset parameters (parameter, probability)
@@ -197,7 +248,7 @@ if __name__ == '__main__':
     else:
         print('\n' + testset_protein_pool, 'does not exist yet...')
         print('Generating pool of', str(testset_protein_pool), 'protein shapes for testing set...')
-        testset_pool_stats = generate_shapes(test_params, pool_savepath, testset_protein_pool, testpool_num_proteins)
+        testset_pool_stats = generate_pool(test_params, pool_savepath, testset_protein_pool, testpool_num_proteins)
 
     ### Generate training/validation set
     train_fft_score_list, train_docking_set, train_interaction_set = generate_datasets(
@@ -294,7 +345,7 @@ if __name__ == '__main__':
 
     if plotting:
         ## Dataset shape pair docking energies distributions
-        plot_energy_dists(weight_string, train_fft_score_list, test_fft_score_list, trainpool_num_proteins, testpool_num_proteins, show=True)
+        plot_energy_distributions(weight_string, train_fft_score_list, test_fft_score_list, trainpool_num_proteins, testpool_num_proteins, show=True)
 
         ## Dataset free energy distributions
         ## Plot interaction training/validation set
