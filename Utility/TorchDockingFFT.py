@@ -6,7 +6,7 @@ import seaborn as sea
 sea.set_style("whitegrid")
 
 from Dock2D.Utility.validation_metrics import RMSD
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 import numpy as np
 
 
@@ -25,7 +25,7 @@ class TorchDockingFFT:
         self.norm = normalization
         self.onehot_3Dgrid = torch.zeros([self.num_angles, self.dim, self.dim], dtype=torch.double).cuda()
 
-        self.UtilityFuncs = UtilityFuncs()
+        self.UtilityFuncs = UtilityFunctions()
 
     def encode_transform(self, gt_rot, gt_txy):
         '''
@@ -168,9 +168,9 @@ class TorchDockingFFT:
             plt.colorbar()
             plt.show()
 
-        pair = UtilityFuncs().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
-                                            gt_rot.detach().cpu().numpy(), gt_txy.detach().cpu().numpy(),
-                                            pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy())
+        pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
+                                                gt_rot.detach().cpu().numpy(), gt_txy.detach().cpu().numpy(),
+                                                pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy())
         plt.imshow(pair.transpose())
         plt.show()
 

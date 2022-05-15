@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from os.path import exists
 from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, ParamDistribution
-from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
-from Dock2D.Utility.utility_functions import UtilityFuncs
-from Dock2D.Utility.plotFI import PlotterFI
+from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
+from Dock2D.Utility.PlotterFI import PlotterFI
 from Dock2D.Tests.check_shape_distributions import ShapeDistributions
 
 
@@ -291,7 +291,7 @@ class DatasetGenerator:
         """
         if plot_count % self.plot_freq == 0:
             plt.close()
-            pair = UtilityFuncs().plot_assembly(receptor.cpu(), ligand.cpu(), rot.cpu(), trans.cpu())
+            pair = UtilityFunctions().plot_assembly(receptor.cpu(), ligand.cpu(), rot.cpu(), trans.cpu())
             plt.imshow(pair.transpose())
             if lowest_energy < self.docking_decision_threshold or lowest_energy < self.interaction_decision_threshold:
                 acc_or_rej = 'ACCEPTED'
@@ -302,9 +302,9 @@ class DatasetGenerator:
             plt.savefig('Figs/AcceptRejectExamples/' + title + '.png')
 
             ### plot corresponding 2d energy surface best scoring translation energy vs rotation angle
-            UtilityFuncs().plot_rotation_energysurface(fft_score, trans,
-                                                       stream_name=acc_or_rej + '_datasetgen_' + protein_pool_prefix,
-                                                       plot_count=plot_count)
+            UtilityFunctions().plot_rotation_energysurface(fft_score, trans,
+                                                           stream_name=acc_or_rej + '_datasetgen_' + protein_pool_prefix,
+                                                           plot_count=plot_count)
 
     def run_generator(self):
         r"""
@@ -322,12 +322,6 @@ class DatasetGenerator:
             |    :func:`plot_shapes_and_params()`
 
         """
-        # :ref:`DatasetGenerator.plot_energy_distributions() <../docs/api/Dock2D.DatasetGeneration.DatasetGenerator.DatasetGenerator.plot_energy_distributions>`
-        # :ref:`UtilityFuncs.plot_rotation_energysurface() <api/Dock2D.Utility.UtilityFuncs.UtilityFuncs.plot_rotation_energysurface>`
-        # :ref:`DatasetGenerator.plot_accepted_rejected_shapes() <api/Dock2D.DatasetGeneration.DatasetGenerator.DatasetGenerator.plot_accepted_rejected_shapes>`
-        # :ref:`PlotterFI.plot_deltaF_distribution() <api/Dock2D.Utility.plotFI.PlotterFI.plot_accepted_rejected_shapes>`
-        # :ref:`ShapeDistributions.plot_shapes_and_params() <api/Dock2D.Tests.check_shape_distributions.ShapeDistributions.plot_shapes_and_params>`
-        # """
 
         ### Generate training/validation set
         train_fft_score_list, train_docking_set, train_interaction_set = self.generate_datasets(
@@ -410,20 +404,20 @@ class DatasetGenerator:
         ## Save training sets
         docking_train_file = self.data_savepath + 'docking_train_' + str(self.trainpool_num_proteins) + 'pool'
         interaction_train_file = self.data_savepath + 'interaction_train_' + str(self.trainpool_num_proteins) + 'pool'
-        UtilityFuncs().write_pkl(data=train_docking_set, fileprefix=docking_train_file)
-        UtilityFuncs().write_pkl(data=train_interaction_set, fileprefix=interaction_train_file)
+        UtilityFunctions().write_pkl(data=train_docking_set, fileprefix=docking_train_file)
+        UtilityFunctions().write_pkl(data=train_interaction_set, fileprefix=interaction_train_file)
 
         ## Save validation sets
         docking_valid_file =self.data_savepath + 'docking_valid_' + str(self.trainpool_num_proteins) + 'pool'
         interaction_valid_file = self.data_savepath + 'interaction_valid_' + str(self.trainpool_num_proteins) + 'pool'
-        UtilityFuncs().write_pkl(data=valid_docking_set, fileprefix=docking_valid_file)
-        UtilityFuncs().write_pkl(data=valid_interaction_set, fileprefix=interaction_valid_file)
+        UtilityFunctions().write_pkl(data=valid_docking_set, fileprefix=docking_valid_file)
+        UtilityFunctions().write_pkl(data=valid_interaction_set, fileprefix=interaction_valid_file)
 
         ## Save testing sets
         docking_test_file = self.data_savepath + 'docking_test_' + str(self.testpool_num_proteins) + 'pool'
         interaction_test_file = self.data_savepath + 'interaction_test_' + str(self.testpool_num_proteins) + 'pool'
-        UtilityFuncs().write_pkl(data=test_docking_set, fileprefix=docking_test_file)
-        UtilityFuncs().write_pkl(data=test_interaction_set, fileprefix=interaction_test_file)
+        UtilityFunctions().write_pkl(data=test_docking_set, fileprefix=docking_test_file)
+        UtilityFunctions().write_pkl(data=test_interaction_set, fileprefix=interaction_test_file)
 
         if self.plotting:
             ## Dataset shape pair docking energies distributions

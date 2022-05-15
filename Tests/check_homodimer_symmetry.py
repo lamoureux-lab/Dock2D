@@ -3,9 +3,9 @@ from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Dock2D.Utility.torchDataLoader import get_docking_stream
-from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.TorchDataLoader import get_docking_stream
+from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 if __name__ == "__main__":
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
         if plotting:
             plt.close()
-            pair = UtilityFuncs().plot_assembly(receptor.cpu(), ligand.cpu(), gt_rot.cpu(), gt_txy.cpu(), rot.cpu(), trans.cpu())
+            pair = UtilityFunctions().plot_assembly(receptor.cpu(), ligand.cpu(), gt_rot.cpu(), gt_txy.cpu(), rot.cpu(), trans.cpu())
             plt.imshow(pair.transpose())
             plt.title('Energy'+str(lowest_energy.item()))
             plt.show()

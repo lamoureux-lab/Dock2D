@@ -6,12 +6,12 @@ sys.path.append('/home/sb1638/') ## path for cluster
 
 import numpy as np
 from tqdm import tqdm
-from Dock2D.Utility.torchDataLoader import get_interaction_stream
-from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.TorchDataLoader import get_interaction_stream
+from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Utility.validation_metrics import APR
-from Dock2D.Utility.plotFI import PlotterFI
-from Dock2D.Utility.sampleBuffer import SampleBuffer
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.PlotterFI import PlotterFI
+from Dock2D.Utility.SampleBuffer import SampleBuffer
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 from Dock2D.Models.BruteForce.train_bruteforce_interaction import Interaction
 from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
@@ -55,7 +55,7 @@ class EnergyBasedInteractionTrainer:
         self.zero_value = torch.zeros(1).squeeze().cuda()
         # self.sigma_scheduler_initial = sigma_scheduler.get_last_lr()[0]
 
-        self.UtilityFuncs = UtilityFuncs()
+        self.UtilityFuncs = UtilityFunctions()
 
     def run_model(self, data, pos_idx=torch.tensor([0]), training=True, stream_name='trainset'):
         receptor, ligand, gt_interact = data

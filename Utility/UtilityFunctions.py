@@ -8,7 +8,7 @@ from torch.nn import functional as F
 from Dock2D.Utility.validation_metrics import RMSD
 
 
-class UtilityFuncs():
+class UtilityFunctions():
     def write_pkl(self, data, fileprefix):
         '''
         :param data:

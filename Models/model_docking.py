@@ -1,8 +1,8 @@
 import torch
 from torch import nn
 
-from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 from e2cnn import nn as enn
 from e2cnn import gspaces
 
@@ -63,7 +63,7 @@ class Docking(nn.Module):
             if plot_count % self.plot_freq == 0:
                 with torch.no_grad():
                     scoring_weights = (self.boundW, self.crosstermW1, self.crosstermW2, self.bulkW)
-                    UtilityFuncs().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
+                    UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
 
         return fft_score
 

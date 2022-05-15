@@ -1,7 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 
 def gaussian1D(M, mean, sigma, a=1):
@@ -26,7 +26,7 @@ def gaussian2D(kernlen=50, mean=0, sigma=5, a=1):
 
 
 if __name__ == '__main__':
-    UtilityFuncs = UtilityFuncs()
+    UtilityFuncs = UtilityFunctions()
 
     ### initialize two different 2D gaussians
     sigma1, sigma2 = 3, 4

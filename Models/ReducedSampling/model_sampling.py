@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import pylab as plt
 
 from Dock2D.Models.model_docking import Docking
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 
 class SamplingDocker(nn.Module):
@@ -41,8 +41,8 @@ class SamplingDocker(nn.Module):
                 deg_index_rot = (((pred_rot * 180.0 / np.pi) + 180.0) % self.num_angles).type(torch.long)
                 best_score = fft_score[deg_index_rot, pred_txy[0], pred_txy[1]]
                 if plotting and self.num_angles == 360 and plot_count % 10 == 0:
-                    UtilityFuncs().plot_rotation_energysurface(fft_score, pred_txy, self.num_angles, stream_name,
-                                                               plot_count)
+                    UtilityFunctions().plot_rotation_energysurface(fft_score, pred_txy, self.num_angles, stream_name,
+                                                                   plot_count)
             else:
                 best_score = fft_score[pred_txy[0], pred_txy[1]]
 

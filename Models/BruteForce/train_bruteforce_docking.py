@@ -7,12 +7,12 @@ sys.path.append('/home/sb1638/') ## path for cluster
 import numpy as np
 
 from tqdm import tqdm
-from Dock2D.Utility.torchDataLoader import get_docking_stream
-from Dock2D.Utility.torchDockingFFT import TorchDockingFFT
+from Dock2D.Utility.TorchDataLoader import get_docking_stream
+from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Models.model_docking import Docking
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 from Dock2D.Utility.validation_metrics import RMSD
-from Dock2D.Utility.plotIP import PlotterIP
+from Dock2D.Utility.PlotterIP import PlotterIP
 
 
 class BruteForceDockingTrainer:
@@ -36,7 +36,7 @@ class BruteForceDockingTrainer:
         self.optimizer = cur_optimizer
         self.experiment = cur_experiment
 
-        self.UtilityFuncs = UtilityFuncs()
+        self.UtilityFuncs = UtilityFunctions()
 
     def run_model(self, data, training=True, pos_idx=0, stream_name='trainset'):
         receptor, ligand, gt_rot, gt_txy = data

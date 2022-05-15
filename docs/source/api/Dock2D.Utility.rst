@@ -7,10 +7,10 @@ Utility classes ranging from data loading to plotting.
    :maxdepth: 1
    :caption: Contents:
 
-   ../api/Dock2D.Utility/Dock2D.Utility.plotFI.rst
-   ../api/Dock2D.Utility/Dock2D.Utility.plotIP.rst
-   ../api/Dock2D.Utility/Dock2D.Utility.sampleBuffer.rst
-   ../api/Dock2D.Utility/Dock2D.Utility.torchDataLoader.rst
-   ../api/Dock2D.Utility/Dock2D.Utility.torchDockingFFT.rst
-   ../api/Dock2D.Utility/Dock2D.Utility.utility_functions.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.PlotterFI.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.PlotterIP.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.SampleBuffer.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.TorchDataLoader.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.TorchDockingFFT.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.UtilityFunctions.rst
    ../api/Dock2D.Utility/Dock2D.Utility.validation_metrics.rst

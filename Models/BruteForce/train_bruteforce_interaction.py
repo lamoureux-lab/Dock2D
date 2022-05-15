@@ -8,10 +8,10 @@ sys.path.append('/home/sb1638/')
 
 import numpy as np
 from tqdm import tqdm
-from Dock2D.Utility.torchDataLoader import get_interaction_stream
+from Dock2D.Utility.TorchDataLoader import get_interaction_stream
 from Dock2D.Utility.validation_metrics import APR
-from Dock2D.Utility.plotFI import PlotterFI
-from Dock2D.Utility.utility_functions import UtilityFuncs
+from Dock2D.Utility.PlotterFI import PlotterFI
+from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 from Dock2D.Models.model_interaction import Interaction
 from Dock2D.Models.model_docking import Docking
 
@@ -57,7 +57,7 @@ class BruteForceInteractionTrainer:
         self.wReg = 1e-5
         self.zero_value = torch.zeros(1).squeeze().cuda()
 
-        self.UtilityFuncs = UtilityFuncs()
+        self.UtilityFuncs = UtilityFunctions()
 
     def run_model(self, data, training=True):
         receptor, ligand, gt_interact = data

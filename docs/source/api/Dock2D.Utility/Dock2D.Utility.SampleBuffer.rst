@@ -1,10 +1,10 @@
 sampleBuffer.py
 ==================
 
-.. automodule:: Dock2D.Utility.sampleBuffer
+.. automodule:: Dock2D.Utility.SampleBuffer
    :undoc-members:
 
-.. autoclass:: Dock2D.Utility.sampleBuffer.SampleBuffer
+.. autoclass:: Dock2D.Utility.SampleBuffer.SampleBuffer
    :special-members: __init__, __len__,
    :members: push, get
    :undoc-members:
