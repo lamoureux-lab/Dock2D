@@ -13,12 +13,66 @@ class DatasetGenerator:
 
     def __init__(self):
         r"""
-        Initialize dataset generation parameters
+        Initialize and modify all dataset generation parameters here.
+        Creates both training set and testing set protein pools if they do not already exist in the specified ``pool_savepath``.
 
-        :weight_bound: boundary scoring coefficient
-        :weight_crossterm1: first crossterm scoring coefficient
-        :weight_crossterm2: second crossterm scoring coefficient
-        :weight_bulk: bulk scoring coefficient
+        .. code-block:: python3
+
+            ### Initializations START
+            self.plotting = True
+            self.plot_freq = 100
+            self.show = True
+            self.swap_quadrants = False
+            self.trainset_exists = False
+            self.testset_exists = False
+            self.trainset_pool_stats = None
+            self.testset_pool_stats = None
+
+            ## Paths
+            self.pool_savepath = 'PoolData/'
+            self.poolstats_savepath = 'PoolData/stats/'
+            self.data_savepath = '../Datasets/'
+            self.datastats_savepath = '../Datasets/stats/'
+            self.log_savepath = 'Log/losses/'
+
+            ## normalization of features during FFT
+            self.normalization = 'ortho'
+            self.FFT = TorchDockingFFT(swap_plot_quadrants=self.swap_quadrants, normalization=self.normalization)
+
+            ## number of unique protein shapes to generate in pool
+            self.trainpool_num_proteins = 10
+            self.testpool_num_proteins = 10
+
+            ## proportion of training set kept for validation
+            self.validation_set_cutoff = 0.8
+
+            ## shape feature scoring coefficients
+            self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk = 10, 20, 20, 200
+
+            ## energy cutoff for deciding if a shape interacts or not
+            self.docking_decision_threshold = -90
+            self.interaction_decision_threshold = -90
+
+            ## string of scoring coefficients for plot titles and filenames
+            self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm1) + ','\
+                                 + str(self.weight_crossterm2) + ',' + str(self.weight_bulk)
+
+            ## training and testing set pool filenames
+            self.trainvalidset_protein_pool = 'trainvalidset_protein_pool' + str(self.trainpool_num_proteins) + '.pkl'
+            self.testset_protein_pool = 'testset_protein_pool' + str(self.testpool_num_proteins) + '.pkl'
+
+            ### Generate training/validation set protein pool
+            ## dataset parameters (value, relative frequency)
+            self.train_alpha = [(0.80, 1), (0.85, 2), (0.90, 1)] # concavity level [0-1)
+            self.train_num_points = [(60, 1), (80, 2), (100, 1)] # number of points for shape generation [0-1)
+            self.train_params = ParamDistribution(alpha=self.train_alpha, num_points=self.train_num_points)
+
+            ### Generate testing set protein pool
+            ## dataset parameters (value, relative frequency)
+            self.test_alpha = [(0.70, 1), (0.80, 4), (0.90, 6), (0.95, 4), (0.98, 1)]
+            self.test_num_points = [(40, 1), (60, 3), (80, 3), (100, 1)]
+            self.test_params = ParamDistribution(alpha=self.test_alpha, num_points=self.test_num_points)
+            ### Initializations END
         """
         ### Initializations START
         self.plotting = True
@@ -30,37 +84,53 @@ class DatasetGenerator:
         self.trainset_pool_stats = None
         self.testset_pool_stats = None
 
-        self.log_savepath = 'Log/losses/'
+        ## Paths
         self.pool_savepath = 'PoolData/'
         self.poolstats_savepath = 'PoolData/stats/'
         self.data_savepath = '../Datasets/'
         self.datastats_savepath = '../Datasets/stats/'
+        self.log_savepath = 'Log/losses/'
 
+        ## normalization of features during FFT
         self.normalization = 'ortho'
         self.FFT = TorchDockingFFT(swap_plot_quadrants=self.swap_quadrants, normalization=self.normalization)
 
+        ## number of unique protein shapes to generate in pool
         self.trainpool_num_proteins = 10
         self.testpool_num_proteins = 10
 
-        self.validation_set_cutoff = 0.8  ## proportion of training set to keep
+        ## proportion of training set kept for validation
+        self.validation_set_cutoff = 0.8
 
+        ## shape feature scoring coefficients
         self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk = 10, 20, 20, 200
+
+        ## energy cutoff for deciding if a shape interacts or not
         self.docking_decision_threshold = -90
         self.interaction_decision_threshold = -90
 
+        ## string of scoring coefficients for plot titles and filenames
         self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm1) + ','\
                              + str(self.weight_crossterm2) + ',' + str(self.weight_bulk)
 
+        ## training and testing set pool filenames
         self.trainvalidset_protein_pool = 'trainvalidset_protein_pool' + str(self.trainpool_num_proteins) + '.pkl'
         self.testset_protein_pool = 'testset_protein_pool' + str(self.testpool_num_proteins) + '.pkl'
-        ### Initializations END
 
         ### Generate training/validation set protein pool
-        ## dataset parameters (parameter, probability)
-        self.train_alpha = [(0.80, 1), (0.85, 2), (0.90, 1)]
-        self.train_num_points = [(60, 1), (80, 2), (100, 1)]
+        ## dataset parameters (value, relative frequency)
+        self.train_alpha = [(0.80, 1), (0.85, 2), (0.90, 1)] # concavity level [0-1)
+        self.train_num_points = [(60, 1), (80, 2), (100, 1)] # number of points for shape generation [0-1)
         self.train_params = ParamDistribution(alpha=self.train_alpha, num_points=self.train_num_points)
 
+        ### Generate testing set protein pool
+        ## dataset parameters (value, relative frequency)
+        self.test_alpha = [(0.70, 1), (0.80, 4), (0.90, 6), (0.95, 4), (0.98, 1)]
+        self.test_num_points = [(40, 1), (60, 3), (80, 3), (100, 1)]
+        self.test_params = ParamDistribution(alpha=self.test_alpha, num_points=self.test_num_points)
+        ### Initializations END
+
+        ## check if protein pools already exist
         if exists(self.pool_savepath+self.trainvalidset_protein_pool):
             self.trainset_exists = True
             print('\n' + self.trainvalidset_protein_pool, 'already exists!')
@@ -69,12 +139,6 @@ class DatasetGenerator:
             print('\n' + self.trainvalidset_protein_pool, 'does not exist yet...')
             print('Generating pool of', str(self.trainpool_num_proteins), 'protein shapes for training/validation set...')
             self.trainset_pool_stats = self.generate_pool(self.train_params, self.trainvalidset_protein_pool, self.trainpool_num_proteins)
-
-        ### Generate testing set protein pool
-        ## dataset parameters (parameter, probability)
-        self.test_alpha = [(0.70, 1), (0.80, 4), (0.90, 6), (0.95, 4), (0.98, 1)]
-        self.test_num_points = [(40, 1), (60, 3), (80, 3), (100, 1)]
-        self.test_params = ParamDistribution(alpha=self.test_alpha, num_points=self.test_num_points)
 
         if exists(self.pool_savepath + self.testset_protein_pool):
             self.testset_exists = True
@@ -99,7 +163,7 @@ class DatasetGenerator:
 
         :param pool_savefile: protein pool .pkl filename
         :param num_proteins: number of unique protein shapes to make
-        :return: ``stats`` as observed parameter list of tuples (value, probs)
+        :return: ``stats``  observed sampling of alphas and num_points used in protein pool creation
         """
         pool, stats = ProteinPool.generate(num_proteins=num_proteins, params=params)
         pool.save(self.pool_savepath+pool_savefile)
@@ -109,9 +173,9 @@ class DatasetGenerator:
         r"""
         Generate pairwise interactions through FFT scoring of shape bulk and boundary.
 
-        :param receptor: receptor shape
-        :param ligand: ligand shape
-        :return: input shape pair and FFT score
+        :param receptor: a shape assigned as ``receptor`` from protein pool
+        :param ligand: a shape assigned as ``ligand`` from protein pool
+        :return: ``receptor, ligand,`` and their ``fft_score``
         """
         receptor = torch.tensor(receptor, dtype=torch.float).cuda()
         ligand = torch.tensor(ligand, dtype=torch.float).cuda()
@@ -125,9 +189,10 @@ class DatasetGenerator:
         r"""
         Generate docking and interaction dataset based on protein pool.
 
-        :param protein_pool: protein pool .pkl
+        :param protein_pool: protein pool .pkl filename
         :param num_proteins: can specify size of protein pool to use in generating pairwise interactions, ``None`` uses the entire protein pool.
-        :return:
+        :return: ``fft_score_list`` used only in plotting, the ``docking_set`` is the docking dataset (IP) as a list of lists `[receptor, ligand, rot, trans]`,
+                 and ``interaction_set`` a list of `[protein_shapes, interactions_list, labels_list]`
         """
         data = ProteinPool.load(self.pool_savepath+protein_pool)
 
@@ -187,7 +252,83 @@ class DatasetGenerator:
 
         return fft_score_list, docking_set, interaction_set
 
+    def plot_energy_distributions(self, train_fft_score_list, test_fft_score_list, show=False):
+        r"""
+        Plot histograms of all pairwise energies within training and testing set.
+
+        :param train_fft_score_list: training set FFT scores
+        :param test_fft_score_list: test set FFT scores
+        :param trainpool_num_proteins: number of proteins in training pool
+        :param testpool_num_proteins: number of proteins in testing pool
+        :param show: show plot in new window (does not affect plot saving)
+        """
+        plt.close()
+        plt.title('Docking energies of all pairs')
+        plt.ylabel('Counts')
+        plt.xlabel('Energies')
+        y1, x1, _ = plt.hist(train_fft_score_list[1], alpha=0.33)
+        y2, x2, _ = plt.hist(test_fft_score_list[1], alpha=0.33)
+        plt.vlines(self.docking_decision_threshold, ymin=0, ymax=max(y1.max(), y2.max())+1, linestyles='dashed', label='docking decision threshold', colors='k')
+        plt.legend(['docking decision threshold', 'training set', 'testing set'])
+        savefile = 'Figs/PairEnergyDistributions/energydistribution_' + self.weight_string +\
+                   '_trainpool'+str(self.trainpool_num_proteins) + 'testpool'+str(self.testpool_num_proteins) + '.png'
+        plt.savefig(savefile)
+        if show:
+            plt.show()
+
+    def plot_accepted_rejected_shapes(self, receptor, ligand, rot, trans, lowest_energy, fft_score, protein_pool_prefix, plot_count):
+        r"""
+        Plot examples of accepted and rejected shape pairs, based on docking and interaction decision thresholds set.
+
+        :param receptor: receptor shape image
+        :param ligand: ligand shape image
+        :param rot: rotation to apply to ligand
+        :param trans: translation to apply to ligand
+        :param lowest_energy: minimum energy from FFT score
+        :param fft_score: over all FFT score
+        :param protein_pool_prefix: filename prefix
+        :param plot_count: used as index in plotting
+        """
+        if plot_count % self.plot_freq == 0:
+            plt.close()
+            pair = UtilityFuncs().plot_assembly(receptor.cpu(), ligand.cpu(), rot.cpu(), trans.cpu())
+            plt.imshow(pair.transpose())
+            if lowest_energy < self.docking_decision_threshold or lowest_energy < self.interaction_decision_threshold:
+                acc_or_rej = 'ACCEPTED'
+            else:
+                acc_or_rej = 'REJECTED'
+            title = acc_or_rej + '_energy' + str(lowest_energy.item()) + '_docking'+str(self.docking_decision_threshold)+'_interaction'+str(interaction_decision_threshold)
+            plt.title(title)
+            plt.savefig('Figs/AcceptRejectExamples/' + title + '.png')
+
+            ### plot corresponding 2d energy surface best scoring translation energy vs rotation angle
+            UtilityFuncs().plot_rotation_energysurface(fft_score, trans,
+                                                       stream_name=acc_or_rej + '_datasetgen_' + protein_pool_prefix,
+                                                       plot_count=plot_count)
+
     def run_generator(self):
+        r"""
+        Generates the training, validation, and testing sets for both docking (IP) and interaction (FI) from.
+        Write all datasets to .pkl files. Saves all metrics to file. Prints IP and FI dataset stats.
+        If ``self.plotting=True`` plot and save dataset generation plots.
+        Specify ``self.show=True`` to show each plot in a new window (does not affect saving).
+
+        Links to plotting methods:
+
+            |    :func:`plot_energy_distributions()`
+            |    :func:`plot_rotation_energysurface()`
+            |    :func:`plot_accepted_rejected_shapes()`
+            |    :func:`plot_deltaF_distribution()`
+            |    :func:`plot_shapes_and_params()`
+
+        """
+        # :ref:`DatasetGenerator.plot_energy_distributions() <../docs/api/Dock2D.DatasetGeneration.DatasetGenerator.DatasetGenerator.plot_energy_distributions>`
+        # :ref:`UtilityFuncs.plot_rotation_energysurface() <api/Dock2D.Utility.UtilityFuncs.UtilityFuncs.plot_rotation_energysurface>`
+        # :ref:`DatasetGenerator.plot_accepted_rejected_shapes() <api/Dock2D.DatasetGeneration.DatasetGenerator.DatasetGenerator.plot_accepted_rejected_shapes>`
+        # :ref:`PlotterFI.plot_deltaF_distribution() <api/Dock2D.Utility.plotFI.PlotterFI.plot_accepted_rejected_shapes>`
+        # :ref:`ShapeDistributions.plot_shapes_and_params() <api/Dock2D.Tests.check_shape_distributions.ShapeDistributions.plot_shapes_and_params>`
+        # """
+
         ### Generate training/validation set
         train_fft_score_list, train_docking_set, train_interaction_set = self.generate_datasets(
             self.trainvalidset_protein_pool, self.trainpool_num_proteins)
@@ -219,7 +360,6 @@ class DatasetGenerator:
         print('\nRaw Testing set:')
         print('Docking set length', len(test_docking_set))
         print('Interaction set length', len(test_interaction_set[-1]))
-
 
         ## Write protein pool summary statistics to file
         if not self.trainset_exists:
@@ -305,62 +445,6 @@ class DatasetGenerator:
                                show=self.show).plot_shapes_and_params()
             ShapeDistributions(self.pool_savepath + self.testset_protein_pool, 'testset',
                                show=self.show).plot_shapes_and_params()
-
-    def plot_energy_distributions(self, train_fft_score_list, test_fft_score_list, show=False):
-        r"""
-        Plot histograms of all pairwise energies within training and testing set.
-
-        :param train_fft_score_list: training set FFT scores
-        :param test_fft_score_list: test set FFT scores
-        :param trainpool_num_proteins: number of proteins in training pool
-        :param testpool_num_proteins: number of proteins in testing pool
-        :param show: show plot in new window (does not affect plot saving)
-        """
-        plt.close()
-        plt.title('Docking energies of all pairs')
-        plt.ylabel('Counts')
-        plt.xlabel('Energies')
-        y1, x1, _ = plt.hist(train_fft_score_list[1], alpha=0.33)
-        y2, x2, _ = plt.hist(test_fft_score_list[1], alpha=0.33)
-        plt.vlines(self.docking_decision_threshold, ymin=0, ymax=max(y1.max(), y2.max())+1, linestyles='dashed', label='docking decision threshold', colors='k')
-        plt.legend(['docking decision threshold', 'training set', 'testing set'])
-        savefile = 'Figs/PairEnergyDistributions/energydistribution_' + self.weight_string +\
-                   '_trainpool'+str(self.trainpool_num_proteins) + 'testpool'+str(self.testpool_num_proteins) + '.png'
-        plt.savefig(savefile)
-        if show:
-            plt.show()
-
-    def plot_accepted_rejected_shapes(self, receptor, ligand, rot, trans, lowest_energy, fft_score, protein_pool_prefix, plot_count):
-        r"""
-        Plot examples of accepted and rejected shape pairs, based on docking and interaction decision thresholds set.
-
-        :param receptor: receptor shape
-        :param ligand: ligand shape
-        :param rot: rotation
-        :param trans: translation
-        :param lowest_energy: minimum energy computed from FFT
-        :param fft_score: over all FFT score
-        :param protein_pool_prefix:
-        :param plot_count:
-        :return:
-        """
-        if plot_count % self.plot_freq == 0:
-            plt.close()
-            pair = UtilityFuncs().plot_assembly(receptor.cpu(), ligand.cpu(), rot.cpu(), trans.cpu())
-            plt.imshow(pair.transpose())
-            if lowest_energy < self.docking_decision_threshold or lowest_energy < self.interaction_decision_threshold:
-                acc_or_rej = 'ACCEPTED'
-            else:
-                acc_or_rej = 'REJECTED'
-            title = acc_or_rej + '_energy' + str(lowest_energy.item()) + '_docking'+str(self.docking_decision_threshold)+'_interaction'+str(interaction_decision_threshold)
-            plt.title(title)
-            plt.savefig('Figs/AcceptRejectExamples/' + title + '.png')
-
-            ### plot corresponding 2d energy surface best scoring translation energy vs rotation angle
-            UtilityFuncs().plot_rotation_energysurface(fft_score, trans,
-                                                       stream_name=acc_or_rej + '_datasetgen_' + protein_pool_prefix,
-                                                       plot_count=plot_count)
-
 
 
 if __name__ == '__main__':

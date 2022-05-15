@@ -7,6 +7,6 @@ Generate a protein pool to create IP and FI datasets.
    :maxdepth: 1
    :caption: Contents:
 
-   ../api/Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.generate_dataset.rst
+   ../api/Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.rst
    ../api/Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.Protein.rst
    ../api/Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.ProteinPool.rst
