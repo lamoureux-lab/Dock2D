@@ -1,4 +1,4 @@
-torchDockingFFT.py
+TorchDockingFFT
 ==================
 
 .. automodule:: Dock2D.Utility.TorchDockingFFT

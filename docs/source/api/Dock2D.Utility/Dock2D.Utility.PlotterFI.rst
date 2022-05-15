@@ -1,4 +1,4 @@
-plotFI.py
+PlotterFI
 ==================
 
 .. automodule:: Dock2D.Utility.PlotterFI

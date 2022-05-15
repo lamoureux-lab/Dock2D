@@ -1,4 +1,4 @@
-plotIP.py
+PlotterIP
 ==================
 
 .. automodule:: Dock2D.Utility.PlotterIP

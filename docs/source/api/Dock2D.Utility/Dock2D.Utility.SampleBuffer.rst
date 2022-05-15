@@ -1,4 +1,4 @@
-sampleBuffer.py
+SampleBuffer
 ==================
 
 .. automodule:: Dock2D.Utility.SampleBuffer

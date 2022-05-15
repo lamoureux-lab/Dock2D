@@ -1,4 +1,4 @@
-torchDataLoader.py
+TorchDataLoader
 ==================
 
 .. automodule:: Dock2D.Utility.TorchDataLoader

@@ -61,16 +61,16 @@ class UtilityFunctions():
             torch.nn.init.kaiming_uniform_(model.weight)
             # torch.nn.init.kaiming_normal_(model.weight)
 
-    def plot_coords(self, ax, poly, plot_alpha=0.25):
-        x, y = poly.exterior.xy
-        ax.fill(x, y, alpha=plot_alpha)
-
-    def plot_multipoly(self, multipolygon):
-        plt.close()
-        fig, ax = plt.subplots()
-        ax.axis('equal')
-        for poly in multipolygon:
-            self.plot_coords(ax, poly)
+    # def plot_coords(self, ax, poly, plot_alpha=0.25):
+    #     x, y = poly.exterior.xy
+    #     ax.fill(x, y, alpha=plot_alpha)
+    #
+    # def plot_multipoly(self, multipolygon):
+    #     plt.close()
+    #     fig, ax = plt.subplots()
+    #     ax.axis('equal')
+    #     for poly in multipolygon:
+    #         self.plot_coords(ax, poly)
 
     # def get_rot_mat(self, theta):
     #     return torch.tensor([[torch.cos(theta), -torch.sin(theta), 0],

@@ -316,10 +316,10 @@ class DatasetGenerator:
         Links to plotting methods:
 
             |    :func:`plot_energy_distributions()`
-            |    :func:`plot_rotation_energysurface()`
+            |    :func:`UtilityFunctions.plot_rotation_energysurface()`
             |    :func:`plot_accepted_rejected_shapes()`
-            |    :func:`plot_deltaF_distribution()`
-            |    :func:`plot_shapes_and_params()`
+            |    :func:`PlotterFI.plot_deltaF_distribution()`
+            |    :func:`ShapeDistributions.plot_shapes_and_params()`
 
         """
 
