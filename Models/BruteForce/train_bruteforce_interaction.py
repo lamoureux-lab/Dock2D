@@ -72,8 +72,8 @@ class BruteForceInteractionTrainer:
 
         ### run model and loss calculation
         ##### call model(s)
-        fft_score = self.docking_model(receptor, ligand, plotting=self.plotting)
-        pred_interact, deltaF, F, F_0 = self.interaction_model(fft_score, plotting=self.plotting)
+        fft_scores = self.docking_model(receptor, ligand, plotting=self.plotting)
+        pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=True, fft_scores=fft_scores)
 
         ### check parameters and gradients
         ### if weights are frozen or updating
@@ -234,10 +234,10 @@ class BruteForceInteractionTrainer:
 
             print('\ndocking model:\n', self.docking_model)
             ## print model and params being loaded
-            self.check_model_gradients(self.docking_model)
+            self.UtilityFuncs.check_model_gradients(self.docking_model)
             print('\ninteraction model:\n', self.interaction_model)
             ## print model and params being loaded
-            self.check_model_gradients(self.interaction_model)
+            self.UtilityFuncs.check_model_gradients(self.interaction_model)
 
             print('\nLOADING MODEL AT EPOCH', start_epoch, '\n')
         else:
@@ -314,7 +314,7 @@ if __name__ == '__main__':
     # CUDA_LAUNCH_BLOCKING = 1
     # torch.autograd.set_detect_anomaly(True)
     #########################
-    train_epochs = 100
+    train_epochs = 20
     lr_interaction = 10**-1
     lr_docking = 10**-4
     gamma = 0.95
@@ -327,12 +327,10 @@ if __name__ == '__main__':
 
     ## number_of_pairs provides max_size of interactions: max_size = int(number_of_pairs + (number_of_pairs**2 - number_of_pairs)/2)
     number_of_pairs = 100
-    batch_size = 1
-    if batch_size > 1:
-        raise NotImplementedError()
-    train_stream = get_interaction_stream(trainset + '.pkl', batch_size=batch_size, number_of_pairs=number_of_pairs)
-    valid_stream = get_interaction_stream(validset + '.pkl', batch_size=1, number_of_pairs=number_of_pairs)
-    test_stream = get_interaction_stream(testset + '.pkl', batch_size=1, number_of_pairs=number_of_pairs)
+
+    train_stream = get_interaction_stream(trainset + '.pkl', number_of_pairs=number_of_pairs)
+    valid_stream = get_interaction_stream(validset + '.pkl', number_of_pairs=number_of_pairs)
+    test_stream = get_interaction_stream(testset + '.pkl', number_of_pairs=number_of_pairs)
     ######################
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_1000ex50ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_2000ex50ep'
@@ -340,7 +338,9 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_10000ex30ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_20000ex30ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_20000ex30ep'
-    experiment = 'BF_FI_400pool_100pairs_100ep_filr1e-1_noFreg'
+    # experiment = 'BF_FI_400pool_100pairs_100ep_filr1e-1_noFreg'
+    experiment = 'BF_FI_400pool_100pairs_20ep_check_model_interaction'
+
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -355,10 +355,10 @@ if __name__ == '__main__':
     # BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
     #                              ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
-    ## Resume training model at chosen epoch
-    BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
-                                 ).run_trainer(resume_training=True, resume_epoch=60, train_epochs=40, train_stream=train_stream, valid_stream=None, test_stream=None)
-    #
+    # ## Resume training model at chosen epoch
+    # BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
+    #                              ).run_trainer(resume_training=True, resume_epoch=60, train_epochs=40, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # #
 
     ### Validate model at chosen epoch
     BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
