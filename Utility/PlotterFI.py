@@ -5,7 +5,7 @@ import sys
 
 
 class PlotterFI:
-    def __init__(self, experiment=None, logfile_savepath='Log/losses/'):
+    def __init__(self, experiment=None, logfile_savepath='Log/losses/FI_loss/'):
         self.experiment = experiment
         self.logfile_savepath = logfile_savepath
         self.logtraindF_prefix = 'log_deltaF_TRAINset_epoch'
