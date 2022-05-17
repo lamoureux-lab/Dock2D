@@ -158,19 +158,26 @@ class BruteSimplifiedDockingTrainer:
             if epoch % self.eval_freq == 0 or epoch == 1:
                 for i in range(self.eval_epochs):
                     self.resume_training_or_not(resume_training, resume_epoch)
+
+                    if self.MC_eval:
+                        # sigma_optimizer.step()
+                        # sigma_scheduler.step()
+                        # self.sigma_alpha = sigma_scheduler.get_last_lr()[0]
+                        print('Monte Carlo eval epoch', i)
+                        print('current sigma_alpha', self.sigma_alpha)
+                        rmsd_validlog = self.logfile_savepath + 'log_RMSDsVALIDset_epoch' + str(epoch-1) + self.experiment + '.txt'
+                        rmsd_testlog = self.logfile_savepath + 'log_RMSDsTESTset_epoch' + str(epoch-1) + self.experiment + '.txt'
+                        with open(rmsd_validlog, 'w') as fout:
+                            fout.write('Validation RMSD\n')
+                        with open(rmsd_testlog, 'w') as fout:
+                            fout.write('Testing RMSD\n')
+
                     if valid_stream:
                         stream_name = 'VALIDset'
                         self.run_epoch(valid_stream, epoch-1, training=False, stream_name=stream_name)
                     if test_stream:
                         stream_name = 'TESTset'
                         self.run_epoch(test_stream, epoch-1, training=False, stream_name=stream_name)
-
-                    if self.MC_eval:
-                        sigma_optimizer.step()
-                        sigma_scheduler.step()
-                        self.sigma_alpha = sigma_scheduler.get_last_lr()[0]
-                        print('Monte Carlo eval epoch', i)
-                        print('sigma_alpha stepped', self.sigma_alpha)
 
     def run_epoch(self, data_stream, epoch, training=False, stream_name='train_stream'):
         stream_loss = []
