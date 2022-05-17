@@ -18,17 +18,14 @@ if __name__ == '__main__':
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     ######################
-    batch_size = 1
     max_size = 1000
-    if batch_size > 1:
-        raise NotImplementedError()
-    train_stream = get_docking_stream(trainset + '.pkl', batch_size, max_size=max_size)
-    valid_stream = get_docking_stream(validset + '.pkl', batch_size=1, max_size=max_size)
-    test_stream = get_docking_stream(testset + '.pkl', batch_size=1, max_size=max_size)
+    train_stream = get_docking_stream(trainset + '.pkl', max_size=max_size)
+    valid_stream = get_docking_stream(validset + '.pkl', max_size=max_size)
+    test_stream = get_docking_stream(testset + '.pkl', max_size=max_size)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
 
     ######### Metropolis-Hastings (Monte Carlo) eval on ideal learned energy surface
-    train_epochs = 30
+    train_epochs = 10
     sample_steps = 100
     MC_eval_num_epochs = 5
     sigma_alpha = 3.0
@@ -47,7 +44,7 @@ if __name__ == '__main__':
     sigma_scheduler = optim.lr_scheduler.ExponentialLR(sigma_optimizer, gamma=gamma)
 
     ### Train ideal energy surface using BS model
-    BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, debug=debug).run_trainer(train_epochs, train_stream=train_stream)
+    # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, debug=debug).run_trainer(train_epochs, train_stream=train_stream)
 
     ### Initialiize MC evaluation
     eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, IP_MC=True).to(device=0)

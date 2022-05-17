@@ -9,6 +9,9 @@ from Dock2D.Utility.validation_metrics import RMSD
 
 
 class UtilityFunctions():
+    def __init__(self, experiment=None):
+        self.experiment = experiment
+
     def write_pkl(self, data, fileprefix):
         '''
         :param data:
@@ -129,13 +132,31 @@ class UtilityFunctions():
                 minimumEnergy = -fft_score[i, pred_txy[0], pred_txy[1]].detach().cpu()
                 mintxy_energies.append(minimumEnergy)
 
-        xrange = np.arange(0, 2 * np.pi, 2 * np.pi / num_angles)
+        xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
         hardmin_minEnergies = stream_name + '_energysurface' + '_example' + str(plot_count)
         plt.plot(xrange, mintxy_energies)
         plt.title('Best Scoring Translation Energy Surface')
         plt.ylabel('Energy')
         plt.xlabel('Rotation (rads)')
         plt.savefig('Figs/EnergySurfaces/' + hardmin_minEnergies + '.png')
+
+    def plot_MCsampled_energysurface(self, sampled_alpha_freeEnergies, acceptance_rate, stream_name=None, plot_count=0, epoch=0):
+        plt.close()
+        plt.figure(figsize=(15,10))
+        sampled_alpha_freeEnergies = sampled_alpha_freeEnergies.detach().cpu()
+        num_angles = len(sampled_alpha_freeEnergies)
+
+        xrange = np.arange(0, num_angles, 1)
+
+        mcsampled_energies_name = 'example' + str(plot_count)+'_epoch'+str(epoch) + stream_name + self.experiment + '_energysurface'
+        plt.plot(xrange, sampled_alpha_freeEnergies)
+        plt.ylim([min(sampled_alpha_freeEnergies), 1])
+        plt.hlines(y=0, xmin=0, xmax=num_angles, linestyles='dashed', label='zero energy', colors='k')
+        plt.suptitle('MonteCarlo sampled energy surface, acceptance rate='+str(acceptance_rate))
+        plt.title(mcsampled_energies_name)
+        plt.ylabel('Energy')
+        plt.xlabel('Rotation indices')
+        plt.savefig('Figs/EnergySurfaces/' + mcsampled_energies_name + '.png')
 
     def plot_assembly(self, receptor, ligand, gt_rot, gt_txy, pred_rot=None, pred_txy=None):
         box_size = receptor.shape[-1]

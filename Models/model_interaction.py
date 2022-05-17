@@ -6,22 +6,23 @@ class Interaction(nn.Module):
     def __init__(self):
         super(Interaction, self).__init__()
         self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
-        # self.log_volume = torch.log(torch.tensor(100 ** 2))
+        self.BF_log_volume = torch.log(360 * torch.tensor(100 ** 2))
 
-    def forward(self, fft_scores=None, free_energies=None, debug=False):
+    def forward(self, brute_force=True, fft_scores=None, free_energies=None, debug=False):
         ##TODO: pass BETA, has to be returned from MC docker
 
         #  include only unique angles, remove redundant visits
         #  include grid of alphas with sample E and unsampled as 0
 
-        if fft_scores:
+        if brute_force:
             E = -fft_scores.squeeze()
             if len(E.shape) < 3:
                 E = E.unsqueeze(0)
-            F = -(torch.logsumexp(-E, dim=(0, 1, 2)))
+            F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
         else:
             # F = torch.sum(free_energies)
-            F = -(torch.logsumexp(-free_energies, dim=0))
+            F = -(torch.logsumexp(-free_energies, dim=0) - self.BF_log_volume)
+
 
 
 

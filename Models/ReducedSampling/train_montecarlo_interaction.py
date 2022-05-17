@@ -19,18 +19,18 @@ from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
 
 class EnergyBasedInteractionTrainer:
 
-    def __init__(self, docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
+    def __init__(self, docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=3.0,
                  debug=False, plotting=False):
         # print("RUNNING INIT")
         self.debug = debug
         self.plotting = plotting
-
+        self.plot_freq = 100
         self.check_epoch = 1
         self.eval_freq = 1
         self.save_freq = 1
 
         self.model_savepath = 'Log/saved_models/'
-        self.logfile_savepath = 'Log/losses/'
+        self.logfile_savepath = 'Log/losses/FI_loss/'
         self.logtraindF_prefix = 'log_deltaF_TRAINset_epoch'
         self.logloss_prefix = 'log_loss_TRAINset_'
         self.logAPR_prefix = 'log_validAPR_'
@@ -47,17 +47,21 @@ class EnergyBasedInteractionTrainer:
         self.interaction_optimizer = interaction_optimizer
         self.experiment = experiment
 
-        num_examples = max(len(train_stream), len(valid_stream), len(test_stream))
-        self.buffer = SampleBuffer(num_examples=num_examples)
+        sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
+        self.alpha_buffer = SampleBuffer(num_examples=sample_buffer_length)
+        self.free_energy_buffer = SampleBuffer(num_examples=sample_buffer_length)
 
-        self.sig_alpha = 3.0
+        # self.sig_alpha = 3.0
+        self.sig_alpha = sigma_alpha
         self.wReg = 1e-5
         self.zero_value = torch.zeros(1).squeeze().cuda()
         # self.sigma_scheduler_initial = sigma_scheduler.get_last_lr()[0]
 
         self.UtilityFuncs = UtilityFunctions()
+        self.BF_eval = False
 
-    def run_model(self, data, pos_idx=torch.tensor([0]), training=True, stream_name='trainset'):
+    def run_model(self, data, pos_idx=torch.tensor([0]), training=True, stream_name='trainset', epoch=0):
+
         receptor, ligand, gt_interact = data
 
         receptor = receptor.to(device='cuda', dtype=torch.float)
@@ -70,15 +74,31 @@ class EnergyBasedInteractionTrainer:
         else:
             self.docking_model.eval()
             self.interaction_model.eval()
+            self.BF_eval = True
 
         ### run model and loss calculation
-        ##### call model
-        alpha = self.buffer.get(pos_idx, samples_per_example=1)
-        free_energies_stack, pred_rot, pred_txy, fft_score_stack = self.docking_model(alpha, receptor, ligand, sig_alpha=self.sig_alpha, plot_count=pos_idx.item(),
-                                                           stream_name=stream_name, plotting=self.plotting,
-                                                           training=training)
-        self.buffer.push(pred_rot, pos_idx)
-        pred_interact, deltaF, F, F_0 = self.interaction_model(fft_scores=None, free_energies=free_energies_stack, debug=False)
+        ##### push/pull samples of alpha and free energies to sample buffer
+        plot_count = int(pos_idx)
+        alpha = self.alpha_buffer.get(pos_idx, samples_per_example=1)
+        free_energies_visited = self.free_energy_buffer.get_free_energies(pos_idx)
+        # print('BUFFER GET: free_energies_visited', free_energies_visited)
+        # print('BUFFER GET: free_energies_visited.shape', free_energies_visited.shape)
+
+        free_energies_visited, pred_rot, pred_txy, fft_score_stack, acceptance_rate = self.docking_model(alpha, receptor, ligand,
+                                        free_energies_visited=free_energies_visited, sig_alpha=self.sig_alpha,
+                                        plot_count=plot_count, stream_name=stream_name, plotting=self.plotting,
+                                        training=training)
+
+        # print('BUFFER PUSH: free_energies_visited', free_energies_visited)
+        # print('BUFFER PUSH: free_energies_visited.shape', free_energies_visited.shape)
+
+        self.alpha_buffer.push(pred_rot, pos_idx)
+        self.free_energy_buffer.push_free_energies(free_energies_visited, pos_idx)
+        pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack, free_energies=free_energies_visited, debug=False)
+
+        if plot_count % self.plot_freq == 0 and training:
+            UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited, acceptance_rate,
+                                                stream_name, plot_count=plot_count, epoch=epoch)
 
         ### check parameters and gradients
         ### if weights are frozen or updating
@@ -152,6 +172,7 @@ class EnergyBasedInteractionTrainer:
                 print('sig_alpha = ', self.sig_alpha)
 
                 self.run_epoch(train_stream, epoch, training=True)
+                PlotterFI(self.experiment).plot_loss(show=False)
                 PlotterFI(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
                 # F_0_scheduler.step()
@@ -183,12 +204,14 @@ class EnergyBasedInteractionTrainer:
 
     def run_epoch(self, data_stream, epoch, training=False):
         stream_loss = []
+        pos_idx = 0
         deltaF_logfile = self.logfile_savepath + self.logtraindF_prefix + str(epoch) + self.experiment + '.txt'
         with open(deltaF_logfile, 'w') as fout:
             fout.write(self.deltaf_log_header)
         for data in tqdm(data_stream):
-            train_output = [self.run_model(data, training=training)]
+            train_output = [self.run_model(data, pos_idx=torch.tensor([pos_idx]), training=training, epoch=epoch)]
             stream_loss.append(train_output)
+            pos_idx += 1
             with open(deltaF_logfile, 'a') as fout:
                 fout.write(self.deltaf_log_format % (train_output[0][1], train_output[0][2], train_output[0][3]))
 
@@ -274,10 +297,10 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = int(number_of_pairs + (number_of_pairs**2 - number_of_pairs)/2)
-    number_of_pairs = 25
+    number_of_pairs = 100
     train_stream = get_interaction_stream(trainset + '.pkl', number_of_pairs=number_of_pairs)
-    valid_stream = get_interaction_stream(validset + '.pkl', number_of_pairs=number_of_pairs)
-    test_stream = get_interaction_stream(testset + '.pkl', number_of_pairs=number_of_pairs)
+    valid_stream = get_interaction_stream(validset + '.pkl', number_of_pairs=100)
+    test_stream = get_interaction_stream(testset + '.pkl', number_of_pairs=100)
     ######################
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_5000ex30ep'
     # experiment = 'MC_FI_NEWDATA_CHECK_400pool_10000ex50ep'
@@ -292,15 +315,25 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE_logsumexp'
     # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_uniqueEnergies_zerosangleslist'
     # experiment = 'BF_FI_400pool_1000ex_50ep_50steps_labmeetingcheck'
-    experiment = 'BF_FI_400pool_25pairs_50ep_10steps_labmeetingcheck_fixedsigma'
+    # experiment = 'BF_FI_400pool_25pairs_50ep_10steps_labmeetingcheck_fixedsigma'
+    # experiment = 'BF_FI_400pool_25pairs_50ep_10steps_freeEvisitedBuffer'
+    # experiment = 'BF_FI_400pool_100pairs_50ep_10steps_freeEvisitedBuffer'
+    # experiment = 'BF_FI_400pool_100pairs_50ep_10steps_freeEvisitedBuffer_overwriteE'
+    # experiment = 'BF_FI_400pool_100pairs_50ep_10steps_FEbufferoverwrite_sig0p5_plotsampsurf'
+    # experiment = 'BF_FI_400pool_2pairs_100ep_10steps_FEbufferoverwrite_sig0p5_plotsampsurf'
+    # experiment = 'BF_FI_400pool_2pairs_100ep_50steps_FEbufferoverwrite_sig0p5_plotsampsurf'
+    # experiment = 'BF_FI_400pool_2pairs_20ep_10steps_FEbufferoverwrite_sig0p05_plotsampsurf'
+    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig0p05_plotsampsurf'
+    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig3p0_plotsampsurf_-BFvol'
+    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
 
     ######################
-    train_epochs = 50
+    train_epochs = 20
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
-    gamma = 0.95
     sigma_alpha = 3.0
+    # gamma = 0.95
 
     debug = False
     plotting = False
@@ -315,7 +348,7 @@ if __name__ == '__main__':
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     ######################
     ### Train model from beginning
-    EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
+    EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
                                   ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
@@ -324,7 +357,7 @@ if __name__ == '__main__':
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch
-    eval_model = SamplingModel(dockingFFT, num_angles=360, sample_steps=1, FI=True, debug=debug).to(device=0)
+    eval_model = SamplingModel(dockingFFT, num_angles=360, FI=True, debug=debug).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0) ## eval with monte carlo
     EnergyBasedInteractionTrainer(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
                                   ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,

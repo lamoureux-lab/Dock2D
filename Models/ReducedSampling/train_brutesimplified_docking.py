@@ -41,6 +41,7 @@ class BruteSimplifiedDockingTrainer:
 
         ## sample buffer for BF or MC eval on ideal learned energy surface
         self.evalbuffer = SampleBuffer(num_examples=sample_buffer_length)
+        self.free_energy_buffer = SampleBuffer(num_examples=sample_buffer_length)
 
         self.MC_eval = MC_eval
         self.MC_eval_num_epochs = MC_eval_num_epochs
@@ -52,9 +53,9 @@ class BruteSimplifiedDockingTrainer:
             self.eval_epochs = 1
             self.sig_alpha = 1
 
-        self.UtilityFuncs = UtilityFunctions()
+        self.UtilityFunctions = UtilityFunctions()
 
-    def run_model(self, data, training=True, pos_idx=0, stream_name='trainset'):
+    def run_model(self, data, training=True, pos_idx=torch.tensor([0]), stream_name='trainset', epoch=0):
         receptor, ligand, gt_rot, gt_txy = data
 
         receptor = receptor.to(device='cuda', dtype=torch.float)
@@ -69,13 +70,26 @@ class BruteSimplifiedDockingTrainer:
 
         ### run model and loss calculation
         ##### call model
+        plot_count = int(pos_idx)
         if training:
-            neg_energy, pred_rot, pred_txy, fft_score = self.model(gt_rot, receptor, ligand, plot_count=pos_idx, stream_name=stream_name, plotting=self.plotting)
+            neg_energy, pred_rot, pred_txy, fft_score = self.model(gt_rot, receptor, ligand, plot_count=plot_count, stream_name=stream_name, plotting=self.plotting)
         else:
             ## for evaluation, sample buffer is necessary for Monte Carlo multi epoch eval
-            alpha = self.evalbuffer.get(torch.tensor([pos_idx]), samples_per_example=1)
-            energy, pred_rot, pred_txy, fft_score = self.model(alpha, receptor, ligand, sig_alpha=self.sig_alpha, plot_count=pos_idx, stream_name=stream_name, plotting=self.plotting, training=False)
-            self.evalbuffer.push(pred_rot, torch.tensor([pos_idx]))
+            alpha = self.evalbuffer.get(pos_idx, samples_per_example=1)
+            free_energies_visited = self.free_energy_buffer.get_free_energies(pos_idx)
+
+            free_energies_visited, pred_rot, pred_txy, fft_score, acceptance_rate = self.model(alpha, receptor, ligand,
+                                                    free_energies_visited=free_energies_visited, sig_alpha=self.sig_alpha,
+                                                    plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=False)
+            self.free_energy_buffer.push_free_energies(free_energies_visited, pos_idx)
+            self.evalbuffer.push(pred_rot, pos_idx)
+
+            if plot_count % self.plot_freq == 0:
+                print(free_energies_visited.shape)
+                print(free_energies_visited)
+                UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited, acceptance_rate,
+                                                                               stream_name, plot_count=plot_count,
+                                                                               epoch=epoch)
 
         ### Encode ground truth transformation index into empty energy grid
         with torch.no_grad():
@@ -91,7 +105,7 @@ class BruteSimplifiedDockingTrainer:
         ### check parameters and gradients
         ### if weights are frozen or updating
         if self.debug:
-            self.UtilityFuncs.check_model_gradients(self.model)
+            self.UtilityFunctions.check_model_gradients(self.model)
 
         if training:
             #### Loss functions
@@ -105,8 +119,8 @@ class BruteSimplifiedDockingTrainer:
             self.model.eval()
             if self.plotting and pos_idx % self.plot_freq == 0:
                 with torch.no_grad():
-                    UtilityFunctions.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot.squeeze(), pred_txy.squeeze(), pos_idx, stream_name)
-
+                    self.UtilityFunctions.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot.squeeze(), pred_txy.squeeze(), pos_idx, stream_name)
+                    print(acceptance_rate)
         return loss.item(), rmsd_out.item()
 
     def train_model(self, train_epochs, train_stream=None, valid_stream=None, test_stream=None,
@@ -163,7 +177,7 @@ class BruteSimplifiedDockingTrainer:
         pos_idx = 0
         rmsd_logfile = self.logfile_savepath + 'log_RMSDs'+stream_name+'_epoch' + str(epoch) + self.experiment + '.txt'
         for data in tqdm(data_stream):
-            train_output = [self.run_model(data, pos_idx=pos_idx, training=training, stream_name=stream_name)]
+            train_output = [self.run_model(data, pos_idx=torch.tensor([pos_idx]), training=training, stream_name=stream_name, epoch=epoch)]
             stream_loss.append(train_output)
             with open(rmsd_logfile, 'a') as fout:
                 fout.write('%f\n' % (train_output[0][-1]))
@@ -247,13 +261,10 @@ if __name__ == '__main__':
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     ######################
-    batch_size = 1
     max_size = 1000
-    if batch_size > 1:
-        raise NotImplementedError()
-    train_stream = get_docking_stream(trainset + '.pkl', batch_size, max_size=max_size)
-    valid_stream = get_docking_stream(validset + '.pkl', batch_size=1, max_size=max_size)
-    test_stream = get_docking_stream(testset + '.pkl', batch_size=1, max_size=max_size)
+    train_stream = get_docking_stream(trainset + '.pkl', max_size=max_size)
+    valid_stream = get_docking_stream(validset + '.pkl', max_size=max_size)
+    test_stream = get_docking_stream(testset + '.pkl', max_size=max_size)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
     # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_30ep'
