@@ -20,8 +20,8 @@ if __name__ == '__main__':
     ######################
     max_size = 1000
     train_stream = get_docking_stream(trainset + '.pkl', max_size=max_size)
-    valid_stream = get_docking_stream(validset + '.pkl', max_size=max_size)
-    test_stream = get_docking_stream(testset + '.pkl', max_size=max_size)
+    valid_stream = get_docking_stream(validset + '.pkl', max_size=100)
+    test_stream = get_docking_stream(testset + '.pkl', max_size=100)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
 
     ######### Metropolis-Hastings (Monte Carlo) eval on ideal learned energy surface
@@ -39,9 +39,9 @@ if __name__ == '__main__':
     model = SamplingModel(dockingFFT, num_angles=1, IP_MC=True, debug=debug).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
-    ### dummy optimizer to schedule sigma of alpha
-    sigma_optimizer = optim.Adam(model.parameters(), lr=sigma_alpha)
-    sigma_scheduler = optim.lr_scheduler.ExponentialLR(sigma_optimizer, gamma=gamma)
+    # ### dummy optimizer to schedule sigma of alpha
+    # sigma_optimizer = optim.Adam(model.parameters(), lr=sigma_alpha)
+    # sigma_scheduler = optim.lr_scheduler.ExponentialLR(sigma_optimizer, gamma=gamma)
 
     ### Train ideal energy surface using BS model
     # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, debug=debug).run_trainer(train_epochs, train_stream=train_stream)
@@ -50,13 +50,16 @@ if __name__ == '__main__':
     eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, IP_MC=True).to(device=0)
     MonteCarloEvaluation = BruteSimplifiedDockingTrainer(dockingFFT, eval_model, optimizer, experiment,
                                                          MC_eval=True, MC_eval_num_epochs=MC_eval_num_epochs,
-                                                         sigma_scheduler=sigma_scheduler, sample_buffer_length=sample_buffer_length,
+                                                         # sigma_scheduler=sigma_scheduler,
+                                                         sigma_alpha=sigma_alpha,
+                                                         sample_buffer_length=sample_buffer_length,
                                                          plotting=False)
 
     ## Load BS model and do MC eval and plotting
     MonteCarloEvaluation.run_trainer(
         train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=None,
         resume_training=True, resume_epoch=train_epochs,
-        sigma_scheduler=sigma_scheduler, sigma_optimizer=sigma_optimizer)
+        # sigma_scheduler=sigma_scheduler, sigma_optimizer=sigma_optimizer
+    )
     # Plot loss from current experiment
     PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)

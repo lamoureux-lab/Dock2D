@@ -170,7 +170,7 @@ class SamplingModel(nn.Module):
             # attempts = 0
             # while free_energies_visited[deg_index_alpha] != 0 and attempts < 100:
             #     # print('already visited this index')
-            #     rand_rot = noise_alpha.normal_(0, self.sig_alpha)
+            #     rand_rot = noise_alpha.normal_(0, self.sigma_alpha)
             #     alpha_new = alpha + rand_rot
             #     deg_index_alpha = (((alpha_new * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
             #     attempts += 1
@@ -263,8 +263,8 @@ class SamplingModel(nn.Module):
             energy.backward()
             langevin_opt.step()
             # a, b, n = 40, 4, 4  # 100steps RMSD 38.2
-            # self.sig_alpha = float(b * torch.exp(-(energy / a) ** n))
-            # self.step_size = self.sig_alpha
+            # self.sigma_alpha = float(b * torch.exp(-(energy / a) ** n))
+            # self.step_size = self.sigma_alpha
             rand_rot = noise_alpha.normal_(0, self.sig_alpha)
             alpha = alpha + rand_rot
 

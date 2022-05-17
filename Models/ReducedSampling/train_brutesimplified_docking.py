@@ -18,7 +18,7 @@ from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
 
 class BruteSimplifiedDockingTrainer:
     def __init__(self, dockingFFT, cur_model, cur_optimizer, cur_experiment, MC_eval=False, MC_eval_num_epochs=10, debug=False, plotting=False,
-                 sigma_scheduler=None, sample_buffer_length=1000):
+                 sigma_scheduler=None, sigma_alpha=3.0, sample_buffer_length=1000):
 
         self.debug = debug
         self.plotting = plotting
@@ -47,11 +47,12 @@ class BruteSimplifiedDockingTrainer:
         self.MC_eval_num_epochs = MC_eval_num_epochs
         if self.MC_eval:
             self.eval_epochs = self.MC_eval_num_epochs
-            self.sig_alpha = sigma_scheduler.get_last_lr()[0]
-            print('sigma alpha', self.sig_alpha)
+            self.sigma_alpha = sigma_alpha
+            # self.sigma_alpha = sigma_scheduler.get_last_lr()[0]
+            # print('sigma alpha', self.sigma_alpha)
         else:
             self.eval_epochs = 1
-            self.sig_alpha = 1
+            self.sigma_alpha = 1
 
         self.UtilityFunctions = UtilityFunctions()
 
@@ -79,14 +80,14 @@ class BruteSimplifiedDockingTrainer:
             free_energies_visited = self.free_energy_buffer.get_free_energies(pos_idx)
 
             free_energies_visited, pred_rot, pred_txy, fft_score, acceptance_rate = self.model(alpha, receptor, ligand,
-                                                    free_energies_visited=free_energies_visited, sig_alpha=self.sig_alpha,
-                                                    plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=False)
+                                                                                               free_energies_visited=free_energies_visited, sig_alpha=self.sigma_alpha,
+                                                                                               plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=False)
             self.free_energy_buffer.push_free_energies(free_energies_visited, pos_idx)
             self.evalbuffer.push(pred_rot, pos_idx)
 
             if plot_count % self.plot_freq == 0:
-                print(free_energies_visited.shape)
-                print(free_energies_visited)
+                # print(free_energies_visited.shape)
+                # print(free_energies_visited)
                 UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited, acceptance_rate,
                                                                                stream_name, plot_count=plot_count,
                                                                                epoch=epoch)
@@ -120,7 +121,6 @@ class BruteSimplifiedDockingTrainer:
             if self.plotting and pos_idx % self.plot_freq == 0:
                 with torch.no_grad():
                     self.UtilityFunctions.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot.squeeze(), pred_txy.squeeze(), pos_idx, stream_name)
-                    print(acceptance_rate)
         return loss.item(), rmsd_out.item()
 
     def train_model(self, train_epochs, train_stream=None, valid_stream=None, test_stream=None,
@@ -160,17 +160,17 @@ class BruteSimplifiedDockingTrainer:
                     self.resume_training_or_not(resume_training, resume_epoch)
                     if valid_stream:
                         stream_name = 'VALIDset'
-                        self.run_epoch(valid_stream, epoch, training=False, stream_name=stream_name)
+                        self.run_epoch(valid_stream, epoch-1, training=False, stream_name=stream_name)
                     if test_stream:
                         stream_name = 'TESTset'
-                        self.run_epoch(test_stream, epoch, training=False, stream_name=stream_name)
+                        self.run_epoch(test_stream, epoch-1, training=False, stream_name=stream_name)
 
                     if self.MC_eval:
                         sigma_optimizer.step()
                         sigma_scheduler.step()
-                        self.sig_alpha = sigma_scheduler.get_last_lr()[0]
-                        print('eval epoch', i)
-                        print('sig_alpha stepped', self.sig_alpha)
+                        self.sigma_alpha = sigma_scheduler.get_last_lr()[0]
+                        print('Monte Carlo eval epoch', i)
+                        print('sigma_alpha stepped', self.sigma_alpha)
 
     def run_epoch(self, data_stream, epoch, training=False, stream_name='train_stream'):
         stream_loss = []

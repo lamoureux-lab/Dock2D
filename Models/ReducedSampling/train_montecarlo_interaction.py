@@ -51,7 +51,7 @@ class EnergyBasedInteractionTrainer:
         self.alpha_buffer = SampleBuffer(num_examples=sample_buffer_length)
         self.free_energy_buffer = SampleBuffer(num_examples=sample_buffer_length)
 
-        # self.sig_alpha = 3.0
+        # self.sigma_alpha = 3.0
         self.sig_alpha = sigma_alpha
         self.wReg = 1e-5
         self.zero_value = torch.zeros(1).squeeze().cuda()
@@ -169,7 +169,7 @@ class EnergyBasedInteractionTrainer:
             }
 
             if train_stream:
-                print('sig_alpha = ', self.sig_alpha)
+                print('sigma_alpha = ', self.sig_alpha)
 
                 self.run_epoch(train_stream, epoch, training=True)
                 PlotterFI(self.experiment).plot_loss(show=False)
@@ -177,11 +177,11 @@ class EnergyBasedInteractionTrainer:
 
                 # F_0_scheduler.step()
                 # print('last learning rate', F_0_scheduler.get_last_lr())
-                # self.sig_alpha = self.sig_alpha * F_0_scheduler.get_last_lr()[0]
-                # print('sigma alpha stepped', self.sig_alpha)
+                # self.sigma_alpha = self.sigma_alpha * F_0_scheduler.get_last_lr()[0]
+                # print('sigma alpha stepped', self.sigma_alpha)
 
                 # sigma_scheduler.step()
-                # self.sig_alpha = self.sig_alpha * (sigma_scheduler.get_last_lr()[0]/self.sigma_scheduler_initial)
+                # self.sigma_alpha = self.sigma_alpha * (sigma_scheduler.get_last_lr()[0]/self.sigma_scheduler_initial)
 
             ### evaluate on training and valid set
             ### training set to False downstream in calcAPR() run_model()
