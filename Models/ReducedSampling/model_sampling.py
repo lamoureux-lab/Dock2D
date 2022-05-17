@@ -134,7 +134,7 @@ class SamplingModel(nn.Module):
                 self.docker.eval()
                 lowest_energy, _, dr, fft_score = self.docker(receptor, ligand, alpha, plot_count,
                                                               stream_name, plotting=plotting)
-                return lowest_energy, alpha.unsqueeze(0).clone(), dr.unsqueeze(0).clone(), fft_score
+                return lowest_energy, alpha.unsqueeze(0).clone(), dr.unsqueeze(0).clone(), fft_score, None
                 ### evaluate with Monte Carlo?
                 # self.docker.eval()
                 # return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, debug=False)

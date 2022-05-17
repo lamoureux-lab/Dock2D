@@ -325,10 +325,11 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_2pairs_20ep_10steps_FEbufferoverwrite_sig0p05_plotsampsurf'
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig0p05_plotsampsurf'
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig3p0_plotsampsurf_-BFvol'
-    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
+    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
+    experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
 
     ######################
-    train_epochs = 20
+    train_epochs = 10
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
@@ -348,8 +349,8 @@ if __name__ == '__main__':
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     ######################
     ### Train model from beginning
-    EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
-                                  ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
+    #                               ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
     # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
