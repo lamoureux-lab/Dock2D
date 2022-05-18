@@ -24,7 +24,7 @@ class EnergyBasedInteractionTrainer:
         # print("RUNNING INIT")
         self.debug = debug
         self.plotting = plotting
-        self.plot_freq = 100
+        self.plot_freq = 1000
         self.check_epoch = 1
         self.eval_freq = 1
         self.save_freq = 1
@@ -326,13 +326,14 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig0p05_plotsampsurf'
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig3p0_plotsampsurf_-BFvol'
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
-    experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
+    experiment = 'BF_FI_400pool_100pairs_10ep_50steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
 
     ######################
     train_epochs = 10
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
-    sample_steps = 10
+    sample_steps = 50
     sigma_alpha = 3.0
     # gamma = 0.95
 
@@ -357,13 +358,13 @@ if __name__ == '__main__':
     #                              ).run_trainer(resume_training=True, resume_epoch=13, train_epochs=27,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
-    ### Evaluate model at chosen epoch
+    ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
     eval_model = SamplingModel(dockingFFT, num_angles=360, FI=True, debug=debug).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0) ## eval with monte carlo
     EnergyBasedInteractionTrainer(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
-                                  ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
+                                  ).run_trainer(resume_training=True, resume_epoch=5, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss()
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=5, show=True)
