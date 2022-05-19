@@ -166,6 +166,8 @@ class EnergyBasedInteractionTrainer:
                 'epoch': epoch,
                 'state_dict': self.interaction_model.state_dict(),
                 'optimizer': self.interaction_optimizer.state_dict(),
+                'alpha_buffer': self.alpha_buffer,
+                'free_energy_buffer': self.free_energy_buffer,
             }
 
             if train_stream:
@@ -239,7 +241,8 @@ class EnergyBasedInteractionTrainer:
             self.docking_model, self.docking_optimizer, _ = self.load_checkpoint(ckp_path, self.docking_model, self.docking_optimizer)
             print('Loading interaction model at', str(resume_epoch))
             ckp_path = self.model_savepath + self.experiment + str(resume_epoch) + '.th'
-            self.interaction_model, self.interaction_optimizer, start_epoch = self.load_checkpoint(ckp_path, self.interaction_model, self.interaction_optimizer)
+            self.interaction_model, self.interaction_optimizer, start_epoch, self.alpha_buffer, self.free_energy_buffer = self.load_checkpoint(
+                                                    ckp_path, self.interaction_model, self.interaction_optimizer, FI=True)
 
             start_epoch += 1
 
@@ -267,12 +270,15 @@ class EnergyBasedInteractionTrainer:
         torch.save(state, filename)
 
     @staticmethod
-    def load_checkpoint(checkpoint_fpath, model, optimizer):
+    def load_checkpoint(checkpoint_fpath, model, optimizer, FI=False):
         model.eval()
         checkpoint = torch.load(checkpoint_fpath)
         model.load_state_dict(checkpoint['state_dict'], strict=True)
         optimizer.load_state_dict(checkpoint['optimizer'])
-        return model, optimizer, checkpoint['epoch']
+        if FI:
+            return model, optimizer, checkpoint['epoch'],  checkpoint['alpha_buffer'], checkpoint['free_energy_buffer']
+        else:
+            return model, optimizer, checkpoint['epoch']
 
     def run_trainer(self, train_epochs, train_stream=None, valid_stream=None, test_stream=None, resume_training=False, resume_epoch=0):
         self.train_model(train_epochs, train_stream, valid_stream, test_stream,
@@ -327,10 +333,12 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig3p0_plotsampsurf_-BFvol'
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
     # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
-    experiment = 'BF_FI_400pool_100pairs_10ep_50steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_50steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
+    # experiment = 'BF_FI_400pool_2pairs_10ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol_evalBuffersaveload'
+    experiment = 'BF_FI_400pool_100pairs_20ep_50steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
 
     ######################
-    train_epochs = 10
+    train_epochs = 20
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 50
@@ -355,16 +363,16 @@ if __name__ == '__main__':
 
     ### resume training model
     # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
-    #                              ).run_trainer(resume_training=True, resume_epoch=13, train_epochs=27,
+    #                              ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
     eval_model = SamplingModel(dockingFFT, num_angles=360, FI=True, debug=debug).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0) ## eval with monte carlo
     EnergyBasedInteractionTrainer(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
-                                  ).run_trainer(resume_training=True, resume_epoch=5, train_epochs=1,
+                                  ).run_trainer(resume_training=True, resume_epoch=10, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss()
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=5, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=10, show=True)
