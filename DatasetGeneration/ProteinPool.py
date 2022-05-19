@@ -1,7 +1,6 @@
 import numpy as np
 import _pickle as pkl
 
-
 import seaborn as sea
 sea.set_style("whitegrid")
 
@@ -16,7 +15,8 @@ class ParamDistribution:
 		Unzip alpha (shape concavity) and number of points (number of points used to generate shape hulls)
 		parameter distributions, then normalize probabilities.
 
-		:param kwargs: list of tuples [(alpha, prob),...] or [(num_points, prob),...]
+		:param kwargs: parameter distributions for `alpha` and `num_points`
+		:type kwargs: list of tuples [(alpha, prob), ...] or [(num_points, prob), ...]
 		"""
 		for k, v in kwargs.items():
 			setattr(self, k, v)
