@@ -12,6 +12,12 @@ import inspect
 
 class ParamDistribution:
 	def __init__(self, **kwargs):
+		"""
+		Unzip alpha (shape concavity) and number of points (number of points used to generate shape hulls)
+		parameter distributions, then normalize probabilities.
+
+		:param kwargs: list of tuples [(alpha, prob),...] or [(num_points, prob),...]
+		"""
 		for k, v in kwargs.items():
 			setattr(self, k, v)
 		
@@ -21,6 +27,12 @@ class ParamDistribution:
 			self.normalize(param_name)
 			
 	def normalize(self, param_name):
+		"""
+		Normalize probabilities from parameter distribution.
+
+		:param param_name:
+		:return: alpha and number of points normalized probabilities
+		"""
 		Z = 0.0
 		param = getattr(self, param_name)
 		for val, prob in param:
@@ -31,6 +43,13 @@ class ParamDistribution:
 		setattr(self, param_name, new_param)
 
 	def sample(self, param_name):
+		"""
+		Randomly sample parameters from parameter distribution used in protein shape pool generation.
+
+		:param param_name: `alpha` or `num_points`.
+		:type param_name: [str](`alpha` or `num_points`)
+		:return: sampled value and probability
+		"""
 		param = getattr(self, param_name)
 		vals, prob = zip(*param)
 		return vals, prob
@@ -38,12 +57,22 @@ class ParamDistribution:
 
 class ProteinPool:
 	def __init__(self, proteins):
+		"""
+		:param proteins: protein shape pools generated
+		"""
 		self.proteins = proteins
 		self.params = []
-		self.interactions = {}
 
 	@classmethod
 	def generate(cls, num_proteins, params, size=50):
+		"""
+		Generate protein shapes to be used in protein pool.
+
+		:param num_proteins: number of proteins to generate in the pool
+		:param params: parameters used in shape generation, list of tuples [(alpha, prob),...] or [(num_points, prob),...]
+		:param size: size of the box to generate a shape within.
+		:return: protein pool shapes and corresponding individual shape parameters
+		"""
 		pool = cls([])
 		stats_alpha = params.sample('alpha')
 		stats_num_points = params.sample('num_points')
@@ -59,13 +88,23 @@ class ProteinPool:
 	
 	@classmethod
 	def load(cls, filename):
+		"""
+		Load protein pool .pkl
+
+		:param filename: protein pool filename.pkl
+		:return: protein pool
+		"""
 		with open(filename, 'rb') as fin:
-			proteins, params, interactions = pkl.load(fin)
+			proteins, params = pkl.load(fin)
 		instance = cls(proteins)
 		instance.params = params
-		instance.interactions = interactions
 		return instance
 	
 	def save(self, filename):
+		"""
+		Save protein pool shapes and corresponding params to .pkl
+
+		:param filename: protein pool filename.pkl
+		"""
 		with open(filename, 'wb') as fout:
-			pkl.dump( (self.proteins, self.params, self.interactions), fout)
+			pkl.dump((self.proteins, self.params), fout)

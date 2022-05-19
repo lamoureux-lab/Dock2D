@@ -10,6 +10,14 @@ import shapely.geometry as geom
 
 
 def get_random_points(num_points, xspan, yspan):
+	"""
+	Generate radially distributed random point coordinates.
+
+	:param num_points: number of points used to generate hulls
+	:param xspan: distance to span points in the `x` dimension
+	:param yspan: distance to span points in the `y` dimension
+	:return: points distribution
+	"""
 	points = [[uniform(*xspan), uniform(*yspan)]  for i in range(num_points)]
 	radius_x = (xspan[1] - xspan[0])/2.0
 	radius_y = (yspan[1] - yspan[0])/2.0
@@ -21,6 +29,13 @@ def get_random_points(num_points, xspan, yspan):
 
 
 def is_p_inside_points_hull(hull, p):
+	"""
+	Check if convex hull points are within the hull or outside.
+
+	:param hull: convex hull points
+	:param p: current point
+	:return: condition of current point `True` inside the hull, `False` otherwise.
+	"""
 	new_points = np.append(hull.points, p, axis=0)
 	new_hull = ConvexHull(new_points)
 	if list(hull.vertices) == list(new_hull.vertices):
@@ -30,6 +45,15 @@ def is_p_inside_points_hull(hull, p):
 
 
 def hull2array(hull, array, xspan, yspan):
+	"""
+	Convert a hull to a grid based shape. All grid pixels are filled with 1 inside the shape, 0 otherwise.
+
+	:param hull: convex or concave hull points
+	:param array: grid to convert hull to gridshape
+	:param xspan: distance to span grid points in the `x` dimension
+	:param yspan: distance to span grid points in the `y` dimension
+	:return: bulk hull converted to a grid
+	"""
 	x_size = array.shape[0]
 	y_size = array.shape[1]
 	for i in range(x_size):
