@@ -177,6 +177,16 @@ class EnergyBasedInteractionTrainer:
                 PlotterFI(self.experiment).plot_loss(show=False)
                 PlotterFI(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
+                #### saving model while training
+                if epoch % self.save_freq == 0:
+                    docking_savepath = self.model_savepath + 'docking_' + self.experiment + str(epoch) + '.th'
+                    self.save_checkpoint(docking_checkpoint_dict, docking_savepath, self.docking_model)
+                    print('saving docking model ' + docking_savepath)
+
+                    interaction_savepath = self.model_savepath + self.experiment + str(epoch) + '.th'
+                    self.save_checkpoint(interaction_checkpoint_dict, interaction_savepath, self.interaction_model)
+                    print('saving interaction model ' + interaction_savepath)
+
                 # F_0_scheduler.step()
                 # print('last learning rate', F_0_scheduler.get_last_lr())
                 # self.sigma_alpha = self.sigma_alpha * F_0_scheduler.get_last_lr()[0]
@@ -194,15 +204,7 @@ class EnergyBasedInteractionTrainer:
                 if test_stream:
                     self.checkAPR(epoch, test_stream, 'TESTset')
 
-            #### saving model while training
-            if epoch % self.save_freq == 0:
-                docking_savepath =  self.model_savepath + 'docking_' + self.experiment + str(epoch) + '.th'
-                self.save_checkpoint(docking_checkpoint_dict, docking_savepath, self.docking_model)
-                print('saving docking model ' + docking_savepath)
 
-                interaction_savepath = self.model_savepath + self.experiment + str(epoch) + '.th'
-                self.save_checkpoint(interaction_checkpoint_dict, interaction_savepath, self.interaction_model)
-                print('saving interaction model ' + interaction_savepath)
 
     def run_epoch(self, data_stream, epoch, training=False):
         stream_loss = []
@@ -370,9 +372,9 @@ if __name__ == '__main__':
     eval_model = SamplingModel(dockingFFT, num_angles=360, FI=True, debug=debug).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0) ## eval with monte carlo
     EnergyBasedInteractionTrainer(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
-                                  ).run_trainer(resume_training=True, resume_epoch=10, train_epochs=1,
+                                  ).run_trainer(resume_training=True, resume_epoch=15, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss()
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=10, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=15, show=True)
