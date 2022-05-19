@@ -50,23 +50,45 @@ def hull2array(hull, array, xspan, yspan):
 
 class Protein:
 
-	def __init__(self, bulk, boundary=None, hull=None):
+	def __init__(self, bulk, hull=None):
+		"""
+		:param bulk: protein shape bulk
+		:param hull: coordinates for the convex/concave hull
+		"""
 		self.size = bulk.shape[0]
 		self.bulk = bulk
-		self.boundary = boundary
 		self.hull = hull
-	
+
 	@classmethod
 	def generateConvex(cls, size=50, num_points=15, occupancy=0.8):
+		"""
+		Generate convex hull coordinates and convert to grid based shape
+		filled with 1 inside the shape, 0 otherwise.
+
+		:param size: the dimensions of the box containing the shape
+		:param num_points: number of points randomly radially distributed to generate the hull
+		:param occupancy: distance to span the the point distributions
+		:return: convex protein shape bulk
+		"""
 		grid_coordinate_span = (0, size)
 		points_coordinate_span = (0.5*(1.0-occupancy)*size, size - 0.5*(1.0-occupancy)*size)
 		points = get_random_points(num_points, points_coordinate_span, points_coordinate_span)
-		hull = scipy.spatial.ConvexHull(points)		
+		hull = scipy.spatial.ConvexHull(points)
 		bulk = hull2array(hull, np.zeros((size, size)), grid_coordinate_span, grid_coordinate_span)
 		return cls(bulk)
 
 	@classmethod
 	def generateConcave(cls, size=50, alpha=1.0, num_points=25, occupancy=0.8):
+		"""
+		Generate concave hull coordinates and convert to grid based shape
+		filled with 1 inside the shape, 0 otherwise.
+
+		:param size: the dimensions of the box containing the shape
+		:param alpha: the level of concavity used to generate convex hulls
+		:param num_points: number of points randomly radially distributed to generate the hull
+		:param occupancy: distance to span the the point distributions
+		:return: concave protein shape bulk
+		"""
 		grid_coordinate_span = (0, size)
 		points_coordinate_span = (0.5*(1.0-occupancy)*size, size - 0.5*(1.0-occupancy)*size)
 		points = get_random_points(num_points, points_coordinate_span, points_coordinate_span)
