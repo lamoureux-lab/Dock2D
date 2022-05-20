@@ -140,20 +140,20 @@ class UtilityFunctions():
         plt.xlabel('Rotation (rads)')
         plt.savefig('Figs/EnergySurfaces/' + hardmin_minEnergies + '.png')
 
-    def plot_MCsampled_energysurface(self, free_energies_visited_indices, sampled_alpha_freeEnergies, acceptance_rate, stream_name=None, plot_count=0, epoch=0):
+    def plot_MCsampled_energysurface(self, free_energies_visited_indices, accumulated_free_energies, acceptance_rate, stream_name=None, plot_count=0, epoch=0):
         plt.close()
         plt.figure(figsize=(15,10))
 
         if len(free_energies_visited_indices[0]) > 1:
             # print('free_energies_visited_indices', free_energies_visited_indices)
-            # print('sampled_alpha_freeEnergies', sampled_alpha_freeEnergies)
+            # print('accumulated_free_energies', accumulated_free_energies)
 
             free_energies_visited_indices = free_energies_visited_indices.squeeze().detach().cpu()
-            sampled_alpha_freeEnergies = sampled_alpha_freeEnergies.squeeze().detach().cpu()
+            accumulated_free_energies = accumulated_free_energies.squeeze().detach().cpu()
 
             free_energies_indices = free_energies_visited_indices.numpy().sort()
             inds = np.array(free_energies_visited_indices).argsort()
-            freeEnergies_argsort = np.array(sampled_alpha_freeEnergies)[inds]
+            freeEnergies_argsort = np.array(accumulated_free_energies)[inds]
 
             # print(free_energies_visited_indices)
             # print(free_energies_indices)

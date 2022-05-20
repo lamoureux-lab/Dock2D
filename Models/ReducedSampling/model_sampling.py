@@ -223,7 +223,6 @@ class SamplingModel(nn.Module):
 
         # print(alphas_encountered)
 
-        self.docker.train()
 
         acceptance_rate = sum(acceptance) / self.sample_steps
         # print('acceptance rate', acceptance_rate)
@@ -234,6 +233,8 @@ class SamplingModel(nn.Module):
         else:
             fft_score_stack = fft_score
             free_energies_visited_indices = free_energy
+
+        self.docker.train()
 
         return free_energies_visited_indices, accumulated_free_energies, alpha.clone(), dr.clone(), fft_score_stack.squeeze(), acceptance_rate
 

@@ -8,11 +8,8 @@ class Interaction(nn.Module):
         self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
         self.BF_log_volume = torch.log(360 * torch.tensor(100 ** 2))
 
-    def forward(self, brute_force=True, fft_scores=None, free_energies=None, debug=False):
+    def forward(self, brute_force=True, fft_scores=None, free_energies=None):
         ##TODO: pass BETA, has to be returned from MC docker
-
-        #  include only unique angles, remove redundant visits
-        #  include grid of alphas with sample E and unsampled as 0
 
         if brute_force:
             E = -fft_scores.squeeze()
@@ -20,34 +17,15 @@ class Interaction(nn.Module):
                 E = E.unsqueeze(0)
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
         else:
-            # F = torch.sum(free_energies)
-            F = -(torch.logsumexp(-free_energies, dim=0) - self.BF_log_volume)
-
-
-
-
-        # if E.shape[0] > 1:
-        #     self.log_slice_volume = torch.log(E.shape[0]*torch.tensor(100 ** 2))
-
-        # if E.shape[0] == 360:
-        #     F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.log_slice_volume)
-        # else:
-        #     translationsF = torch.logsumexp(-E, dim=(1, 2))
-        #     F = -(translationsF - self.log_slice_volume)
-        #     F = torch.mean(F, dim=0)
-
-        # E_adjusted = 1
-
-        # print('unique E values', E.shape[0])
-        # F = -(torch.logsumexp(-E, dim=(0, 1, 2)))
+            num_slices = len(free_energies[-1])
+            if num_slices > 0:
+                log_volume = torch.log(num_slices * torch.tensor(100 ** 2))
+                F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - log_volume)
+            else:
+                F = torch.ones(1).cuda()
 
         deltaF = F - self.F_0
         pred_interact = torch.sigmoid(-deltaF)
-
-        if debug:
-            with torch.no_grad():
-                print('\n(F - F_0): ', deltaF.item())
-                print('F_0: ', self.F_0.item())
 
         return pred_interact.squeeze(), deltaF.squeeze(), F, self.F_0
 

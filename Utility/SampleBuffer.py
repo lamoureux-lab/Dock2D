@@ -47,7 +47,7 @@ class SampleBuffer:
 
     def get_free_energies_indices(self, index, samples_per_example=1, device='cuda'):
         # print('free energies get index',index)
-        # samples = torch.zeros(1, 1)
+        samples = None
         for idx in index:
             i = idx.item()
             buffer_idx_len = len(self.buffer[i])
@@ -58,4 +58,6 @@ class SampleBuffer:
 
         # print(samples.shape)
         # print(samples)
-        return samples.to(device=device)
+        samples = torch.unique(samples).unsqueeze(0).to(device=device)
+        # print(samples)
+        return samples

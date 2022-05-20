@@ -96,10 +96,10 @@ class EnergyBasedInteractionTrainer:
 
         self.alpha_buffer.push_alpha(pred_rot, pos_idx)
         self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)
-        pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack, free_energies=accumulated_free_energies, debug=False)
+        pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack, free_energies=accumulated_free_energies)
 
         if plot_count % self.plot_freq == 0 and training:
-            UtilityFunctions(self.experiment).plot_MCsampled_energysurface(accumulated_free_energies, acceptance_rate,
+            UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices, accumulated_free_energies, acceptance_rate,
                                                 stream_name, plot_count=plot_count, epoch=epoch)
 
         ### check parameters and gradients
@@ -111,8 +111,11 @@ class EnergyBasedInteractionTrainer:
         #### Loss functions
         BCEloss = torch.nn.BCELoss()
         l1_loss = torch.nn.L1Loss()
+        # print(deltaF, self.zero_value)
         L_reg = self.wReg * l1_loss(deltaF, self.zero_value)
-        loss = BCEloss(pred_interact, gt_interact) + L_reg
+        loss = BCEloss(pred_interact.unsqueeze(0), gt_interact.unsqueeze(0)) + L_reg
+        # print(L_reg)
+        # print(loss)
 
         if self.debug:
             print('\n predicted', pred_interact.item(), '; ground truth', gt_interact.item())
@@ -310,40 +313,15 @@ if __name__ == '__main__':
     valid_stream = get_interaction_stream(validset + '.pkl', number_of_pairs=100)
     test_stream = get_interaction_stream(testset + '.pkl', number_of_pairs=100)
     ######################
-    # experiment = 'MC_FI_NEWDATA_CHECK_400pool_5000ex30ep'
-    # experiment = 'MC_FI_NEWDATA_CHECK_400pool_10000ex50ep'
-    # experiment = 'MC_FI_NEWDATA_CHECK_400pool_1000ex50ep'
-    # experiment = 'MC_FI_NEWDATA_CHECK_400pool_1000ex50ep10step'
-    # experiment = 'MC_FI_NEWDATA_CHECK_400pool_1000ex50ep100step'
-    # experiment = 'BF_FI_400pool_1000ex_100ep_10steps_filr1e-1_gamma95'
-    # experiment = 'BF_FI_400pool_1000ex_50ep_50steps_filr1e-1_noFreg'
 
-    # experiment = 'BF_FI_400pool_1000ex_50ep_50steps_uniqueEnergies'
-    # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE'
-    # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_emptysliceFE_logsumexp'
-    # experiment = 'BF_FI_400pool_1000ex_50ep_10steps_uniqueEnergies_zerosangleslist'
-    # experiment = 'BF_FI_400pool_1000ex_50ep_50steps_labmeetingcheck'
-    # experiment = 'BF_FI_400pool_25pairs_50ep_10steps_labmeetingcheck_fixedsigma'
-    # experiment = 'BF_FI_400pool_25pairs_50ep_10steps_freeEvisitedBuffer'
-    # experiment = 'BF_FI_400pool_100pairs_50ep_10steps_freeEvisitedBuffer'
-    # experiment = 'BF_FI_400pool_100pairs_50ep_10steps_freeEvisitedBuffer_overwriteE'
-    # experiment = 'BF_FI_400pool_100pairs_50ep_10steps_FEbufferoverwrite_sig0p5_plotsampsurf'
-    # experiment = 'BF_FI_400pool_2pairs_100ep_10steps_FEbufferoverwrite_sig0p5_plotsampsurf'
-    # experiment = 'BF_FI_400pool_2pairs_100ep_50steps_FEbufferoverwrite_sig0p5_plotsampsurf'
-    # experiment = 'BF_FI_400pool_2pairs_20ep_10steps_FEbufferoverwrite_sig0p05_plotsampsurf'
-    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig0p05_plotsampsurf'
-    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferunique_sig3p0_plotsampsurf_-BFvol'
-    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
-    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
-    # experiment = 'BF_FI_400pool_100pairs_10ep_50steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
-    # experiment = 'BF_FI_400pool_2pairs_10ep_10steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol_evalBuffersaveload'
-    experiment = 'BF_FI_400pool_100pairs_20ep_50steps_FEbufferoverwrite_sig3p0_plotsampsurf_-BFvol'
+    # experiment = 'BF_FI_400pool_100pairs_20ep_50steps_FEbufferrecompute_sig3p0'
+    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0'
 
     ######################
     train_epochs = 20
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
-    sample_steps = 50
+    sample_steps = 10
     sigma_alpha = 3.0
     # gamma = 0.95
 
@@ -365,16 +343,16 @@ if __name__ == '__main__':
 
     ### resume training model
     # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
-    #                              ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
+    #                              ).run_trainer(resume_training=True, resume_epoch=8, train_epochs=12,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
     eval_model = SamplingModel(dockingFFT, num_angles=360, FI=True, debug=debug).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0) ## eval with monte carlo
     EnergyBasedInteractionTrainer(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
-                                  ).run_trainer(resume_training=True, resume_epoch=15, train_epochs=1,
+                                  ).run_trainer(resume_training=True, resume_epoch=8, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss()
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=15, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=8, show=True)
