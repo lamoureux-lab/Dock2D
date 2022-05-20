@@ -26,9 +26,9 @@ if __name__ == '__main__':
 
     ######### Metropolis-Hastings (Monte Carlo) eval on ideal learned energy surface
     train_epochs = 10
-    sample_steps = 36
+    sample_steps = 50
     MC_eval_num_epochs = 10
-    sigma_alpha = 1.5
+    sigma_alpha = 3.0
     gamma = 0.5
     experiment = 'BS_pretrain_MC_eval'
 

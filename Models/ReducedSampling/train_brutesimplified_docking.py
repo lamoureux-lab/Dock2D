@@ -40,7 +40,7 @@ class BruteSimplifiedDockingTrainer:
         self.experiment = cur_experiment
 
         ## sample buffer for BF or MC eval on ideal learned energy surface
-        self.evalbuffer = SampleBuffer(num_examples=sample_buffer_length)
+        self.alpha_buffer = SampleBuffer(num_examples=sample_buffer_length)
         self.free_energy_buffer = SampleBuffer(num_examples=sample_buffer_length)
 
         self.MC_eval = MC_eval
@@ -76,19 +76,19 @@ class BruteSimplifiedDockingTrainer:
             neg_energy, pred_rot, pred_txy, fft_score = self.model(gt_rot, receptor, ligand, plot_count=plot_count, stream_name=stream_name, plotting=self.plotting)
         else:
             ## for evaluation, sample buffer is necessary for Monte Carlo multi epoch eval
-            alpha = self.evalbuffer.get(pos_idx, samples_per_example=1)
-            free_energies_visited = self.free_energy_buffer.get_free_energies(pos_idx)
+            alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
+            free_energies_visited_indices = self.free_energy_buffer.get_free_energies_indices(pos_idx)
 
-            free_energies_visited, pred_rot, pred_txy, fft_score, acceptance_rate = self.model(alpha, receptor, ligand,
-                                                                                               free_energies_visited=free_energies_visited, sig_alpha=self.sigma_alpha,
+            free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score, acceptance_rate = self.model(alpha, receptor, ligand,
+                                                                                               free_energies_visited=free_energies_visited_indices, sig_alpha=self.sigma_alpha,
                                                                                                plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=False)
-            self.free_energy_buffer.push_free_energies(free_energies_visited, pos_idx)
-            self.evalbuffer.push(pred_rot, pos_idx)
+            self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)
+            self.alpha_buffer.push_alpha(pred_rot, pos_idx)
 
             if plot_count % self.plot_freq == 0:
-                # print(free_energies_visited.shape)
-                # print(free_energies_visited)
-                UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited, acceptance_rate,
+                # print(free_energies_visited_indices.shape)
+                # print(free_energies_visited_indices)
+                UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices, accumulated_free_energies, acceptance_rate,
                                                                                stream_name, plot_count=plot_count,
                                                                                epoch=epoch)
 
@@ -156,8 +156,8 @@ class BruteSimplifiedDockingTrainer:
 
             ### Evaluation epoch(s)
             if epoch % self.eval_freq == 0 or epoch == 1:
+                self.resume_training_or_not(resume_training, resume_epoch)
                 for i in range(self.eval_epochs):
-                    self.resume_training_or_not(resume_training, resume_epoch)
 
                     if self.MC_eval:
                         # sigma_optimizer.step()

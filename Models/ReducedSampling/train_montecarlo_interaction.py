@@ -79,25 +79,27 @@ class EnergyBasedInteractionTrainer:
         ### run model and loss calculation
         ##### push/pull samples of alpha and free energies to sample buffer
         plot_count = int(pos_idx)
-        alpha = self.alpha_buffer.get(pos_idx, samples_per_example=1)
-        free_energies_visited = self.free_energy_buffer.get_free_energies(pos_idx)
-        # print('BUFFER GET: free_energies_visited', free_energies_visited)
-        # print('BUFFER GET: free_energies_visited.shape', free_energies_visited.shape)
+        alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
+        free_energies_visited_indices = self.free_energy_buffer.get_free_energies_indices(pos_idx)
 
-        free_energies_visited, pred_rot, pred_txy, fft_score_stack, acceptance_rate = self.docking_model(alpha, receptor, ligand,
-                                        free_energies_visited=free_energies_visited, sig_alpha=self.sig_alpha,
+        ##TODO: update free energy buffer to only have indices of points visited
+        # print('BUFFER GET: free_energies_visited_indices', free_energies_visited_indices)
+        # print('BUFFER GET: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
+
+        free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score_stack, acceptance_rate = self.docking_model(alpha, receptor, ligand,
+                                        free_energies_visited=free_energies_visited_indices, sig_alpha=self.sig_alpha,
                                         plot_count=plot_count, stream_name=stream_name, plotting=self.plotting,
                                         training=training)
 
-        # print('BUFFER PUSH: free_energies_visited', free_energies_visited)
-        # print('BUFFER PUSH: free_energies_visited.shape', free_energies_visited.shape)
+        # print('BUFFER PUSH: free_energies_visited_indices', free_energies_visited_indices)
+        # print('BUFFER PUSH: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
 
-        self.alpha_buffer.push(pred_rot, pos_idx)
-        self.free_energy_buffer.push_free_energies(free_energies_visited, pos_idx)
-        pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack, free_energies=free_energies_visited, debug=False)
+        self.alpha_buffer.push_alpha(pred_rot, pos_idx)
+        self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)
+        pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack, free_energies=accumulated_free_energies, debug=False)
 
         if plot_count % self.plot_freq == 0 and training:
-            UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited, acceptance_rate,
+            UtilityFunctions(self.experiment).plot_MCsampled_energysurface(accumulated_free_energies, acceptance_rate,
                                                 stream_name, plot_count=plot_count, epoch=epoch)
 
         ### check parameters and gradients
@@ -203,8 +205,6 @@ class EnergyBasedInteractionTrainer:
                     self.checkAPR(epoch, valid_stream, 'VALIDset')
                 if test_stream:
                     self.checkAPR(epoch, test_stream, 'TESTset')
-
-
 
     def run_epoch(self, data_stream, epoch, training=False):
         stream_loss = []

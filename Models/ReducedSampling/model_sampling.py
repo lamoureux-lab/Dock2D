@@ -134,24 +134,31 @@ class SamplingModel(nn.Module):
                 self.docker.eval()
                 lowest_energy, _, dr, fft_score = self.docker(receptor, ligand, alpha, plot_count,
                                                               stream_name, plotting=plotting)
-                return lowest_energy, alpha.unsqueeze(0).clone(), dr.unsqueeze(0).clone(), fft_score, None
+                current_free_energies = None
+                acceptance_rate = None
+                return lowest_energy, current_free_energies, alpha.unsqueeze(0).clone(), dr.unsqueeze(0).clone(), fft_score, acceptance_rate
                 ### evaluate with Monte Carlo?
                 # self.docker.eval()
                 # return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, debug=False)
 
-    def MCsampling(self, alpha, receptor, ligand, plot_count, stream_name, free_energies_visited=None, debug=False):
+    def MCsampling(self, alpha, receptor, ligand, plot_count, stream_name, free_energies_visited_indices=None, debug=False):
 
-        # print('MCsampling free_energies_visited', free_energies_visited)
+        self.docker.eval()
 
-        # free_energies_visited = torch.zeros(360)
-        # print('free_energies_visited.shape', free_energies_visited.shape)
+        accumulated_free_energies = torch.tensor([[]]).cuda()
+        ## TODO: recompute free energies of all previously visited indices
+        for index_alpha in free_energies_visited_indices[0]:
+            alpha_update = (index_alpha * np.pi / 180)
+            # print('alpha_update', alpha_update.shape)
+            _, _, _, fft_score_update = self.docker(receptor, ligand, alpha_update)
+            betaE_update = -self.BETA * fft_score_update
+            free_energy = -1 / self.BETA * (torch.logsumexp(-betaE_update, dim=(0, 1)) - self.log_slice_volume)
+            accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
+            # print(accumulated_free_energies.shape, free_energy.reshape(1,1).shape)
 
         _, _, dr, fft_score = self.docker(receptor, ligand, alpha,
                                           plot_count=plot_count, stream_name=stream_name,
                                           plotting=False)
-
-        self.docker.eval()
-
         betaE = -self.BETA * fft_score
         free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)) - self.log_slice_volume)
 
@@ -164,24 +171,9 @@ class SamplingModel(nn.Module):
                 plotting = True
             else:
                 plotting = False
+
             rand_rot = noise_alpha.normal_(0, self.sig_alpha)
             alpha_new = alpha + rand_rot
-            # deg_index_alpha = (((alpha_new * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
-            # attempts = 0
-            # while free_energies_visited[deg_index_alpha] != 0 and attempts < 100:
-            #     # print('already visited this index')
-            #     rand_rot = noise_alpha.normal_(0, self.sigma_alpha)
-            #     alpha_new = alpha + rand_rot
-            #     deg_index_alpha = (((alpha_new * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
-            #     attempts += 1
-
-            # deg_index_alpha = (((alpha_new * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
-            # if free_energies_visited[deg_index_alpha] != 0:
-            #     # print('re-encountered angle', deg_index_alpha)
-            #     # print(free_energies_visited[deg_index_alpha])
-            #     pass
-            # # print('index', i)
-
             _, _, dr_new, fft_score_new = self.docker(receptor, ligand, alpha_new,
                                                       plot_count=plot_count, stream_name=stream_name,
                                                       plotting=plotting)
@@ -201,7 +193,9 @@ class SamplingModel(nn.Module):
                 fft_score = fft_score_new
                 fft_score_list.append(fft_score)
                 deg_index_alpha = (((alpha * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
-                free_energies_visited[deg_index_alpha] = free_energy
+                # print(free_energies_visited_indices.shape)
+                free_energies_visited_indices = torch.cat((free_energies_visited_indices, deg_index_alpha.reshape(1,1)), dim=1)
+                accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
             else:
                 prob = min(torch.exp(-self.BETA * (free_energy_new - free_energy)).item(), 1)
                 rand0to1 = torch.rand(1).cuda()
@@ -218,7 +212,9 @@ class SamplingModel(nn.Module):
                     fft_score = fft_score_new
                     fft_score_list.append(fft_score)
                     deg_index_alpha = (((alpha * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
-                    free_energies_visited[deg_index_alpha] = free_energy
+                    # print(free_energies_visited_indices.shape)
+                    free_energies_visited_indices = torch.cat((free_energies_visited_indices, deg_index_alpha.reshape(1,1)), dim=1)
+                    accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
                 else:
                     fft_score_list.append(fft_score)
                     # if debug:
@@ -234,11 +230,12 @@ class SamplingModel(nn.Module):
 
         if self.FI or self.IP_MC:
             fft_score_stack = torch.stack(fft_score_list)
+            # accumulated_free_energies = torch.stack(accumulated_free_energies)
         else:
             fft_score_stack = fft_score
-            free_energies_visited = free_energy
+            free_energies_visited_indices = free_energy
 
-        return free_energies_visited, alpha.clone(), dr.clone(), fft_score_stack.squeeze(), acceptance_rate
+        return free_energies_visited_indices, accumulated_free_energies, alpha.clone(), dr.clone(), fft_score_stack.squeeze(), acceptance_rate
 
     def langevin_dynamics(self, alpha, receptor, ligand, plot_count, stream_name):
 

@@ -11,6 +11,7 @@ rcParams.update({'figure.autolayout': True})
 
 from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, Protein
 
+
 class ShapeDistributions:
     def __init__(self, protein_pool, dataset_name, show=False):
         self.protein_pool = protein_pool

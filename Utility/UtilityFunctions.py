@@ -140,23 +140,36 @@ class UtilityFunctions():
         plt.xlabel('Rotation (rads)')
         plt.savefig('Figs/EnergySurfaces/' + hardmin_minEnergies + '.png')
 
-    def plot_MCsampled_energysurface(self, sampled_alpha_freeEnergies, acceptance_rate, stream_name=None, plot_count=0, epoch=0):
+    def plot_MCsampled_energysurface(self, free_energies_visited_indices, sampled_alpha_freeEnergies, acceptance_rate, stream_name=None, plot_count=0, epoch=0):
         plt.close()
         plt.figure(figsize=(15,10))
-        sampled_alpha_freeEnergies = sampled_alpha_freeEnergies.detach().cpu()
-        num_angles = len(sampled_alpha_freeEnergies)
 
-        xrange = np.arange(0, num_angles, 1)
+        if len(free_energies_visited_indices[0]) > 1:
+            # print('free_energies_visited_indices', free_energies_visited_indices)
+            # print('sampled_alpha_freeEnergies', sampled_alpha_freeEnergies)
 
-        mcsampled_energies_name = 'example' + str(plot_count)+'_epoch'+str(epoch) + stream_name + self.experiment + '_energysurface'
-        plt.plot(xrange, sampled_alpha_freeEnergies)
-        plt.ylim([min(sampled_alpha_freeEnergies), 1])
-        plt.hlines(y=0, xmin=0, xmax=num_angles, linestyles='dashed', label='zero energy', colors='k')
-        plt.suptitle('MonteCarlo sampled energy surface, acceptance rate='+str(acceptance_rate))
-        plt.title(mcsampled_energies_name)
-        plt.ylabel('Energy')
-        plt.xlabel('Rotation indices')
-        plt.savefig('Figs/EnergySurfaces/' + mcsampled_energies_name + '.png')
+            free_energies_visited_indices = free_energies_visited_indices.squeeze().detach().cpu()
+            sampled_alpha_freeEnergies = sampled_alpha_freeEnergies.squeeze().detach().cpu()
+
+            free_energies_indices = free_energies_visited_indices.numpy().sort()
+            inds = np.array(free_energies_visited_indices).argsort()
+            freeEnergies_argsort = np.array(sampled_alpha_freeEnergies)[inds]
+
+            # print(free_energies_visited_indices)
+            # print(free_energies_indices)
+            # print(inds)
+            # print(freeEnergies_argsort)
+
+            mcsampled_energies_name = 'example' + str(plot_count)+'_epoch'+str(epoch) + stream_name + self.experiment + '_energysurface'
+            # plt.plot(free_energies_visited_indices, freeEnergies_argsort)
+            plt.scatter(free_energies_visited_indices, freeEnergies_argsort)
+            plt.ylim([min(freeEnergies_argsort), 1])
+            plt.hlines(y=0, xmin=0, xmax=360, linestyles='dashed', label='zero energy', colors='k')
+            plt.suptitle('MonteCarlo sampled energy surface, acceptance rate='+str(acceptance_rate))
+            plt.title(mcsampled_energies_name)
+            plt.ylabel('Energy')
+            plt.xlabel('Rotation indices')
+            plt.savefig('Figs/EnergySurfaces/' + mcsampled_energies_name + '.png')
 
     def plot_assembly(self, receptor, ligand, gt_rot, gt_txy, pred_rot=None, pred_txy=None):
         box_size = receptor.shape[-1]
