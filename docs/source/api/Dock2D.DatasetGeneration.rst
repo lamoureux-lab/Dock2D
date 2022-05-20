@@ -2,6 +2,7 @@ DatasetGeneration/
 ==================
 
 Generate a protein pool to create IP and FI datasets.
+This involves first generating a pool of protein shapes which are then used to determine interactions for both docking and fact-of-interaction.
 
 .. toctree::
    :maxdepth: 1

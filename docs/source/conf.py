@@ -64,5 +64,5 @@ html_static_path = ['_static']
 # html_logo = "_static/comp_overlay.png"
 
 
-# def setup(app):
-#     app.add_css_file('custom.css')
+def setup(app):
+    app.add_css_file('custom.css')
