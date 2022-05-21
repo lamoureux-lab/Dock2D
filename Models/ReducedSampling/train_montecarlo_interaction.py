@@ -298,13 +298,14 @@ class EnergyBasedInteractionTrainer:
 if __name__ == '__main__':
     #################################################################################
     # Datasets
-    trainset = '../../Datasets/interaction_train_400pool'
-    validset = '../../Datasets/interaction_valid_400pool'
+    trainset = '../../Datasets/interaction_train_400pool.pkl'
+    validset = '../../Datasets/interaction_valid_400pool.pkl'
     ### testing set
-    testset = '../../Datasets/interaction_test_400pool'
+    testset = '../../Datasets/interaction_test_400pool.pkl'
     #########################
-    #### initialization torch settings
+    #### initialization random settings
     random_seed = 42
+    randomstate = np.random.RandomState(random_seed)
     np.random.seed(random_seed)
     torch.manual_seed(random_seed)
     random.seed(random_seed)
@@ -313,16 +314,25 @@ if __name__ == '__main__':
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     #########################
-    ## number_of_pairs provides max_size of interactions: max_size = int(number_of_pairs + (number_of_pairs**2 - number_of_pairs)/2)
+    ## number_of_pairs provides max_size of interactions: max_size = (number_of_pairs**2 + number_of_pairs)/2
     number_of_pairs = 100
-    train_stream = get_interaction_stream(trainset + '.pkl', number_of_pairs=number_of_pairs)
-    valid_stream = get_interaction_stream(validset + '.pkl', number_of_pairs=100)
-    test_stream = get_interaction_stream(testset + '.pkl', number_of_pairs=100)
+    train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
+    valid_stream = get_interaction_stream(validset, number_of_pairs=100)
+    test_stream = get_interaction_stream(testset, number_of_pairs=100)
     ######################
 
     # experiment = 'BF_FI_400pool_100pairs_20ep_50steps_FEbufferrecompute_sig3p0'
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0'
-    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0_no-volume'
+    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0_no-volume'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle_BFvolume'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle_unvisitedvol'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle_novol'
+
+    # experiment = 'BF_FI_400pool_25pairs_10ep_10steps_FEbufferrecompute_sig3p0_checkingevalF_0diff'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_checkingevalF_0diff'
+
+    experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_workingBFevalF0'
 
     ######################
     train_epochs = 20
@@ -357,9 +367,9 @@ if __name__ == '__main__':
     eval_model = SamplingModel(dockingFFT, num_angles=360, FI=True, debug=debug).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI=True, debug=debug).to(device=0) ## eval with monte carlo
     EnergyBasedInteractionTrainer(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
-                                  ).run_trainer(resume_training=True, resume_epoch=8, train_epochs=1,
+                                  ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss()
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=8, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)

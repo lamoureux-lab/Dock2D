@@ -74,7 +74,7 @@ class SamplingModel(nn.Module):
         self.IP_LD = IP_LD
 
         self.FI = FI
-        self.log_slice_volume = torch.log(torch.tensor(100 ** 2))
+        # self.log_slice_volume = torch.log(torch.tensor(100 ** 2))
 
     def forward(self, alpha, receptor, ligand, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
@@ -152,7 +152,7 @@ class SamplingModel(nn.Module):
             # print('alpha_update', alpha_update.shape)
             _, _, _, fft_score_update = self.docker(receptor, ligand, alpha_update)
             betaE_update = -self.BETA * fft_score_update
-            free_energy = -1 / self.BETA * (torch.logsumexp(-betaE_update, dim=(0, 1)) - self.log_slice_volume)
+            free_energy = -1 / self.BETA * (torch.logsumexp(-betaE_update, dim=(0, 1)))
             accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
             # print(accumulated_free_energies.shape, free_energy.reshape(1,1).shape)
 
@@ -160,7 +160,7 @@ class SamplingModel(nn.Module):
                                           plot_count=plot_count, stream_name=stream_name,
                                           plotting=False)
         betaE = -self.BETA * fft_score
-        free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)) - self.log_slice_volume)
+        free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)))
 
         noise_alpha = torch.zeros_like(alpha)
         prob_list = []
@@ -178,7 +178,7 @@ class SamplingModel(nn.Module):
                                                       plot_count=plot_count, stream_name=stream_name,
                                                       plotting=plotting)
             betaE_new = -self.BETA * fft_score_new
-            free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)) - self.log_slice_volume)
+            free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)))
 
             if free_energy_new <= free_energy:
                 acceptance.append(1)
