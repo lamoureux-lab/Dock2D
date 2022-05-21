@@ -78,7 +78,6 @@ class DatasetGenerator:
         self.plotting = True
         self.plot_freq = 100
         self.show = True
-        self.swap_quadrants = False
         self.trainset_pool_stats = None
         self.testset_pool_stats = None
 
@@ -89,9 +88,8 @@ class DatasetGenerator:
         self.datastats_savepath = '../Datasets/stats/'
         self.log_savepath = 'Log/losses/'
 
-        ## normalization of features during FFT
-        self.normalization = 'ortho'
-        self.FFT = TorchDockingFFT(swap_plot_quadrants=self.swap_quadrants, normalization=self.normalization)
+        ## initialize FFT
+        self.FFT = TorchDockingFFT()
 
         ## number of unique protein shapes to generate in pool
         self.trainpool_num_proteins = 10
