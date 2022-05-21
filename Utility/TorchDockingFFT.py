@@ -11,9 +11,9 @@ import numpy as np
 
 
 class TorchDockingFFT:
-    def __init__(self, dim=100, num_angles=360, angle=None, swap_plot_quadrants=False, debug=False, normalization='ortho'):
+    def __init__(self, dim=100, num_angles=360, angle=None, swap_plot_quadrants=False, normalization='ortho', debug=False):
         self.debug = debug
-        self.swap_plot_quadrants = swap_plot_quadrants
+        self.swap_plot_quadrants = swap_plot_quadrants ## used only to make plotting look nice
         self.dim = dim
         self.num_angles = num_angles
         self.angle = angle
@@ -57,7 +57,7 @@ class TorchDockingFFT:
             pred_X = torch.div(XYind, self.dim, rounding_mode='floor')
             pred_Y = torch.fmod(XYind, self.dim)
 
-        # Just to make translation values look nice in terms of + or - signs
+        # Just to make translation values look nice caused by grid wrapping + or - signs
         if pred_X > self.dim//2:
             pred_X = pred_X - self.dim
         if pred_Y > self.dim//2:
@@ -174,17 +174,17 @@ class TorchDockingFFT:
         plt.imshow(pair.transpose())
         plt.show()
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     from DeepProteinDocking2D.Utility.torchDataLoader import get_docking_stream
     from tqdm import tqdm
 
-    testset = '../Datasets/docking_test_100pool'
+    testset = '../Datasets/docking_test_100pool.pkl'
     max_size = None
-    data_stream = get_docking_stream(testset + '.pkl', batch_size=1, max_size=max_size)
+    data_stream = get_docking_stream(testset, batch_size=1, max_size=max_size)
 
     swap_quadrants = True
-    FFT = TorchDockingFFT(swap_plot_quadrants=swap_quadrants, normalization="ortho")
+    FFT = TorchDockingFFT(swap_plot_quadrants=swap_quadrants)
 
     weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk = 10, 20, 20, 200
 
@@ -205,7 +205,5 @@ if __name__ == '__main__':
         ligand_stack = FFT.make_boundary(ligand)
         fft_score = FFT.dock_global(receptor_stack, ligand_stack, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
         rot, trans = FFT.extract_transform(fft_score)
-        print(rot, trans)
         lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
-        print('lowest energy', lowest_energy)
         FFT.check_FFT_predictions(fft_score, receptor, ligand, gt_txy, gt_rot)
