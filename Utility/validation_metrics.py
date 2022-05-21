@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from tqdm import tqdm
+from Dock2D.Utility.PlotterFI import PlotterFI
 
 
 class RMSD:
@@ -84,17 +85,22 @@ class APR:
     def __init__(self):
         self.epsilon = 1e-5
 
-    def calc_APR(self, stream, run_model, epoch=0):
+    def calc_APR(self, stream, run_model, epoch=0, deltaF_logfile=None, experiment=None):
         print('Calculating Accuracy, Precision, Recall')
         TP, FP, TN, FN = 0, 0, 0, 0
 
         for data in tqdm(stream):
-            tp, fp, tn, fn = run_model(data, training=False)
+            tp, fp, tn, fn, F, F_0, label = run_model(data, training=False)
             # print(tp, fp, tn,fn)
             TP += tp
             FP += fp
             TN += tn
             FN += fn
+            with open(deltaF_logfile, 'a') as fout:
+                fout.write('%f\t%f\t%d\n' % (F, F_0, label))
+
+        PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=epoch, show=True, xlim=None, binwidth=1)
+
 
         Accuracy = float(TP + TN) / float(TP + TN + FP + FN)
         if (TP + FP) > 0:

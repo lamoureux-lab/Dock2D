@@ -15,12 +15,13 @@ class Interaction(nn.Module):
             E = -fft_scores.squeeze()
             if len(E.shape) < 3:
                 E = E.unsqueeze(0)
-            F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
+            # F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
+            F = -(torch.logsumexp(-E, dim=(0, 1, 2)))
         else:
             num_slices = len(free_energies[-1])
             if num_slices > 0:
-                log_volume = torch.log(num_slices * torch.tensor(100 ** 2))
-                F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - log_volume)
+                # log_volume = torch.log(num_slices * torch.tensor(100 ** 2))
+                F = -(torch.logsumexp(-free_energies, dim=(0, 1)))
             else:
                 F = torch.ones(1).cuda()
 

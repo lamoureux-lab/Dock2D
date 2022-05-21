@@ -130,7 +130,8 @@ class EnergyBasedInteractionTrainer:
             self.docking_model.eval()
             self.interaction_model.eval()
             with torch.no_grad():
-                return self.classify(pred_interact, gt_interact)
+                TP, FP, TN, FN = self.classify(pred_interact, gt_interact)
+                return TP, FP, TN, FN, F.item(), F_0.item(), gt_interact.item()
 
         return loss.item(), F.item(), F_0.item(), gt_interact.item()
 
@@ -204,10 +205,16 @@ class EnergyBasedInteractionTrainer:
             ### training set to False downstream in calcAPR() run_model()
 
             if epoch % self.eval_freq == 0:
+                deltaF_logfile = self.logfile_savepath + self.logtraindF_prefix + str(epoch) + self.experiment + '.txt'
+                with open(deltaF_logfile, 'w') as fout:
+                    fout.write(self.deltaf_log_header)
+                deltaF_logfile = self.logfile_savepath + self.logtraindF_prefix + str(epoch) + self.experiment + '.txt'
+                with open(deltaF_logfile, 'w') as fout:
+                    fout.write(self.deltaf_log_header)
                 if valid_stream:
-                    self.checkAPR(epoch, valid_stream, 'VALIDset')
+                    self.checkAPR(epoch, valid_stream, 'VALIDset', deltaF_logfile=deltaF_logfile, experiment=self.experiment)
                 if test_stream:
-                    self.checkAPR(epoch, test_stream, 'TESTset')
+                    self.checkAPR(epoch, test_stream, 'TESTset', deltaF_logfile=deltaF_logfile, experiment=self.experiment)
 
     def run_epoch(self, data_stream, epoch, training=False):
         stream_loss = []
@@ -228,11 +235,11 @@ class EnergyBasedInteractionTrainer:
         with open(loss_logfile, 'a') as fout:
             fout.write(self.loss_log_format % (epoch, avg_loss[0]))
 
-    def checkAPR(self, check_epoch, datastream, stream_name=None):
+    def checkAPR(self, check_epoch, datastream, stream_name=None, deltaF_logfile=None, experiment=None):
         log_APRheader = 'Accuracy\tPrecision\tRecall\tF1score\tMCC\n'
         log_APRformat = '%f\t%f\t%f\t%f\t%f\n'
         print('Evaluating ', stream_name)
-        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch)
+        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch, deltaF_logfile, experiment)
         with open(self.logfile_savepath + self.logAPR_prefix + self.experiment + '.txt', 'a') as fout:
             fout.write('Epoch '+str(check_epoch)+'\n')
             fout.write(log_APRheader)
@@ -251,11 +258,10 @@ class EnergyBasedInteractionTrainer:
 
             start_epoch += 1
 
-            print('\ndocking model:\n', self.docking_model)
             ## print model and params being loaded
+            print('\ndocking model:\n', self.docking_model)
             self.UtilityFuncs.check_model_gradients(self.docking_model)
             print('\ninteraction model:\n', self.interaction_model)
-            ## print model and params being loaded
             self.UtilityFuncs.check_model_gradients(self.interaction_model)
 
             print('\nLOADING MODEL AT EPOCH', start_epoch, '\n')
@@ -315,7 +321,8 @@ if __name__ == '__main__':
     ######################
 
     # experiment = 'BF_FI_400pool_100pairs_20ep_50steps_FEbufferrecompute_sig3p0'
-    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0'
+    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0'
+    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0_no-volume'
 
     ######################
     train_epochs = 20
