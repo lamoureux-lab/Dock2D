@@ -196,7 +196,7 @@ class DatasetGenerator:
         """
         data = ProteinPool.load(self.pool_savepath+protein_pool)
 
-        protein_pool_prefix = protein_pool[:-4]
+        protein_pool_prefix = protein_pool.split('.')[0]
 
         protein_shapes = data.proteins
         fft_score_list = [[], []]
@@ -207,8 +207,8 @@ class DatasetGenerator:
 
         plot_accepted_rejected_examples = False
 
-        translation_space = protein_shapes[0].shape[-1]
-        volume = torch.log(360 * torch.tensor(translation_space ** 2))
+        translation_space = torch.tensor(protein_shapes[0].shape[-1])
+        volume = torch.log(360 * translation_space ** 2)
 
         freeE_logfile = self.log_savepath+'log_rawdata_FI_'+protein_pool_prefix+'.txt'
         with open(freeE_logfile, 'w') as fout:
@@ -233,7 +233,7 @@ class DatasetGenerator:
 
                 if free_energy < self.interaction_decision_threshold:
                     interaction = torch.tensor(1)
-                if free_energy > self.interaction_decision_threshold:
+                else:
                     interaction = torch.tensor(0)
                 # interaction_set.append([receptor, ligand, interaction])
                 interactions_list.append([i, j])
