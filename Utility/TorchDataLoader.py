@@ -145,11 +145,14 @@ if __name__=='__main__':
 	end = timeit.default_timer()
 	print('time to load datasets', end-start)
 
+	## check that interaction stream is shuffled at stream level,
+	## but not at epoch level (each epoch needs to be the same for use with sample buffer).
+	randint = np.random.randint(0, len(train_stream))
 	for epoch in range(3):
 		counter = 0
 		for data in tqdm(train_stream):
 			receptor, ligand, interaction = data
-			if counter == 7:
+			if counter == randint:
 				plot = np.hstack((receptor.squeeze().detach().cpu(), ligand.squeeze().detach().cpu()))
 				plt.imshow(plot)
 				plt.show()
