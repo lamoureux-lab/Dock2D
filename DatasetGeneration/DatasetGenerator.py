@@ -299,7 +299,7 @@ class DatasetGenerator:
 
     def run_generator(self):
         r"""
-        Generates the training, validation, and testing sets for both docking (IP) and interaction (FI) from.
+        Generates the training, validation, and testing sets for both docking (IP) and interaction (FI) from current protein pool.
         Write all datasets to .pkl files. Saves all metrics to file. Prints IP and FI dataset stats.
         If ``self.plotting=True`` plot and save dataset generation plots.
         Specify ``self.show=True`` to show each plot in a new window (does not affect saving).
@@ -433,18 +433,8 @@ class DatasetGenerator:
 
 
 if __name__ == '__main__':
-    # Initialize random seeds
-    # random_seed = 42
-    # np.random.seed(random_seed)
-    # torch.manual_seed(random_seed)
-    # random.seed(random_seed)
-    # torch.cuda.manual_seed(random_seed)
-    # torch.backends.cudnn.deterministic = True
-    # torch.cuda.set_device(0)
-
     DatasetGenerator = DatasetGenerator()
     DatasetGenerator.run_generator()
-
 
     # # DONE
     # ###  generate figure with alpha vs numpoints
