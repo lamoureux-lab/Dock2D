@@ -22,9 +22,6 @@ class DatasetGenerator:
             self.plotting = True
             self.plot_freq = 100
             self.show = True
-            self.swap_quadrants = False
-            self.trainset_exists = False
-            self.testset_exists = False
             self.trainset_pool_stats = None
             self.testset_pool_stats = None
 
@@ -35,9 +32,8 @@ class DatasetGenerator:
             self.datastats_savepath = '../Datasets/stats/'
             self.log_savepath = 'Log/losses/'
 
-            ## normalization of features during FFT
-            self.normalization = 'ortho'
-            self.FFT = TorchDockingFFT(swap_plot_quadrants=self.swap_quadrants, normalization=self.normalization)
+            ## initialize FFT
+            self.FFT = TorchDockingFFT()
 
             ## number of unique protein shapes to generate in pool
             self.trainpool_num_proteins = 10
@@ -177,7 +173,8 @@ class DatasetGenerator:
         ligand = torch.tensor(ligand, dtype=torch.float).cuda()
         receptor_stack = self.FFT.make_boundary(receptor)
         ligand_stack = self.FFT.make_boundary(ligand)
-        fft_score = self.FFT.dock_global(receptor_stack, ligand_stack, self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk)
+        fft_score = self.FFT.dock_global(receptor_stack, ligand_stack,
+                                         self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk)
 
         return receptor, ligand, fft_score
 
