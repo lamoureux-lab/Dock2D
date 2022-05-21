@@ -79,8 +79,6 @@ class DatasetGenerator:
         self.plot_freq = 100
         self.show = True
         self.swap_quadrants = False
-        self.trainset_exists = False
-        self.testset_exists = False
         self.trainset_pool_stats = None
         self.testset_pool_stats = None
 
@@ -216,7 +214,6 @@ class DatasetGenerator:
 
         for i in tqdm(range(num_proteins)):
             for j in tqdm(range(i, num_proteins)):
-                interaction = None
                 plot_count += 1
                 receptor, ligand = protein_shapes[i], protein_shapes[j]
                 receptor, ligand, fft_score = self.generate_interactions(receptor, ligand)
@@ -235,7 +232,6 @@ class DatasetGenerator:
                     interaction = torch.tensor(1)
                 else:
                     interaction = torch.tensor(0)
-                # interaction_set.append([receptor, ligand, interaction])
                 interactions_list.append([i, j])
                 labels_list.append(interaction)
                 with open(freeE_logfile, 'a') as fout:
