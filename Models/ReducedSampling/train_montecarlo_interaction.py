@@ -24,7 +24,7 @@ class EnergyBasedInteractionTrainer:
         # print("RUNNING INIT")
         self.debug = debug
         self.plotting = plotting
-        self.plot_freq = 1000
+        self.plot_freq = 500
         self.check_epoch = 1
         self.eval_freq = 1
         self.save_freq = 1
@@ -82,7 +82,6 @@ class EnergyBasedInteractionTrainer:
         alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
         free_energies_visited_indices = self.free_energy_buffer.get_free_energies_indices(pos_idx)
 
-        ##TODO: update free energy buffer to only have indices of points visited
         # print('BUFFER GET: free_energies_visited_indices', free_energies_visited_indices)
         # print('BUFFER GET: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
 
@@ -100,7 +99,7 @@ class EnergyBasedInteractionTrainer:
 
         if plot_count % self.plot_freq == 0 and training:
             UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices, accumulated_free_energies, acceptance_rate,
-                                                stream_name, plot_count=plot_count, epoch=epoch)
+                                                stream_name, interaction=gt_interact, plot_count=plot_count, epoch=epoch)
 
         ### check parameters and gradients
         ### if weights are frozen or updating
@@ -315,7 +314,7 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = (number_of_pairs**2 + number_of_pairs)/2
-    number_of_pairs = 100
+    number_of_pairs = 50
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=100)
     test_stream = get_interaction_stream(testset, number_of_pairs=100)
@@ -332,7 +331,9 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_25pairs_10ep_10steps_FEbufferrecompute_sig3p0_checkingevalF_0diff'
     # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_checkingevalF_0diff'
 
-    experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_workingBFevalF0'
+    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_workingBFevalF0'
+
+    experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream'
 
     ######################
     train_epochs = 20
@@ -360,7 +361,7 @@ if __name__ == '__main__':
 
     ### resume training model
     # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
-    #                              ).run_trainer(resume_training=True, resume_epoch=8, train_epochs=12,
+    #                              ).run_trainer(resume_training=True, resume_epoch=1, train_epochs=1,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)

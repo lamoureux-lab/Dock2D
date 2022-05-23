@@ -17,15 +17,11 @@ class Interaction(nn.Module):
             if len(E.shape) < 3:
                 E = E.unsqueeze(0)
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
-            # F = -(torch.logsumexp(-E, dim=(0, 1, 2)))
         else:
             num_angles_visited = len(free_energies[-1])
-            if num_angles_visited > 0:
-                unvisited_count = self.num_angles-num_angles_visited
-                free_energies = torch.cat((free_energies, torch.ones(1, unvisited_count).cuda()), dim=1)
-                F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
-            else:
-                F = torch.ones(1).cuda()
+            unvisited_count = self.num_angles-num_angles_visited
+            free_energies = torch.cat((free_energies, torch.ones(1, unvisited_count).cuda()), dim=1)
+            F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
 
         deltaF = F - self.F_0
         pred_interact = torch.sigmoid(-deltaF)
