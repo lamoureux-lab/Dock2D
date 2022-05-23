@@ -6,7 +6,7 @@ Models/
    :caption: Contents:
 
    ../api/Dock2D.Models/Dock2D.Models.BruteForce.rst
-   ../api/Dock2D.Models/Dock2D.Models.ReducedSampling.rst
+   ../api/Dock2D.Models/Dock2D.Models.Sampling.rst
 
 .. autoclass:: Dock2D.Models.model_docking.Docking
    :special-members: __init__, forward

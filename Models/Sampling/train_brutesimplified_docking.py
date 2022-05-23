@@ -13,7 +13,7 @@ from Dock2D.Utility.validation_metrics import RMSD
 from Dock2D.Utility.PlotterIP import PlotterIP
 from Dock2D.Utility.SampleBuffer import SampleBuffer
 from Dock2D.Models.BruteForce.train_bruteforce_docking import Docking
-from Dock2D.Models.ReducedSampling.model_sampling import SamplingModel
+from Dock2D.Models.Sampling.model_sampling import SamplingModel
 
 
 class BruteSimplifiedDockingTrainer:
