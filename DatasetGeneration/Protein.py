@@ -25,6 +25,7 @@ def get_random_points(num_points, xspan, yspan):
 	points = np.array(points)
 	return points
 
+
 def hull2array(hull, array, xspan, yspan):
 	"""
 	Convert a hull to a grid based shape. All grid pixels are filled with 1 inside the shape, 0 otherwise.
