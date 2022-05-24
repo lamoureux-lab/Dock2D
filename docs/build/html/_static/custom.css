@@ -9,8 +9,12 @@
 .wy-nav-content {
     max-width: 800px !important;
     /*max-width: 1200px;*/
-    background: #faeded;
+    background: #f5d3d3;
 }
+
+/*.wy-nav-wrap {
+    background: #f50505;
+}/*
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: normal;
