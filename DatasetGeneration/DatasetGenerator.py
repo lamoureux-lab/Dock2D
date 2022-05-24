@@ -393,22 +393,22 @@ class DatasetGenerator:
             fout.write('\nInteraction set length ' + str(len(test_interaction_set[-1])))
 
         ## Save training sets
-        docking_train_file = self.data_savepath + 'docking_train_' + str(self.trainpool_num_proteins) + 'pool'
-        interaction_train_file = self.data_savepath + 'interaction_train_' + str(self.trainpool_num_proteins) + 'pool'
-        UtilityFunctions().write_pkl(data=train_docking_set, fileprefix=docking_train_file)
-        UtilityFunctions().write_pkl(data=train_interaction_set, fileprefix=interaction_train_file)
+        docking_train_file = self.data_savepath + 'docking_train_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        interaction_train_file = self.data_savepath + 'interaction_train_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        UtilityFunctions().write_pkl(data=train_docking_set, filename=docking_train_file)
+        UtilityFunctions().write_pkl(data=train_interaction_set, filename=interaction_train_file)
 
         ## Save validation sets
-        docking_valid_file =self.data_savepath + 'docking_valid_' + str(self.trainpool_num_proteins) + 'pool'
-        interaction_valid_file = self.data_savepath + 'interaction_valid_' + str(self.trainpool_num_proteins) + 'pool'
-        UtilityFunctions().write_pkl(data=valid_docking_set, fileprefix=docking_valid_file)
-        UtilityFunctions().write_pkl(data=valid_interaction_set, fileprefix=interaction_valid_file)
+        docking_valid_file =self.data_savepath + 'docking_valid_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        interaction_valid_file = self.data_savepath + 'interaction_valid_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        UtilityFunctions().write_pkl(data=valid_docking_set, filename=docking_valid_file)
+        UtilityFunctions().write_pkl(data=valid_interaction_set, filename=interaction_valid_file)
 
         ## Save testing sets
-        docking_test_file = self.data_savepath + 'docking_test_' + str(self.testpool_num_proteins) + 'pool'
-        interaction_test_file = self.data_savepath + 'interaction_test_' + str(self.testpool_num_proteins) + 'pool'
-        UtilityFunctions().write_pkl(data=test_docking_set, fileprefix=docking_test_file)
-        UtilityFunctions().write_pkl(data=test_interaction_set, fileprefix=interaction_test_file)
+        docking_test_file = self.data_savepath + 'docking_test_' + str(self.testpool_num_proteins) + 'pool.pkl'
+        interaction_test_file = self.data_savepath + 'interaction_test_' + str(self.testpool_num_proteins) + 'pool.pkl'
+        UtilityFunctions().write_pkl(data=test_docking_set, filename=docking_test_file)
+        UtilityFunctions().write_pkl(data=test_interaction_set, filename=interaction_test_file)
 
         if self.plotting:
             ## Dataset shape pair docking energies distributions
