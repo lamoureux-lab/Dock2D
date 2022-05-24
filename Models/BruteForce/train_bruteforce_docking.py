@@ -36,7 +36,7 @@ class BruteForceDockingTrainer:
         self.optimizer = cur_optimizer
         self.experiment = cur_experiment
 
-        self.UtilityFuncs = UtilityFunctions()
+        self.UtilityFunctions = UtilityFunctions()
 
     def run_model(self, data, training=True, pos_idx=0, stream_name='trainset'):
         receptor, ligand, gt_rot, gt_txy = data
@@ -69,7 +69,7 @@ class BruteForceDockingTrainer:
         ### check parameters and gradients
         ### if weights are frozen or updating
         if self.debug:
-            self.check_model_gradients()
+            self.UtilityFunctions.check_model_gradients(self.model)
 
         if training:
             self.model.zero_grad()
@@ -81,7 +81,7 @@ class BruteForceDockingTrainer:
         if self.plotting and not training:
             if pos_idx % self.plot_freq == 0:
                 with torch.no_grad():
-                    self.UtilityFuncs.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot, pred_txy, pos_idx,stream_name)
+                    self.UtilityFunctions.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot, pred_txy, pos_idx,stream_name)
 
         return loss.item(), rmsd_out.item()
 
@@ -213,11 +213,9 @@ if __name__ == '__main__':
 
     batch_size = 1
     max_size = 1000
-    if batch_size > 1:
-        raise NotImplementedError()
     train_stream = get_docking_stream(trainset + '.pkl', batch_size, max_size=max_size)
-    valid_stream = get_docking_stream(validset + '.pkl', batch_size=1, max_size=max_size)
-    test_stream = get_docking_stream(testset + '.pkl', batch_size=1, max_size=max_size)
+    valid_stream = get_docking_stream(validset + '.pkl',  max_size=max_size)
+    test_stream = get_docking_stream(testset + '.pkl', max_size=max_size)
 
     ######################
     # experiment = 'BF_IP_FINAL_DATASET_100pool_1000ex_30ep'
