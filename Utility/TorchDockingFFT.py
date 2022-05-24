@@ -12,6 +12,16 @@ import numpy as np
 
 class TorchDockingFFT:
     def __init__(self, dim=100, num_angles=360, angle=None, swap_plot_quadrants=False, normalization='ortho', debug=False):
+        """
+        Initialize docking FFT based on desired usage.
+
+        :param dim: dimension of final padded box to follow Nyquist's theorem.
+        :param num_angles: number of angles to sample
+        :param angle: single angle to rotate a shape and evaluate FFT
+        :param swap_plot_quadrants: swap FFT output quadrants to make plots origin centered
+        :param normalization: specify normalization for the `torch.fft2()` and `torch.irfft2()` operations, default is set to `ortho`
+        :param debug: shows what rotations look like depending on `num_angles`
+        """
         self.debug = debug
         self.swap_plot_quadrants = swap_plot_quadrants ## used only to make plotting look nice
         self.dim = dim
@@ -30,6 +40,7 @@ class TorchDockingFFT:
     def encode_transform(self, gt_rot, gt_txy):
         '''
         One hot encoded ground truth transformation into a 3D array.
+
         :param gt_rot: ground truth rotation in radians `[[gt_rot]]`.
         :param gt_txy: ground truth translation `[[x], [y]]`.
         :return: flattened one hot encoded array.
@@ -46,8 +57,15 @@ class TorchDockingFFT:
 
         return target_flatindex
 
-    def extract_transform(self, pred_score):
-        pred_index = torch.argmax(pred_score)
+    def extract_transform(self, fft_score):
+        """
+        Extract best score from FFT score [r, x, y]
+        where r is the rotation slice index, x and y are best score translation indices within that slice.
+
+        :param fft_score: fft score grid
+        :return: predicted rotation index and translation indices
+        """
+        pred_index = torch.argmax(fft_score)
         pred_rot = (torch.div(pred_index, self.dim ** 2) * torch.div(np.pi, 180)) - np.pi
         XYind = torch.remainder(pred_index, self.dim ** 2)
         if self.swap_plot_quadrants:
@@ -66,6 +84,12 @@ class TorchDockingFFT:
 
     @staticmethod
     def make_boundary(grid_shape):
+        """
+        Create the boundary feature for data generation and unit testing.
+
+        :param grid_shape: input shape grid image
+        :return: features stack with original shape as "bulk" and created "boundary"
+        """
         grid_shape = grid_shape.unsqueeze(0).unsqueeze(0)
         epsilon = 1e-5
         sobel_top = torch.tensor([[[[1, 2, 1], [0, 0, 0], [-1, -2, -1]]]], dtype=torch.float).cuda()
@@ -81,39 +105,62 @@ class TorchDockingFFT:
 
         return feat_stack.squeeze()
 
-    def dock_global(self, receptor, ligand, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
-        initbox_size = receptor.shape[-1]
+    def dock_global(self, receptor_feats, ligand_feats, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
+        """
+        Compute FFT scores of shape features in space of sampled ligand_sampled_stack feature rotation slices and translation indices.
+        Rotationally sample the
+
+        :param receptor_feats: receptor bulk and boundary feature single features
+        :param ligand_feats: ligand bulk and boundary feature single features
+        :param weight_bound: boundary scoring coefficient
+        :param weight_crossterm1: first crossterm scoring coefficient
+        :param weight_crossterm2: second crossterm scoring coefficient
+        :param weight_bulk: bulk scoring coefficient
+        :return:
+        """
+        initbox_size = receptor_feats.shape[-1]
         pad_size = initbox_size // 2
 
-        f_rec = receptor.unsqueeze(0).repeat(self.num_angles,1,1,1)
-        f_lig = ligand.unsqueeze(0).repeat(self.num_angles,1,1,1)
-        rot_lig = self.UtilityFunctions.rotate(f_lig, self.angles)
+        rec_feat_repeated = receptor_feats.unsqueeze(0).repeat(self.num_angles, 1, 1, 1)
+        lig_feat_repeated = ligand_feats.unsqueeze(0).repeat(self.num_angles, 1, 1, 1)
+        lig_feat_rot_sampled = self.UtilityFunctions.rotate(lig_feat_repeated, self.angles)
 
         if initbox_size % 2 == 0:
-            f_rec = F.pad(f_rec, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-            rot_lig = F.pad(rot_lig, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+            rec_feat_repeated = F.pad(rec_feat_repeated, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+            lig_feat_rot_sampled = F.pad(lig_feat_rot_sampled, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
         else:
-            f_rec = F.pad(f_rec, pad=([pad_size, pad_size+1, pad_size, pad_size+1]), mode='constant', value=0)
-            rot_lig = F.pad(rot_lig, pad=([pad_size, pad_size+1, pad_size, pad_size+1]), mode='constant', value=0)
+            rec_feat_repeated = F.pad(rec_feat_repeated, pad=([pad_size, pad_size+1, pad_size, pad_size+1]), mode='constant', value=0)
+            lig_feat_rot_sampled = F.pad(lig_feat_rot_sampled, pad=([pad_size, pad_size+1, pad_size, pad_size+1]), mode='constant', value=0)
 
         if self.debug:
             with torch.no_grad():
                 step = 30
-                for i in range(rot_lig.shape[0]):
+                for i in range(lig_feat_rot_sampled.shape[0]):
                     print(self.angle)
                     if i % step == 0:
                         plt.title('Torch '+str(i)+' degree rotation')
-                        plt.imshow(rot_lig[i,0,:,:].detach().cpu())
+                        plt.imshow(lig_feat_rot_sampled[i,0,:,:].detach().cpu())
                         plt.show()
 
-        score = self.dock_translations(f_rec, rot_lig, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
+        score = self.dock_translations(rec_feat_repeated, lig_feat_rot_sampled, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
 
         return score
 
-    def dock_translations(self, receptor, ligand, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
+    def dock_translations(self, receptor_sampled_stack, ligand_sampled_stack, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
+        """
+        Compute FFT score on receptor and rotationally sampled ligand features stacks of bulk, crossterms, and boundary features.
+
+        :param receptor_sampled_stack: `self.num_angles` repeated stack of receptor bulk and boundary features
+        :param ligand_sampled_stack: `self.num_angles` *rotated* and repeated stack of receptor bulk and boundary features
+        :param weight_bound: boundary scoring coefficient
+        :param weight_crossterm1: first crossterm scoring coefficient
+        :param weight_crossterm2: second crossterm scoring coefficient
+        :param weight_bulk: bulk scoring coefficient
+        :return: FFT score using scoring function
+        """
         num_feats_per_shape = 2
-        receptor_bulk, receptor_bound = torch.chunk(receptor, chunks=num_feats_per_shape, dim=1)
-        ligand_bulk, ligand_bound = torch.chunk(ligand, chunks=num_feats_per_shape, dim=1)
+        receptor_bulk, receptor_bound = torch.chunk(receptor_sampled_stack, chunks=num_feats_per_shape, dim=1)
+        ligand_bulk, ligand_bound = torch.chunk(ligand_sampled_stack, chunks=num_feats_per_shape, dim=1)
         receptor_bulk = receptor_bulk.squeeze()
         receptor_bound = receptor_bound.squeeze()
         ligand_bulk = ligand_bulk.squeeze()
@@ -147,7 +194,16 @@ class TorchDockingFFT:
         else:
             return score
 
-    def check_FFT_predictions(self, fft_score, receptor, ligand, gt_txy, gt_rot):
+    def check_fft_predictions(self, fft_score, receptor, ligand, gt_txy, gt_rot):
+        """
+        Test function to see how fft scores looks from raw, unlearned, bulk and boundary features used in dataset generation.
+
+        :param fft_score: computed fft scores
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param gt_rot: ground truth rotation
+        :param gt_txy: ground truth translation
+        """
         print('\n'+'*'*50)
 
         pred_rot, pred_txy = self.extract_transform(fft_score)
@@ -206,4 +262,4 @@ if __name__ == '__main__':
         fft_score = FFT.dock_global(receptor_stack, ligand_stack, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
         rot, trans = FFT.extract_transform(fft_score)
         lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
-        FFT.check_FFT_predictions(fft_score, receptor, ligand, gt_txy, gt_rot)
+        FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy)
