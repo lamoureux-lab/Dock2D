@@ -8,7 +8,7 @@ import numpy as np
 from tqdm import tqdm
 from Dock2D.Utility.TorchDataLoader import get_interaction_stream
 from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
-from Dock2D.Utility.validation_metrics import APR
+from Dock2D.Utility.ValidationMetrics import APR
 from Dock2D.Utility.PlotterFI import PlotterFI
 from Dock2D.Utility.SampleBuffer import SampleBuffer
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions

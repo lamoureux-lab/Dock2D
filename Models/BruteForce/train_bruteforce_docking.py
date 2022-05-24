@@ -11,7 +11,7 @@ from Dock2D.Utility.TorchDataLoader import get_docking_stream
 from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Models.model_docking import Docking
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
-from Dock2D.Utility.validation_metrics import RMSD
+from Dock2D.Utility.ValidationMetrics import RMSD
 from Dock2D.Utility.PlotterIP import PlotterIP
 
 

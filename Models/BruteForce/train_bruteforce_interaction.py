@@ -9,7 +9,7 @@ sys.path.append('/home/sb1638/')
 import numpy as np
 from tqdm import tqdm
 from Dock2D.Utility.TorchDataLoader import get_interaction_stream
-from Dock2D.Utility.validation_metrics import APR
+from Dock2D.Utility.ValidationMetrics import APR
 from Dock2D.Utility.PlotterFI import PlotterFI
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 from Dock2D.Models.model_interaction import Interaction

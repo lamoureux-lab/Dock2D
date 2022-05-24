@@ -9,7 +9,7 @@ from tqdm import tqdm
 from Dock2D.Utility.TorchDataLoader import get_docking_stream
 from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
-from Dock2D.Utility.validation_metrics import RMSD
+from Dock2D.Utility.ValidationMetrics import RMSD
 from Dock2D.Utility.PlotterIP import PlotterIP
 from Dock2D.Utility.SampleBuffer import SampleBuffer
 from Dock2D.Models.BruteForce.train_bruteforce_docking import Docking

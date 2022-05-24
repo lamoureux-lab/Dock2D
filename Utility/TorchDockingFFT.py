@@ -5,7 +5,7 @@ import matplotlib.pylab as plt
 import seaborn as sea
 sea.set_style("whitegrid")
 
-from Dock2D.Utility.validation_metrics import RMSD
+from Dock2D.Utility.ValidationMetrics import RMSD
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 import numpy as np
 
