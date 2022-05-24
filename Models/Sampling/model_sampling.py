@@ -6,7 +6,6 @@ import torch
 from torch import optim
 import torch.nn as nn
 import numpy as np
-from matplotlib import pylab as plt
 
 from Dock2D.Models.model_docking import Docking
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
