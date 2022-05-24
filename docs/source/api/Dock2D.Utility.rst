@@ -13,4 +13,4 @@ Utility classes ranging from data loading to plotting.
    ../api/Dock2D.Utility/Dock2D.Utility.TorchDataLoader.rst
    ../api/Dock2D.Utility/Dock2D.Utility.TorchDockingFFT.rst
    ../api/Dock2D.Utility/Dock2D.Utility.UtilityFunctions.rst
-   ../api/Dock2D.Utility/Dock2D.Utility.validation_metrics.rst
+   ../api/Dock2D.Utility/Dock2D.Utility.ValidationMetrics.rst

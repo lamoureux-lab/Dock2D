@@ -83,13 +83,27 @@ class RMSD:
 
 class APR:
     def __init__(self):
+        """
+        Initialize epsilon to avoid division by ~zero.
+        """
         self.epsilon = 1e-5
 
-    def calc_APR(self, stream, run_model, epoch=0, deltaF_logfile=None, experiment=None):
+    def calc_APR(self, data_stream, run_model, epoch=0, deltaF_logfile=None, experiment=None):
+        """
+        Calculate accuracy, precision, recall, F1-score, and MCC (Matthews Correlation Coefficient)
+        based on confusion matrix values during fact-of-interaction model evaluation.
+
+        :param data_stream: data stream
+        :param run_model: run_model() passed from FI model
+        :param epoch: current evaluation epoch
+        :param deltaF_logfile: free energies per example and F_0 logfile
+        :param experiment: current experiment name
+        :return: accuracy, precision, recall, F1score, MCC
+        """
         print('Calculating Accuracy, Precision, Recall')
         TP, FP, TN, FN = 0, 0, 0, 0
 
-        for data in tqdm(stream):
+        for data in tqdm(data_stream):
             tp, fp, tn, fn, F, F_0, label = run_model(data, training=False)
             # print(tp, fp, tn,fn)
             TP += tp
