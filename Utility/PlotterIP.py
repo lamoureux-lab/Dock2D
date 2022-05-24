@@ -7,6 +7,12 @@ from os.path import exists
 
 class PlotterIP:
     def __init__(self, experiment=None, logfile_savepath='Log/losses/IP_loss/'):
+        """
+        Initialize paths and filename prefixes for saving plots.
+
+        :param experiment: name of current experiment
+        :param logfile_savepath: path to load and save data and figs
+        """
         self.experiment = experiment
         self.logfile_savepath = logfile_savepath
 
@@ -14,7 +20,15 @@ class PlotterIP:
             print('no experiment name given')
             sys.exit()
 
-    def plot_loss(self, ylim=None, show=False):
+    def plot_loss(self, ylim=None, show=False, save=True):
+        """
+        Plot the current interaction pose (IP) experiments loss curve.
+        The plot will plot all epochs present in the log file.
+
+        :param ylim: set the upper limit of the y-axis, initial IP loss can vary widely
+        :param show: show the plot in a window
+        :param save: save the plot at specified path
+        """
         plt.close()
         #LOSS WITH ROTATION
         train = pd.read_csv(self.logfile_savepath+'log_loss_TRAINset_'+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
@@ -50,12 +64,19 @@ class PlotterIP:
             ax[0].set_ylim([0,ylim])
             ax[1].set_ylim([0,ylim])
 
-        if not show:
+        if save:
             plt.savefig('Figs/IP_loss_plots/lossplot_'+self.experiment+'.png')
-        else:
+        if show:
             plt.show()
 
     def plot_rmsd_distribution(self, plot_epoch=1, show=False, save=True):
+        """
+        Plot the predicted RMSDs distributions as histogram(s), depending on how many log files exist.
+
+        :param plot_epoch: epoch of training/evalution to plot
+        :param show: show the plot in a window
+        :param save: save the plot at specified path
+        """
         plt.close()
         # Plot RMSD distribution of all samples across epoch
         train_log = self.logfile_savepath+'log_RMSDsTRAINset_epoch' + str(plot_epoch) + self.experiment + ".txt"

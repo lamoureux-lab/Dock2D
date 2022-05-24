@@ -25,7 +25,7 @@ class TorchDockingFFT:
         self.norm = normalization
         self.onehot_3Dgrid = torch.zeros([self.num_angles, self.dim, self.dim], dtype=torch.double).cuda()
 
-        self.UtilityFuncs = UtilityFunctions()
+        self.UtilityFunctions = UtilityFunctions()
 
     def encode_transform(self, gt_rot, gt_txy):
         '''
@@ -87,7 +87,7 @@ class TorchDockingFFT:
 
         f_rec = receptor.unsqueeze(0).repeat(self.num_angles,1,1,1)
         f_lig = ligand.unsqueeze(0).repeat(self.num_angles,1,1,1)
-        rot_lig = self.UtilityFuncs.rotate(f_lig, self.angles)
+        rot_lig = self.UtilityFunctions.rotate(f_lig, self.angles)
 
         if initbox_size % 2 == 0:
             f_rec = F.pad(f_rec, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
@@ -143,7 +143,7 @@ class TorchDockingFFT:
         score = weight_bound * trans_bound + weight_crossterm1 * trans_bulk_bound + weight_crossterm2 * trans_bound_bulk - weight_bulk * trans_bulk
 
         if self.swap_plot_quadrants:
-            return self.UtilityFuncs.swap_quadrants(score)
+            return self.UtilityFunctions.swap_quadrants(score)
         else:
             return score
 

@@ -12,38 +12,26 @@ class UtilityFunctions():
     def __init__(self, experiment=None):
         self.experiment = experiment
 
-    def write_pkl(self, data, fileprefix):
+    def write_pkl(self, data, filename):
         '''
-        :param data:
-        :param filename:
+        :param data: to write to .pkl  file
+        :param filename: specify `filename.pkl`
         '''
-        print('\nwriting '+fileprefix+' to .pkl\n')
-        with open(fileprefix+'.pkl', 'wb') as fout:
+        print('\nwriting '+filename+' to .pkl\n')
+        with open(filename, 'wb') as fout:
             pkl.dump(data, fout)
         fout.close()
 
-    def read_pkl(self, fileprefix):
+    def read_pkl(self, filename):
         '''
-        :param filename:
+        :param filename: `filename.pkl` to load
         :return: data
         '''
-        print('\nreading '+fileprefix+'.pkl\n')
-        with open(fileprefix+'.pkl', 'rb') as fin:
+        print('\nreading '+filename+'\n')
+        with open(filename, 'rb') as fin:
             data = pkl.load(fin)
         fin.close()
         return data
-
-    def write_txt(self, data, fileprefix):
-        '''
-        :param data:
-        :param filename:
-        :return: writes text file with
-        '''
-        print('\nwriting '+fileprefix+' to .txt\n')
-        fout = open(fileprefix+'.txt', 'w')
-        for example in data:
-            fout.write(str(example)[1:-1] + '\n')
-        fout.close()
 
     def check_model_gradients(self, model):
         '''
@@ -64,30 +52,11 @@ class UtilityFunctions():
             torch.nn.init.kaiming_uniform_(model.weight)
             # torch.nn.init.kaiming_normal_(model.weight)
 
-    # def plot_coords(self, ax, poly, plot_alpha=0.25):
-    #     x, y = poly.exterior.xy
-    #     ax.fill(x, y, alpha=plot_alpha)
-    #
-    # def plot_multipoly(self, multipolygon):
-    #     plt.close()
-    #     fig, ax = plt.subplots()
-    #     ax.axis('equal')
-    #     for poly in multipolygon:
-    #         self.plot_coords(ax, poly)
-
-    # def get_rot_mat(self, theta):
-    #     return torch.tensor([[torch.cos(theta), -torch.sin(theta), 0],
-    #                          [torch.sin(theta), torch.cos(theta), 0]]).cuda()
-    #
-    # def rot_img(self, x, theta, dtype):
-    #     rot_mat = self.get_rot_mat(theta)[None, ...].type(dtype).repeat(x.shape[0],1,1)
-    #     grid = F.affine_grid(rot_mat, x.size()).type(dtype)
-    #     x = F.grid_sample(x, grid)
-    #     return x
-
     def swap_quadrants(self, input_volume):
         """
-        FFT returns features centered around the center of the image, not the corner origin.
+        FFT returns features centered with the origin at the center of the image, not at the top left corner.
+
+        :param input_volume: FFT output array
         """
         num_features = input_volume.size(0)
         L = input_volume.size(-1)
@@ -106,6 +75,13 @@ class UtilityFunctions():
         return output_volume
 
     def rotate(self, repr, angle):
+        """
+        Rotate a grid image using 2D rotation matrix.
+
+        :param repr: input grid image
+        :param angle: angle in radians
+        :return: rotated grid image
+        """
         alpha = angle.detach()
         T0 = torch.stack([torch.cos(alpha), -torch.sin(alpha), torch.zeros_like(alpha)], dim=1)
         T1 = torch.stack([torch.sin(alpha), torch.cos(alpha), torch.zeros_like(alpha)], dim=1)
@@ -113,15 +89,16 @@ class UtilityFunctions():
         curr_grid = F.affine_grid(R, size=repr.size(), align_corners=True).type(torch.float)
         return F.grid_sample(repr, curr_grid, align_corners=True)
 
-    def rotate_gridligand(self, ligand, rotation_angle):
-        ligand = ndimage.rotate(ligand, rotation_angle, reshape=False, order=3, mode='nearest', cval=0.0)
-        return ligand
-
-    def translate_gridligand(self, ligand, tx, ty):
-        ligand = ndimage.shift(ligand, [tx, ty], mode='wrap', order=3, cval=0.0)
-        return ligand
-
     def plot_rotation_energysurface(self, fft_score, pred_txy, num_angles=360, stream_name=None, plot_count=0):
+        """
+        Plot the lowest energy translation index from `fft_score` per rotation angle as an energy surface curve.
+
+        :param fft_score: FFT scores generated using a docker method.
+        :param pred_txy: predicted translation `[x, y]`
+        :param num_angles: number of angles used to generate `fft_score`
+        :param stream_name: data stream name
+        :param plot_count: plotting index used in titles and filename
+        """
         plt.close()
         mintxy_energies = []
         if num_angles == 1:
@@ -141,6 +118,17 @@ class UtilityFunctions():
         plt.savefig('Figs/EnergySurfaces/' + hardmin_minEnergies + '.png')
 
     def plot_MCsampled_energysurface(self, free_energies_visited_indices, accumulated_free_energies, acceptance_rate, stream_name=None, interaction=None, plot_count=0, epoch=0):
+        """
+        Plot the accumulated sample buffer free energies from Monte Carlo sampling.
+
+        :param free_energies_visited_indices: unique indices of free energies already visted
+        :param accumulated_free_energies: visited free energies recomputed per epoch
+        :param acceptance_rate: MC sampling acceptance rate in plot title
+        :param stream_name: data stream name
+        :param interaction: current example interaction label (1 or 0)
+        :param plot_count: plotting index used in titles and filename
+        :param epoch: epoch
+        """
         plt.close()
         plt.figure(figsize=(15,10))
 
@@ -172,6 +160,18 @@ class UtilityFunctions():
             plt.savefig('Figs/EnergySurfaces/' + mcsampled_energies_name + '.png')
 
     def plot_assembly(self, receptor, ligand, gt_rot, gt_txy, pred_rot=None, pred_txy=None):
+        """
+        Plot the predicting docking pose for the IP task. From left to right, plots the ground truth docking pose,
+        the pose passed into the model, and the predicted docking pose.
+
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param gt_rot: ground truth rotation
+        :param gt_txy: ground truth translation `[x, y]`
+        :param pred_rot: predicted rotation
+        :param pred_txy: predicted translation `[x, y]`
+        :return: plotting object with specified poses
+        """
         box_size = receptor.shape[-1]
         receptor_copy = receptor * -100
         ligand_copy = ligand * 200
@@ -200,7 +200,42 @@ class UtilityFunctions():
 
         return pair
 
+    def rotate_gridligand(self, ligand, rotation_angle):
+        """
+        Rotate grid image in degrees using `scipy.ndimage.rotate()` for :func:`plot_assembly()`
+
+        :param ligand: grid image of ligand
+        :param rotation_angle: angle in degrees
+        :return: rotated ligand
+        """
+        ligand = ndimage.rotate(ligand, rotation_angle, reshape=False, order=3, mode='nearest', cval=0.0)
+        return ligand
+
+    def translate_gridligand(self, ligand, tx, ty):
+        """
+        Translate grid image using `scipy.ndimage.shift()` for :func:`plot_assembly()`
+
+        :param ligand: grid image of ligand
+        :param tx: x dimension translation
+        :param ty: y dimension translation
+        :return: translated ligand
+        """
+        ligand = ndimage.shift(ligand, [tx, ty], mode='wrap', order=3, cval=0.0)
+        return ligand
+
     def plot_predicted_pose(self, receptor, ligand, gt_rot, gt_txy, pred_rot, pred_txy, plot_count, stream_name):
+        """
+        Plotting helper function for :func:`plot_assembly()`.
+
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param gt_rot: ground truth rotation
+        :param gt_txy: ground truth translation `[x, y]`
+        :param pred_rot: predicted rotation
+        :param pred_txy: predicted translation `[x, y]`
+        :param plot_count: plotting index used in titles and filename
+        :param stream_name: data stream name
+        """
         plt.close()
         plt.figure(figsize=(8, 8))
         # pred_rot, pred_txy = self.dockingFFT.extract_transform(fft_scores)
@@ -236,6 +271,13 @@ class UtilityFunctions():
         # plt.show()
 
     def orthogonalize_feats(self, scoring_weights, feat_stack):
+        """
+        Orthogonalize learned shape features for single shape.
+
+        :param scoring_weights: learned scoring coefficients from scoring function
+        :param feat_stack: feature stack for one shape [bulk, boundary]
+        :return: orthogonalized feature stack
+        """
         boundW, crosstermW1, crosstermW2, bulkW = scoring_weights
         A = torch.tensor([[bulkW, crosstermW1],[crosstermW2,boundW]])
         eigvals, V = torch.linalg.eig(A)
@@ -246,6 +288,17 @@ class UtilityFunctions():
         return orth_feats
 
     def plot_features(self, rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count=0, stream_name='trainset'):
+        """
+        Plot the learned shape pair features (bulk and boundary) from the docking model from `Docking` in `model_docking.py`.
+
+        :param rec_feat: receptor feature stack
+        :param lig_feat: ligand feature stack
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param scoring_weights: learned scoring coefficients used in scoring function
+        :param plot_count: plotting index used in titles and filename
+        :param stream_name: data stream name
+        """
         rec_feat = self.orthogonalize_feats(scoring_weights, rec_feat).squeeze()
         lig_feat = self.orthogonalize_feats(scoring_weights, lig_feat).squeeze()
 
@@ -281,7 +334,7 @@ class UtilityFunctions():
                               lig_feat[0].squeeze().t().detach().cpu(),
                               lig_feat[1].squeeze().t().detach().cpu()))
 
-        norm = colors.CenteredNorm(vcenter=0.0)
+        norm = colors.CenteredNorm(vcenter=0.0) # center normalized color scale
         stacked_image = np.vstack((rec_plot, lig_plot))
         plt.imshow(stacked_image, cmap='coolwarm', norm=norm)  # plot scale limits
         # plt.colorbar()
@@ -304,6 +357,7 @@ class UtilityFunctions():
             labelleft=False)
         plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png')
         # plt.show()
+
 
 if __name__ == '__main__':
     print('works')

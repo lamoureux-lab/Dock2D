@@ -1,11 +1,16 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import sys
 
 
 class PlotterFI:
     def __init__(self, experiment=None, logfile_savepath='Log/losses/FI_loss/'):
+        """
+        Initialize paths and filename prefixes for saving plots.
+
+        :param experiment: name of current experiment
+        :param logfile_savepath: path to load and save data and figs
+        """
         self.experiment = experiment
         self.logfile_savepath = logfile_savepath
         self.logtraindF_prefix = 'log_deltaF_TRAINset_epoch'
@@ -15,6 +20,13 @@ class PlotterFI:
             self.experiment = "NOTSET"
 
     def plot_loss(self, show=False, save=True):
+        """
+        Plot the current fact-of-interaction (FI) experiments loss curve.
+        The plot will plot all epochs present in the log file.
+
+        :param show: show the plot in a window
+        :param save: save the plot at specified path
+        """
         plt.close()
         #LOSS WITH ROTATION
         train = pd.read_csv(self.logfile_savepath+self.logloss_prefix+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss'])
@@ -36,6 +48,18 @@ class PlotterFI:
             plt.show()
 
     def plot_deltaF_distribution(self, filename=None, plot_epoch=None, xlim=None, binwidth=1, show=False, save=True):
+        """
+        Plot the labeled free energies of interacting and non-interacting shape pairs as a histogram,
+        with a vertical line demarcating the learned `F_0` interaction decision threshold, if applicable.
+
+        :param filename: specify the file to load, default of `None` sets filename to match the project convention
+        :param plot_epoch: epoch of training/evalution to plot
+        :param xlim: absolute value lower limit of the x-axis.
+        :param binwidth: histogram bin width
+        :param show: show the plot in a window
+        :param save: save the plot at specified path
+        :return:
+        """
         plt.close()
         # Plot free energy distribution of all samples across epoch
         if not filename:
