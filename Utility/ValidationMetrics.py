@@ -98,7 +98,8 @@ class APR:
         :param epoch: current evaluation epoch
         :param deltaF_logfile: free energies per example and F_0 logfile
         :param experiment: current experiment name
-        :return: accuracy, precision, recall, F1score, MCC
+        :param stream_name: name of current data stream
+        :return: accuracy, precision, recall, f1score, mcc
         """
         print('Calculating Accuracy, Precision, Recall')
         TP, FP, TN, FN = 0, 0, 0, 0
@@ -115,22 +116,22 @@ class APR:
 
         PlotterFI(stream_name+experiment).plot_deltaF_distribution(filename=deltaF_logfile, plot_epoch=epoch, show=True, xlim=None, binwidth=1)
 
-        Accuracy = float(TP + TN) / float(TP + TN + FP + FN)
+        accuracy = float(TP + TN) / float(TP + TN + FP + FN)
         if (TP + FP) > 0:
-            Precision = float(TP) / float(TP + FP)
+            precision = float(TP) / float(TP + FP)
         else:
-            Precision = 0.0
+            precision = 0.0
         if (TP + FN) > 0:
             Recall = float(TP) / float(TP + FN)
         else:
             Recall = 0.0
-        F1score = TP / (TP + 0.5*(FP + FN)+1E-5)
+        f1score = TP / (TP + 0.5*(FP + FN)+1E-5)
 
-        MCC = ((TP * TN) - (FP * FN)) / (np.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN)) + self.epsilon)
+        mcc = ((TP * TN) - (FP * FN)) / (np.sqrt((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN)) + self.epsilon)
 
-        print(f'Epoch {epoch} Acc: {Accuracy} Prec: {Precision} Rec: {Recall} F1: {F1score} MCC: {MCC}')
+        print(f'Epoch {epoch} Acc: {accuracy} Prec: {precision} Rec: {Recall} F1: {f1score} MCC: {mcc}')
 
-        return Accuracy, Precision, Recall, F1score, MCC
+        return accuracy, precision, Recall, f1score, mcc
 
 
 if __name__ == '__main__':

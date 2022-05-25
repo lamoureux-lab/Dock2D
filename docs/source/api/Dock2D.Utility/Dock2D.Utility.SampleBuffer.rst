@@ -6,5 +6,5 @@ SampleBuffer
 
 .. autoclass:: Dock2D.Utility.SampleBuffer.SampleBuffer
    :special-members: __init__, __len__,
-   :members: push, get
+   :members: get_alpha, push_alpha, get_free_energies_indices, push_free_energies_indices
    :undoc-members:

@@ -1,4 +1,4 @@
-ValidationMetrics.py
+ValidationMetrics
 =====================
 
 Contains classes for evaluation of models performance on both docking tasks.
