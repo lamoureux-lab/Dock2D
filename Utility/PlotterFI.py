@@ -64,20 +64,20 @@ class PlotterFI:
         # Plot free energy distribution of all samples across epoch
         if not filename:
             filename = self.logfile_savepath+self.logtraindF_prefix+str(plot_epoch)+ self.experiment +'.txt'
-        train = pd.read_csv(filename, sep='\t', header=0, names=['F', 'F_0', 'Label'])
+        dataframe = pd.read_csv(filename, sep='\t', header=0, names=['F', 'F_0', 'Label'])
 
         fig, ax = plt.subplots(figsize=(10,10))
         plt.suptitle('deltaF distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
 
-        labels = sorted(train.Label.unique())
-        F = train['F']
-        bins = np.arange(min(F), max(F) + binwidth, binwidth)
-        hist_data = [train.loc[train.Label == x, 'F'] for x in labels]
+        labels = sorted(dataframe.Label.unique())
+        F = dataframe['F']
+        bins = np.arange(F.min(), F.max() + binwidth, binwidth)
+        hist_data = [dataframe.loc[dataframe.Label == x, 'F'] for x in labels]
         y1, x1, _ = plt.hist(hist_data[0], label=labels, bins=bins, rwidth=binwidth, color=['r'], alpha=0.25)
         y2, x2, _ = plt.hist(hist_data[1], label=labels, bins=bins, rwidth=binwidth, color=['g'], alpha=0.25)
 
-        if train['F_0'][0] != 'NA':
-            plt.vlines(train['F_0'].to_numpy()[-1], ymin=0, ymax=max(y1.max(), y2.max())+1, linestyles='dashed', label='F_0', colors='k')
+        if dataframe['F_0'][0] != 'NA':
+            plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=max(y1.max(), y2.max())+1, linestyles='dashed', label='F_0', colors='k')
             plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10})
         else:
             plt.legend(('non-interaction (-)', ' interaction (+)'), prop={'size': 10})

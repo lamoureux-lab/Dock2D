@@ -88,7 +88,7 @@ class APR:
         """
         self.epsilon = 1e-5
 
-    def calc_APR(self, data_stream, run_model, epoch=0, deltaF_logfile=None, experiment=None):
+    def calc_APR(self, data_stream, run_model, epoch=0, deltaF_logfile=None, experiment=None, stream_name=None):
         """
         Calculate accuracy, precision, recall, F1-score, and MCC (Matthews Correlation Coefficient)
         based on confusion matrix values during fact-of-interaction model evaluation.
@@ -113,8 +113,7 @@ class APR:
             with open(deltaF_logfile, 'a') as fout:
                 fout.write('%f\t%f\t%d\n' % (F, F_0, label))
 
-        PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=epoch, show=True, xlim=None, binwidth=1)
-
+        PlotterFI(stream_name+experiment).plot_deltaF_distribution(filename=deltaF_logfile, plot_epoch=epoch, show=True, xlim=None, binwidth=1)
 
         Accuracy = float(TP + TN) / float(TP + TN + FP + FN)
         if (TP + FP) > 0:
