@@ -204,16 +204,20 @@ class EnergyBasedInteractionTrainer:
             ### training set to False downstream in calcAPR() run_model()
 
             if epoch % self.eval_freq == 0:
-                deltaF_logfile = self.logfile_savepath + self.logtraindF_prefix + str(epoch) + self.experiment + '.txt'
-                with open(deltaF_logfile, 'w') as fout:
-                    fout.write(self.deltaf_log_header)
-                deltaF_logfile = self.logfile_savepath + self.logtraindF_prefix + str(epoch) + self.experiment + '.txt'
-                with open(deltaF_logfile, 'w') as fout:
-                    fout.write(self.deltaf_log_header)
                 if valid_stream:
-                    self.checkAPR(epoch, valid_stream, 'VALIDset', deltaF_logfile=deltaF_logfile, experiment=self.experiment)
+                    stream_name = 'VALIDset'
+                    deltaF_logfile = self.logfile_savepath + stream_name + self.logtraindF_prefix + str(
+                        epoch) + self.experiment + '.txt'
+                    with open(deltaF_logfile, 'w') as fout:
+                        fout.write(self.deltaf_log_header)
+                    self.checkAPR(epoch, valid_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
                 if test_stream:
-                    self.checkAPR(epoch, test_stream, 'TESTset', deltaF_logfile=deltaF_logfile, experiment=self.experiment)
+                    stream_name = 'TESTset'
+                    deltaF_logfile = self.logfile_savepath + stream_name + self.logtraindF_prefix + str(
+                        epoch) + self.experiment + '.txt'
+                    with open(deltaF_logfile, 'w') as fout:
+                        fout.write(self.deltaf_log_header)
+                    self.checkAPR(epoch, test_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
 
     def run_epoch(self, data_stream, epoch, training=False):
         stream_loss = []
@@ -238,7 +242,7 @@ class EnergyBasedInteractionTrainer:
         log_APRheader = 'Accuracy\tPrecision\tRecall\tF1score\tMCC\n'
         log_APRformat = '%f\t%f\t%f\t%f\t%f\n'
         print('Evaluating ', stream_name)
-        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch, deltaF_logfile, experiment)
+        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch, deltaF_logfile, experiment, stream_name)
         with open(self.logfile_savepath + self.logAPR_prefix + self.experiment + '.txt', 'a') as fout:
             fout.write('Epoch '+str(check_epoch)+'\n')
             fout.write(log_APRheader)
@@ -314,7 +318,7 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = (number_of_pairs**2 + number_of_pairs)/2
-    number_of_pairs = 50
+    number_of_pairs = 100
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=100)
     test_stream = get_interaction_stream(testset, number_of_pairs=100)
@@ -333,14 +337,21 @@ if __name__ == '__main__':
 
     # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_workingBFevalF0'
 
-    experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream'
+    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream'
+
+    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_sigma0p5'
+    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_sigma0p02'
+    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_sigma0p05'
+    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_coinflip+or-1deg'
+    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_coinflip_3deg'
+    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_coinflip_exact1degNsteps'
 
     ######################
     train_epochs = 20
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
-    sigma_alpha = 3.0
+    sigma_alpha = None
     # gamma = 0.95
 
     debug = False
@@ -356,12 +367,12 @@ if __name__ == '__main__':
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     ######################
     ### Train model from beginning
-    # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
-    #                               ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
+                                  ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
-    # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=debug
-    #                              ).run_trainer(resume_training=True, resume_epoch=1, train_epochs=1,
+    # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
+    #                              ).run_trainer(resume_training=True, resume_epoch=11, train_epochs=9,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
@@ -373,4 +384,4 @@ if __name__ == '__main__':
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss()
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs+1, show=True)

@@ -171,7 +171,16 @@ class SamplingModel(nn.Module):
             else:
                 plotting = False
 
-            rand_rot = noise_alpha.normal_(0, self.sig_alpha)
+            # print(self.sig_alpha)
+            # rand_rot = noise_alpha.normal_(0, self.sig_alpha)
+
+            rand_rot = 0
+            rot_step = 0.01745329251
+            for i in range(10):
+                if torch.rand(1) > 0.5:
+                    rand_rot += rot_step
+                else:
+                    rand_rot += -rot_step
             alpha_new = alpha + rand_rot
             _, _, dr_new, fft_score_new = self.docker(receptor, ligand, alpha_new,
                                                       plot_count=plot_count, stream_name=stream_name,
