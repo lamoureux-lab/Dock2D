@@ -96,18 +96,14 @@ class BruteForceInteractionTrainer:
             loss.backward(retain_graph=True)
             self.docking_optimizer.step()
             self.interaction_optimizer.step()
+            return loss.item(), F.item(), F_0.item(), gt_interact.item()
         else:
             self.docking_model.eval()
             self.interaction_model.eval()
             with torch.no_grad():
-                return self.classify(pred_interact, gt_interact)
+                TP, FP, TN, FN = self.classify(pred_interact, gt_interact)
+                return TP, FP, TN, FN, F.item(), F_0.item(), gt_interact.item()
 
-        # if self.plotting and not training:
-        #     # if plot_count % self.plot_freq == 0:
-        #     with torch.no_grad():
-        #         self.plot_pose(fft_scores, receptor, ligand, gt_rot, gt_txy, plot_count, stream_name)
-
-        return loss.item(), F.item(), F_0.item(), gt_interact.item()
 
     @staticmethod
     def classify(pred_interact, gt_interact):
@@ -172,9 +168,20 @@ class BruteForceInteractionTrainer:
 
             if epoch % self.eval_freq == 0:
                 if valid_stream:
-                    self.checkAPR(epoch, valid_stream, 'VALIDset')
+                    stream_name = 'VALIDset'
+                    deltaF_logfile = self.logfile_savepath + stream_name + self.logtraindF_prefix + str(
+                        epoch) + self.experiment + '.txt'
+                    with open(deltaF_logfile, 'w') as fout:
+                        fout.write(self.deltaf_log_header)
+                    self.checkAPR(epoch, valid_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
                 if test_stream:
-                    self.checkAPR(epoch, test_stream, 'TESTset')
+                    stream_name = 'TESTset'
+                    deltaF_logfile = self.logfile_savepath + stream_name + self.logtraindF_prefix + str(
+                        epoch) + self.experiment + '.txt'
+                    with open(deltaF_logfile, 'w') as fout:
+                        fout.write(self.deltaf_log_header)
+                    self.checkAPR(epoch, test_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
+
 
     def run_epoch(self, data_stream, epoch, training=False):
         stream_loss = []
@@ -193,11 +200,11 @@ class BruteForceInteractionTrainer:
         with open(loss_logfile, 'a') as fout:
             fout.write(self.loss_log_format % (epoch, avg_loss[0]))
 
-    def checkAPR(self, check_epoch, datastream, stream_name=None):
+    def checkAPR(self, check_epoch, datastream, stream_name=None, deltaF_logfile=None, experiment=None):
         log_APRheader = 'Accuracy\tPrecision\tRecall\tF1score\tMCC\n'
         log_APRformat = '%f\t%f\t%f\t%f\t%f\n'
         print('Evaluating ', stream_name)
-        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch)
+        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch, deltaF_logfile, experiment, stream_name)
         with open(self.logfile_savepath + self.logAPR_prefix + self.experiment + '.txt', 'a') as fout:
             fout.write('Epoch '+str(check_epoch)+'\n')
             fout.write(log_APRheader)
@@ -298,10 +305,10 @@ class BruteForceInteractionTrainer:
 if __name__ == '__main__':
     #################################################################################
     ##Datasets
-    trainset = '../../Datasets/interaction_train_400pool'
-    validset = '../../Datasets/interaction_valid_400pool'
+    trainset = '../../Datasets/interaction_train_400pool.pkl'
+    validset = '../../Datasets/interaction_valid_400pool.pkl'
     # ### testing set
-    testset = '../../Datasets/interaction_test_400pool'
+    testset = '../../Datasets/interaction_test_400pool.pkl'
     #########################
     #### initialization torch settings
     random_seed = 42
@@ -328,9 +335,9 @@ if __name__ == '__main__':
     ## number_of_pairs provides max_size of interactions: max_size = int(number_of_pairs + (number_of_pairs**2 - number_of_pairs)/2)
     number_of_pairs = 100
 
-    train_stream = get_interaction_stream(trainset + '.pkl', number_of_pairs=number_of_pairs)
-    valid_stream = get_interaction_stream(validset + '.pkl', number_of_pairs=number_of_pairs)
-    test_stream = get_interaction_stream(testset + '.pkl', number_of_pairs=number_of_pairs)
+    train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs)
+    valid_stream = get_interaction_stream(validset, number_of_pairs=number_of_pairs)
+    test_stream = get_interaction_stream(testset, number_of_pairs=number_of_pairs)
     ######################
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_1000ex50ep'
     # experiment = 'BF_FI_NEWDATA_CHECK_400pool_2000ex50ep'
