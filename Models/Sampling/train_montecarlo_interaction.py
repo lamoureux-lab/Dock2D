@@ -125,6 +125,7 @@ class EnergyBasedInteractionTrainer:
             loss.backward(retain_graph=True)
             self.docking_optimizer.step()
             self.interaction_optimizer.step()
+            return loss.item(), F.item(), F_0.item(), gt_interact.item()
         else:
             self.docking_model.eval()
             self.interaction_model.eval()
@@ -132,7 +133,6 @@ class EnergyBasedInteractionTrainer:
                 TP, FP, TN, FN = self.classify(pred_interact, gt_interact)
                 return TP, FP, TN, FN, F.item(), F_0.item(), gt_interact.item()
 
-        return loss.item(), F.item(), F_0.item(), gt_interact.item()
 
     @staticmethod
     def classify(pred_interact, gt_interact):
@@ -384,4 +384,4 @@ if __name__ == '__main__':
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss()
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs+1, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
