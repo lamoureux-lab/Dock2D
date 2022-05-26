@@ -23,7 +23,7 @@ The library is structured into five directories to build a toy protein dataset a
 
 * :doc:`Dock2D.DatasetGeneration <api/Dock2D.DatasetGeneration>`     Generate a protein pool to create IP and FI datasets.
 
-* :doc:`Dock2D.Models <api/Dock2D.Models>`     Four models, two :doc:`BruteForce <api/Dock2D.Models/Dock2D.Models.BruteForce>` and two :doc:`Sampling <api/Dock2D.Models/Dock2D.Models.Sampling>` models for the IP and FI tasks each.
+* :doc:`Dock2D.Models <api/Dock2D.Models>`     Four models, two :doc:`BruteForce <api/Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce>` and two :doc:`Sampling <api/Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling>` models for the IP and FI tasks each.
 
 * :doc:`Dock2D.Tests <api/Dock2D.Tests>`     Testing scripts to check dataset, algorithm, and model functionality.
 
