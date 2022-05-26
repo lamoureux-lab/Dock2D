@@ -9,13 +9,14 @@ from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 if __name__ == "__main__":
 
-    testset = 'docking_test_set50pool'
+    # dataset = 'docking_test_100pool.pkl'
+    dataset = 'docking_train_400pool.pkl'
     max_size = None
-    data_stream = get_docking_stream('../Datasets/'+testset + '.pkl', batch_size=1, shuffle=True, max_size=max_size)
+    data_stream = get_docking_stream(dataset, max_size=max_size)
 
-    plotting = False
-    swap_quadrants = False
-    FFT = TorchDockingFFT(swap_plot_quadrants=swap_quadrants, normalization='ortho')
+    FFT = TorchDockingFFT()
+
+    plot_all_poses = False
 
     homodimer_Elist = []
     heterodimer_Elist = []
@@ -40,8 +41,7 @@ if __name__ == "__main__":
         lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
         Energy_list.append(float(lowest_energy.detach().cpu()))
 
-
-        if plotting:
+        if plot_all_poses:
             plt.close()
             pair = UtilityFunctions().plot_assembly(receptor.cpu(), ligand.cpu(), gt_rot.cpu(), gt_txy.cpu(), rot.cpu(), trans.cpu())
             plt.imshow(pair.transpose())
@@ -66,11 +66,13 @@ if __name__ == "__main__":
     plt.hist([heterodimer_Elist], label=['heterodimer'], bins=bins, alpha=0.33)
     plt.legend(['homodimers', 'heterodimers'])
 
-    title = 'homodimer_vs_heterodimer_'+testset+'_lowest energies'
+    title = 'homodimer_vs_heterodimer_' + dataset + '_lowest energies'
     plt.xlabel('Energy')
     plt.ylabel('Counts')
     plt.title(title)
     plt.savefig('Figs/' + title + '.png')
+
+    plt.show()
 
     print('number of homodimers', len(homodimer_Elist))
     print('number of heterodimers', len(heterodimer_Elist))

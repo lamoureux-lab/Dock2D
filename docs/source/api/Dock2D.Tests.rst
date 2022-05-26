@@ -7,17 +7,14 @@ Testing scripts and classes to check dataset, algorithm, and model functionality
    :maxdepth: 1
    :caption: Contents:
 
+   ../api/Dock2D.Tests/Dock2D.Tests.check_homodimer_energyranking.rst
+   ../api/Dock2D.Tests/Dock2D.Tests.check_MC_pretrained_surface.rst
+   ../api/Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.rst
    ../api/Dock2D.Tests/Dock2D.Tests.check_shape_distributions.rst
    ../api/Dock2D.Tests/Dock2D.Tests.check_torchFFT.rst
-   ../api/Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.rst
+   ../api/Dock2D.Tests/Dock2D.Tests.run_pytorch_profiler.rst
 
-.. automodule:: Dock2D.Tests.check_FI_rawdata_Fdistributions
-   :undoc-members:
-
-.. automodule:: Dock2D.Tests.check_homodimer_symmetry
-   :undoc-members:
-
-.. automodule:: Dock2D.Tests.check_IP_dataset
+.. automodule:: Dock2D.Tests.check_homodimer_energyranking
    :undoc-members:
 
 .. automodule:: Dock2D.Tests.check_MC_pretrained_surface
