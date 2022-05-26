@@ -153,7 +153,7 @@ class UtilityFunctions():
             plt.scatter(free_energies_visited_indices, freeEnergies_argsort)
             plt.ylim([min(freeEnergies_argsort), 1])
             plt.hlines(y=0, xmin=0, xmax=360, linestyles='dashed', label='zero energy', colors='k')
-            plt.suptitle('MonteCarlo sampled energy surface, acceptance rate='+str(acceptance_rate)+', interaction='+str(interaction.item()))
+            plt.suptitle('MonteCarlo sampled energy surface, acceptance rate='+str(acceptance_rate)+', interaction='+str(interaction))
             plt.title(mcsampled_energies_name)
             plt.ylabel('Energy')
             plt.xlabel('Rotation indices')

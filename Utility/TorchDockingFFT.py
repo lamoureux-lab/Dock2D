@@ -59,7 +59,7 @@ class TorchDockingFFT:
 
     def extract_transform(self, fft_score):
         """
-        Extract best score from FFT score [r, x, y]
+        Extract best score from FFT score r, [x, y]
         where r is the rotation slice index, x and y are best score translation indices within that slice.
 
         :param fft_score: fft score grid
@@ -194,7 +194,7 @@ class TorchDockingFFT:
         else:
             return score
 
-    def check_fft_predictions(self, fft_score, receptor, ligand, gt_txy, gt_rot):
+    def check_fft_predictions(self, fft_score, receptor, ligand, gt_rot, gt_txy):
         """
         Test function to see how fft scores looks from raw, unlearned, bulk and boundary features used in dataset generation.
 
@@ -232,12 +232,12 @@ class TorchDockingFFT:
 
 
 if __name__ == '__main__':
-    from DeepProteinDocking2D.Utility.torchDataLoader import get_docking_stream
+    from Dock2D.Utility.TorchDataLoader import get_docking_stream
     from tqdm import tqdm
 
-    testset = '../Datasets/docking_test_100pool.pkl'
+    dataset = '../Datasets/docking_train_10pool.pkl'
     max_size = None
-    data_stream = get_docking_stream(testset, batch_size=1, max_size=max_size)
+    data_stream = get_docking_stream(dataset, max_size=max_size)
 
     swap_quadrants = True
     FFT = TorchDockingFFT(swap_plot_quadrants=swap_quadrants)

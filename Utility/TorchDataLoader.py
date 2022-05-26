@@ -1,7 +1,6 @@
 import _pickle as pkl
 import torch
 from torch.utils.data import Dataset, RandomSampler
-import numpy as np
 
 
 class ToyDockingDataset(Dataset):
