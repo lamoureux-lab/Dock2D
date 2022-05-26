@@ -191,12 +191,12 @@ if __name__ == "__main__":
 
     data_path = '../DatasetGeneration/PoolData/'
 
-    num_proteins = 100
+    num_proteins = 400
     trainvalidset_protein_pool = data_path+'trainvalidset_protein_pool' + str(num_proteins) + '.pkl'
 
     ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()
 
-    num_proteins = 100
+    num_proteins = 400
     testset_protein_pool = data_path+'testset_protein_pool' + str(num_proteins) + '.pkl'
 
     ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params()
