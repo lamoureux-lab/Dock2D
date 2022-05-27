@@ -4,12 +4,30 @@ from torch import nn
 
 class Interaction(nn.Module):
     def __init__(self):
+        """
+        Initialize parameters for Interaction module and free energy integral calculation.
+        The learned parameter for free energy decision threshold, `F_0`, is initialized here.
+        For the free energy integral, the volume used in the denominator is also initialized here.
+        """
         super(Interaction, self).__init__()
         self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
         self.num_angles = 360
         self.BF_log_volume = torch.log(self.num_angles * torch.tensor(100 ** 2))
 
     def forward(self, brute_force=True, fft_scores=None, free_energies=None):
+        """
+        Calculate the difference in free energy, :math:`\\Delta F`, using either a stack of `fft_scores` or sampled free energies.
+
+            .. math::
+                \Delta F = -\ln \sum_{\mathbf{t}, \phi} e^{-E_{\\theta}(\mathbf{t}, \phi)} - F_0
+
+        then convert to a probability using a sigmoid function.
+
+        :param brute_force: set to True to calculate the BruteForce free energy integral using fft_scores converted to energies.
+        :param fft_scores: used in BruteForce free energy calculation
+        :param free_energies: sampling method free energy array
+        :return: `pred_interact`, `deltaF`, `F`, `F_0`
+        """
         ##TODO: pass BETA, has to be returned from MC docker
 
         if brute_force:

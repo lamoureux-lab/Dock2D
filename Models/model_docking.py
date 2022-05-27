@@ -10,6 +10,15 @@ from e2cnn import gspaces
 class Docking(nn.Module):
 
     def __init__(self, dim=100, num_angles=360, plot_freq=10, debug=False):
+        """
+        Initialize parameters for Docking module and TorchDockingFFT used in the forward pass
+        to generate shape features and scoring coefficients for the scoring function.
+
+        :param dim: dimension of final padded shape
+        :param num_angles: number of angles to use in FFT correlation
+        :param plot_freq: frequency at which to plot features
+        :param debug: set to True show debug verbose model
+        """
         super(Docking, self).__init__()
         self.debug = debug
         self.plot_freq = plot_freq
@@ -42,7 +51,24 @@ class Docking(nn.Module):
         )
 
     def forward(self, receptor, ligand, training=True, plotting=False, plot_count=1, stream_name='trainset', angle=None):
+        """
+        Generates features for both receptor and ligand shapes using the SE(2)-ConvNet.
+        These features are then scored based on rotation and translationally sampled FFT correlation,
 
+            .. math::
+                \mathrm{corr}(\mathbf{t}, \phi, R, L) = \int R(\mathbf{r}) \mathbf{M}_\phi L(\mathbf{r}-\mathbf{t}) d\mathbf{r}
+
+        on pairwise features, i.e. boundary:boundary, bulk:boundary, boundary:bulk, bulk:bulk.
+
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param training: set `True` for training, `False` for evalution.
+        :param plotting: create plots or not
+        :param plot_count: current plotting index
+        :param stream_name: data stream name
+        :param angle: single angle to rotate shape for single rotation slice FFT in sampling models
+        :return: `fft_score`
+        """
         receptor_geomT = enn.GeometricTensor(receptor.unsqueeze(0), self.feat_type_in1)
         ligand_geomT = enn.GeometricTensor(ligand.unsqueeze(0), self.feat_type_in1)
 
@@ -66,6 +92,7 @@ class Docking(nn.Module):
                     UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
 
         return fft_score
+
 
 if __name__ == '__main__':
     print('works')
