@@ -85,7 +85,7 @@ class EnergyBasedInteractionTrainer:
         # print('BUFFER GET: free_energies_visited_indices', free_energies_visited_indices)
         # print('BUFFER GET: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
 
-        free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score_stack, acceptance_rate = self.docking_model(alpha, receptor, ligand,
+        free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score_stack, acceptance_rate = self.docking_model(receptor, ligand, alpha,
                                         free_energies_visited=free_energies_visited_indices, sig_alpha=self.sig_alpha,
                                         plot_count=plot_count, stream_name=stream_name, plotting=self.plotting,
                                         training=training)
@@ -318,33 +318,18 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = (number_of_pairs**2 + number_of_pairs)/2
-    number_of_pairs = 100
+    number_of_pairs = 50
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=100)
     test_stream = get_interaction_stream(testset, number_of_pairs=100)
     ######################
-
-    # experiment = 'BF_FI_400pool_100pairs_20ep_50steps_FEbufferrecompute_sig3p0'
-    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0'
-    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_FEbufferrecompute_sig3p0_no-volume'
-    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle'
-    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle_BFvolume'
-    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle_unvisitedvol'
-    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_noshuffle_novol'
-
-    # experiment = 'BF_FI_400pool_25pairs_10ep_10steps_FEbufferrecompute_sig3p0_checkingevalF_0diff'
-    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_checkingevalF_0diff'
-
-    # experiment = 'BF_FI_400pool_100pairs_10ep_10steps_FEbufferrecompute_sig3p0_workingBFevalF0'
-
-    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream'
-
     # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_sigma0p5'
     # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_sigma0p02'
     # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_sigma0p05'
     # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_coinflip+or-1deg'
     # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_coinflip_3deg'
-    experiment = 'BF_FI_400pool_100pairs_20ep_10steps_coinflip_exact1degNsteps'
+    # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_coinflip_exact1degNsteps'
+    experiment = 'BF_FI_400pool_50pairs_20ep_10steps_coinflip_exact1deg100steps'
 
     ######################
     train_epochs = 20
@@ -367,12 +352,12 @@ if __name__ == '__main__':
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     ######################
     ### Train model from beginning
-    EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
-                                  ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
+    #                               ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
     # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
-    #                              ).run_trainer(resume_training=True, resume_epoch=11, train_epochs=9,
+    #                              ).run_trainer(resume_training=True, resume_epoch=15, train_epochs=5,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)

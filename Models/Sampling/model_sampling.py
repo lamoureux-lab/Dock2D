@@ -19,7 +19,7 @@ class SamplingDocker(nn.Module):
         self.dockingConv = Docking(dim=self.dim, num_angles=self.num_angles, debug=debug)
         self.dockingFFT = dockingFFT
 
-    def forward(self, receptor, ligand, rotation, plot_count=1, stream_name='trainset', plotting=False):
+    def forward(self, receptor, ligand, rotation=None, plot_count=1, stream_name='trainset', plotting=False):
         if 'trainset' not in stream_name:
             training = False
         else:
@@ -75,7 +75,7 @@ class SamplingModel(nn.Module):
         self.FI = FI
         # self.log_slice_volume = torch.log(torch.tensor(100 ** 2))
 
-    def forward(self, alpha, receptor, ligand, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
+    def forward(self, receptor, ligand, alpha=None, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
         if sig_alpha: ## for Langevin Dynamics
             self.sig_alpha = sig_alpha
@@ -91,9 +91,9 @@ class SamplingModel(nn.Module):
                 return lowest_energy, alpha.unsqueeze(0).clone(), dr.clone(), fft_score
             else:
                 ## BS model brute force eval
-                alpha = 0
+                # alpha = 0
                 self.docker.eval()
-                lowest_energy, alpha, dr, fft_score = self.docker(receptor, ligand, alpha, plot_count,
+                lowest_energy, alpha, dr, fft_score = self.docker(receptor, ligand, plot_count,
                                                                   stream_name, plotting=plotting)
 
                 return lowest_energy, alpha.unsqueeze(0).clone(), dr.unsqueeze(0).clone(), fft_score
@@ -176,7 +176,7 @@ class SamplingModel(nn.Module):
 
             rand_rot = 0
             rot_step = 0.01745329251
-            for i in range(10):
+            for i in range(100):
                 if torch.rand(1) > 0.5:
                     rand_rot += rot_step
                 else:
