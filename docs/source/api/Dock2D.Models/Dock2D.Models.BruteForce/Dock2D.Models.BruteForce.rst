@@ -1,6 +1,9 @@
 BruteForce/
 ===========
 
+BruteForce models sample the entire space of rotations and translations.
+The `BruteForceDockingTrainer()` uses
+
 .. automodule:: Dock2D.Models.BruteForce.train_bruteforce_docking
 
 .. automodule:: Dock2D.Models.BruteForce.train_bruteforce_interaction

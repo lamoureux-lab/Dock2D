@@ -5,8 +5,6 @@ import numpy as np
 
 
 class ToyDockingDataset(Dataset):
-	r"""
-	"""
 	def __init__(self, path, max_size=None):
 		r"""
 		:param path: path to docking dataset .pkl file.
@@ -39,8 +37,6 @@ class ToyDockingDataset(Dataset):
 
 
 class ToyInteractionDataset(Dataset):
-	r"""
-	"""
 	def __init__(self, path, number_of_pairs=None, randomstate=None):
 		r"""
 		Load data from .pkl dataset file. Build datastream from protein pool,
@@ -52,8 +48,8 @@ class ToyInteractionDataset(Dataset):
 
 			.. math::
 				\frac{(N^2 + N)}{2}
-			This is based on `N` interaction pairs. If `N == None`, the entire upper triangle plus diagonal of the interaction pairs array are used.
 
+		This is based on `N` interaction pairs. If `N == None`, the entire upper triangle plus diagonal of the interaction pairs array are used.
 		"""
 
 		self.path = path

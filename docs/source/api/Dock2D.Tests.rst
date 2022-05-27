@@ -13,12 +13,3 @@ Testing scripts and classes to check dataset, algorithm, and model functionality
    ../api/Dock2D.Tests/Dock2D.Tests.check_shape_distributions.rst
    ../api/Dock2D.Tests/Dock2D.Tests.check_torchFFT.rst
    ../api/Dock2D.Tests/Dock2D.Tests.run_pytorch_profiler.rst
-
-.. automodule:: Dock2D.Tests.check_homodimer_energyranking
-   :undoc-members:
-
-.. automodule:: Dock2D.Tests.check_MC_pretrained_surface
-   :undoc-members:
-
-.. automodule:: Dock2D.Tests.run_pytorch_profiler
-   :undoc-members:

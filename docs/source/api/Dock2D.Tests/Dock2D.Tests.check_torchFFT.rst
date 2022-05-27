@@ -1,5 +1,5 @@
 check_torchFFT.py
-==================
+=================
 
 Check that the pytorch fft (torch.fft.rfft2, and irfft2) are working as desired.
 
