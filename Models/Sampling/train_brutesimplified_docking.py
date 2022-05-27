@@ -17,7 +17,7 @@ from Dock2D.Models.Sampling.model_sampling import SamplingModel
 
 
 class BruteSimplifiedDockingTrainer:
-    def __init__(self, dockingFFT, cur_model, cur_optimizer, cur_experiment, MC_eval=False, MC_eval_num_epochs=10, debug=False, plotting=False,
+    def __init__(self, dockingFFT, cur_model, cur_optimizer, cur_experiment, BF_eval=False, MC_eval=False, MC_eval_num_epochs=10, debug=False, plotting=False,
                  sigma_scheduler=None, sigma_alpha=3.0, sample_buffer_length=1000):
 
         self.debug = debug
@@ -43,6 +43,7 @@ class BruteSimplifiedDockingTrainer:
         self.alpha_buffer = SampleBuffer(num_examples=sample_buffer_length)
         self.free_energy_buffer = SampleBuffer(num_examples=sample_buffer_length)
 
+        self.BF_eval = BF_eval
         self.MC_eval = MC_eval
         self.MC_eval_num_epochs = MC_eval_num_epochs
         if self.MC_eval:
@@ -73,7 +74,9 @@ class BruteSimplifiedDockingTrainer:
         ##### call model
         plot_count = int(pos_idx)
         if training:
-            neg_energy, pred_rot, pred_txy, fft_score = self.model(gt_rot, receptor, ligand, plot_count=plot_count, stream_name=stream_name, plotting=self.plotting)
+            lowest_energy, pred_rot, pred_txy, fft_score = self.model(receptor, ligand, gt_rot, plot_count=plot_count, stream_name=stream_name, plotting=self.plotting)
+        elif self.BF_eval:
+            lowest_energy, pred_rot, pred_txy, fft_score = self.model(receptor, ligand, plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=False)
         else:
             ## for evaluation, sample buffer is necessary for Monte Carlo multi epoch eval
             alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
@@ -86,8 +89,6 @@ class BruteSimplifiedDockingTrainer:
             self.alpha_buffer.push_alpha(pred_rot, pos_idx)
 
             if plot_count % self.plot_freq == 0:
-                # print(free_energies_visited_indices.shape)
-                # print(free_energies_visited_indices)
                 UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices, accumulated_free_energies, acceptance_rate,
                                                                                stream_name, plot_count=plot_count,
                                                                                epoch=epoch)
@@ -174,10 +175,10 @@ class BruteSimplifiedDockingTrainer:
 
                     if valid_stream:
                         stream_name = 'VALIDset'
-                        self.run_epoch(valid_stream, epoch-1, training=False, stream_name=stream_name)
+                        self.run_epoch(valid_stream, epoch, training=False, stream_name=stream_name)
                     if test_stream:
                         stream_name = 'TESTset'
-                        self.run_epoch(test_stream, epoch-1, training=False, stream_name=stream_name)
+                        self.run_epoch(test_stream, epoch, training=False, stream_name=stream_name)
 
     def run_epoch(self, data_stream, epoch, training=False, stream_name='train_stream'):
         stream_loss = []
@@ -253,10 +254,10 @@ class BruteSimplifiedDockingTrainer:
 if __name__ == '__main__':
     #################################################################################
     # Datasets
-    trainset = '../../Datasets/docking_train_400pool'
-    validset = '../../Datasets/docking_valid_400pool'
+    trainset = '../../Datasets/docking_train_400pool.pkl'
+    validset = '../../Datasets/docking_valid_400pool.pkl'
     ### testing set
-    testset = '../../Datasets/docking_test_400pool'
+    testset = '../../Datasets/docking_test_400pool.pkl'
     #########################
     #### initialization torch settings
     random_seed = 42
@@ -269,15 +270,17 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     ######################
     max_size = 1000
-    train_stream = get_docking_stream(trainset + '.pkl', max_size=max_size)
-    valid_stream = get_docking_stream(validset + '.pkl', max_size=max_size)
-    test_stream = get_docking_stream(testset + '.pkl', max_size=max_size)
+    train_stream = get_docking_stream(trainset, max_size=max_size)
+    valid_stream = get_docking_stream(validset, max_size=max_size)
+    test_stream = get_docking_stream(testset, max_size=max_size)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
     # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_30ep'
     # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_5ep'
     # experiment = 'BS_IP_FINAL_DATASET_400pool_ALLex_30ep'
-    experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_10ep'
+    # experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_10ep'
+    experiment = 'BS_IP_FINAL_DATASET_400pool_1000ex_checklabelordering'
+
     ######################
     train_epochs = 10
     lr = 10 ** -2
@@ -309,12 +312,12 @@ if __name__ == '__main__':
     eval_angles = 360
     eval_model = SamplingModel(dockingFFT, num_angles=eval_angles, IP=True).to(device=0)
     for epoch in range(start, stop):
-        ### Evaluate model using all 360 angles (or less).
         if stop-1 == epoch:
             plotting = False
-            BruteSimplifiedDockingTrainer(dockingFFT, eval_model, optimizer, experiment, plotting=plotting, sample_buffer_length=sample_buffer_length).run_trainer(
-            train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-            resume_training=True, resume_epoch=epoch)
+            BruteSimplifiedDockingTrainer(dockingFFT, eval_model, optimizer, experiment,
+                                    BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length).run_trainer(
+                                    train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+                                    resume_training=True, resume_epoch=epoch)
 
     ## Plot loss and RMSDs from current experiment
     PlotterIP(experiment).plot_loss(ylim=None)

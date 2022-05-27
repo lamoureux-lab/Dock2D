@@ -1,6 +1,7 @@
 import _pickle as pkl
 import torch
 from torch.utils.data import Dataset, RandomSampler
+import numpy as np
 
 
 class ToyDockingDataset(Dataset):
@@ -168,7 +169,6 @@ if __name__=='__main__':
 	import timeit
 	from tqdm import tqdm
 	import matplotlib.pyplot as plt
-	import numpy as np
 	import seaborn as sea
 	sea.set_style("whitegrid")
 

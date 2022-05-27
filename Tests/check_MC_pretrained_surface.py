@@ -3,10 +3,10 @@ from Dock2D.Models.Sampling.train_brutesimplified_docking import *
 if __name__ == '__main__':
     #################################################################################
     # Datasets
-    trainset = '../Datasets/docking_train_400pool'
-    validset = '../Datasets/docking_valid_400pool'
+    trainset = '../Datasets/docking_train_400pool.pkl'
+    validset = '../Datasets/docking_valid_400pool.pkl'
     ### testing set
-    testset = '../Datasets/docking_test_400pool'
+    testset = '../Datasets/docking_test_400pool.pkl'
     #########################
     #### initialization torch settings
     random_seed = 42
@@ -19,16 +19,16 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     ######################
     max_size = 1000
-    train_stream = get_docking_stream(trainset + '.pkl', max_size=max_size)
-    valid_stream = get_docking_stream(validset + '.pkl', max_size=100)
-    test_stream = get_docking_stream(testset + '.pkl', max_size=100)
+    train_stream = get_docking_stream(trainset, max_size=max_size)
+    valid_stream = get_docking_stream(validset, max_size=100)
+    test_stream = get_docking_stream(testset, max_size=100)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
 
     ######### Metropolis-Hastings (Monte Carlo) eval on ideal learned energy surface
     train_epochs = 10
     sample_steps = 50
     MC_eval_num_epochs = 10
-    sigma_alpha = 3.0
+    sigma_alpha = None
     gamma = 0.5
     experiment = 'BS_pretrain_MC_eval'
 
