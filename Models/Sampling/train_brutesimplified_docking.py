@@ -57,7 +57,7 @@ class BruteSimplifiedDockingTrainer:
 
         self.UtilityFunctions = UtilityFunctions()
 
-    def run_model(self, data, training=True, pos_idx=torch.tensor([0]), stream_name='trainset', epoch=0):
+    def run_model(self, data, pos_idx, training=True, stream_name='trainset', epoch=0):
         receptor, ligand, gt_rot, gt_txy = data
 
         receptor = receptor.to(device='cuda', dtype=torch.float)
@@ -182,10 +182,10 @@ class BruteSimplifiedDockingTrainer:
 
     def run_epoch(self, data_stream, epoch, training=False, stream_name='train_stream'):
         stream_loss = []
-        pos_idx = 0
+        pos_idx = torch.tensor([0])
         rmsd_logfile = self.logfile_savepath + 'log_RMSDs'+stream_name+'_epoch' + str(epoch) + self.experiment + '.txt'
         for data in tqdm(data_stream):
-            train_output = [self.run_model(data, pos_idx=torch.tensor([pos_idx]), training=training, stream_name=stream_name, epoch=epoch)]
+            train_output = [self.run_model(data, pos_idx=pos_idx, training=training, stream_name=stream_name, epoch=epoch)]
             stream_loss.append(train_output)
             with open(rmsd_logfile, 'a') as fout:
                 fout.write('%f\n' % (train_output[0][-1]))
