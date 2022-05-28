@@ -52,9 +52,8 @@ class SamplingDocker(nn.Module):
 
 class SamplingModel(nn.Module):
     def __init__(self, dockingFFT, num_angles=1, step_size=10, sample_steps=10, sig_alpha=2, IP=False, IP_MC=False, IP_LD=False,
-                 FI=False, experiment=None, debug=False):
+                 FI=False, experiment=None):
         super(SamplingModel, self).__init__()
-        self.debug = debug
         self.num_angles = num_angles
 
         self.docker = SamplingDocker(dockingFFT, num_angles=self.num_angles, debug=self.debug)
@@ -73,7 +72,6 @@ class SamplingModel(nn.Module):
         self.IP_LD = IP_LD
 
         self.FI = FI
-        # self.log_slice_volume = torch.log(torch.tensor(100 ** 2))
 
     def forward(self, receptor, ligand, alpha=None, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
@@ -91,7 +89,6 @@ class SamplingModel(nn.Module):
                 return lowest_energy, alpha.unsqueeze(0).clone(), dr.clone(), fft_score
             else:
                 ## BS model brute force eval
-                # alpha = 0
                 self.docker.eval()
                 lowest_energy, alpha, dr, fft_score = self.docker(receptor, ligand, plot_count,
                                                                   stream_name, plotting=plotting)
@@ -109,7 +106,7 @@ class SamplingModel(nn.Module):
             else:
                 ## MC sampling eval
                 self.docker.eval()
-                return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited, debug=False)
+                return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
 
         if self.IP_LD:
             if training:
@@ -127,7 +124,7 @@ class SamplingModel(nn.Module):
         if self.FI:
             if training:
                 ## MC sampling for Fact of Interaction training
-                return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited, debug=False)
+                return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
             else:
                 ### evaluate with brute force
                 self.docker.eval()
@@ -140,20 +137,17 @@ class SamplingModel(nn.Module):
                 # self.docker.eval()
                 # return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, debug=False)
 
-    def MCsampling(self, alpha, receptor, ligand, plot_count, stream_name, free_energies_visited_indices=None, debug=False):
+    def MCsampling(self, alpha, receptor, ligand, plot_count, stream_name, free_energies_visited_indices=None):
 
         self.docker.eval()
 
         accumulated_free_energies = torch.tensor([[]]).cuda()
-        ## TODO: recompute free energies of all previously visited indices
         for index_alpha in free_energies_visited_indices[0]:
             alpha_update = (index_alpha * np.pi / 180)
-            # print('alpha_update', alpha_update.shape)
             _, _, _, fft_score_update = self.docker(receptor, ligand, alpha_update)
             betaE_update = -self.BETA * fft_score_update
             free_energy = -1 / self.BETA * (torch.logsumexp(-betaE_update, dim=(0, 1)))
             accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
-            # print(accumulated_free_energies.shape, free_energy.reshape(1,1).shape)
 
         _, _, dr, fft_score = self.docker(receptor, ligand, alpha,
                                           plot_count=plot_count, stream_name=stream_name,
@@ -171,12 +165,11 @@ class SamplingModel(nn.Module):
             else:
                 plotting = False
 
-            # print(self.sig_alpha)
             # rand_rot = noise_alpha.normal_(0, self.sig_alpha)
 
             rand_rot = 0
             rot_step = 0.01745329251
-            for i in range(100):
+            for i in range(1000):
                 if torch.rand(1) > 0.5:
                     rand_rot += rot_step
                 else:
@@ -188,32 +181,25 @@ class SamplingModel(nn.Module):
             betaE_new = -self.BETA * fft_score_new
             free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)))
 
+            ## Accept
             if free_energy_new <= free_energy:
                 acceptance.append(1)
                 prob_list.append(1)
-                if debug:
-                    print('accept <')
-                    print('current', free_energy_new.item(), 'previous', free_energy.item(), 'alpha', alpha.item(),
-                          'prev alpha', alpha.item())
                 free_energy = free_energy_new
                 alpha = alpha_new
                 dr = dr_new
                 fft_score = fft_score_new
                 fft_score_list.append(fft_score)
                 deg_index_alpha = (((alpha * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
-                # print(free_energies_visited_indices.shape)
                 free_energies_visited_indices = torch.cat((free_energies_visited_indices, deg_index_alpha.reshape(1,1)), dim=1)
                 accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
             else:
                 prob = min(torch.exp(-self.BETA * (free_energy_new - free_energy)).item(), 1)
                 rand0to1 = torch.rand(1).cuda()
                 prob_list.append(prob)
+                ## Accept
                 if prob > rand0to1:
                     acceptance.append(1)
-                    if debug:
-                        print('accept > and prob', prob, ' >', rand0to1.item())
-                        print('current', free_energy_new.item(), 'previous', free_energy.item(), 'alpha', alpha.item(),
-                              'prev alpha', alpha.item())
                     free_energy = free_energy_new
                     alpha = alpha_new
                     dr = dr_new
@@ -224,20 +210,14 @@ class SamplingModel(nn.Module):
                     free_energies_visited_indices = torch.cat((free_energies_visited_indices, deg_index_alpha.reshape(1,1)), dim=1)
                     accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
                 else:
+                    ## Reject
                     fft_score_list.append(fft_score)
-                    # if debug:
-                    #     print('reject')
                     pass
 
-        # print(alphas_encountered)
-
-
         acceptance_rate = sum(acceptance) / self.sample_steps
-        # print('acceptance rate', acceptance_rate)
 
         if self.FI or self.IP_MC:
             fft_score_stack = torch.stack(fft_score_list)
-            # accumulated_free_energies = torch.stack(accumulated_free_energies)
         else:
             fft_score_stack = fft_score
             free_energies_visited_indices = free_energy

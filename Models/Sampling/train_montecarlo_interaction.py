@@ -329,7 +329,8 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_coinflip+or-1deg'
     # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_FEbufferrecompute_resumabledatastream_coinflip_3deg'
     # experiment = 'BF_FI_400pool_100pairs_20ep_10steps_coinflip_exact1degNsteps'
-    experiment = 'BF_FI_400pool_50pairs_20ep_10steps_coinflip_exact1deg100steps'
+    # experiment = 'BF_FI_400pool_50pairs_20ep_10steps_coinflip_exact1deg100steps'
+    experiment = 'BF_FI_400pool_50pairs_20ep_10steps_coinflip_exact1deg1000steps'
 
     ######################
     train_epochs = 20
@@ -352,8 +353,8 @@ if __name__ == '__main__':
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     ######################
     ### Train model from beginning
-    # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
-    #                               ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
+                                  ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
     # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
