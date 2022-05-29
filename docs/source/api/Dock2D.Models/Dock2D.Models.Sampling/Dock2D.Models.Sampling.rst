@@ -1,7 +1,7 @@
 Sampling/
 ================
 
-.. automodule:: Dock2D.Models.Sampling.train_brutesimplified_docking
+.. automodule:: Dock2D.Models.Sampling.train_brutesimplified_IP
 
 .. automodule:: Dock2D.Models.Sampling.train_montecarlo_interaction
 
@@ -15,11 +15,6 @@ Sampling/
 .. autoclass:: Dock2D.Models.Sampling.model_sampling.SamplingModel
    :special-members: __init__, forward
    :members:
-   :undoc-members:
-
-.. autoclass:: Dock2D.Models.Sampling.train_brutesimplified_docking.BruteSimplifiedDockingTrainer
-   :special-members: __init__
-   :members: run_model, train_model, run_epoch, save_checkpoint, load_checkpoint, resume_training_or_not, run_trainer
    :undoc-members:
 
 .. autoclass:: Dock2D.Models.Sampling.train_montecarlo_interaction.EnergyBasedInteractionTrainer

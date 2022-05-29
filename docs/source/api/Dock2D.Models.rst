@@ -18,6 +18,7 @@ The interaction module computes a probability of interaction based on free energ
 
    ../api/Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.rst
    ../api/Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.rst
+   ../api/Dock2D.Models/Dock2D.Models.TrainerIP.rst
 
 .. autoclass:: Dock2D.Models.model_docking.Docking
    :special-members: __init__, forward
