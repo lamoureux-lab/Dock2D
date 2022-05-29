@@ -1,49 +1,65 @@
 import torch
-import random
-from torch import optim
 import sys
 sys.path.append('/home/sb1638/') ## path for cluster
 
 import numpy as np
-
 from tqdm import tqdm
-from Dock2D.Utility.TorchDataLoader import get_docking_stream
 from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Models.model_docking import Docking
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 from Dock2D.Utility.ValidationMetrics import RMSD
-from Dock2D.Utility.PlotterIP import PlotterIP
+from Dock2D.Utility.SampleBuffer import SampleBuffer
 
 
-class BruteForceDockingTrainer:
-    def __init__(self, cur_model, cur_optimizer, cur_experiment, debug=False, plotting=False):
+class TrainerIP:
+    def __init__(self, dockingFFT, cur_model, cur_optimizer, cur_experiment, BF_eval=False, MC_eval=False,
+                 MC_eval_num_epochs=10, debug=False, plotting=False,
+                 sigma_alpha=3.0, sample_buffer_length=1000):
         """
-        Initialize BruteForceDockingTrainer models, paths, and class instances.
+        Initialize trainer for IP task models, paths, and class instances.
 
+        :param dockingFFT:
         :param cur_model: the current docking model initialized outside the trainer
         :param cur_optimizer: the optimizer initialized outside the trainer
         :param cur_experiment: current experiment name
+        :param BF_eval:
+        :param MC_eval:
+        :param MC_eval_num_epochs:
         :param debug: set to `True` to check model parameter gradients
         :param plotting: create plots or not
+        :param sigma_alpha:
+        :param sample_buffer_length:
         """
+
         self.debug = debug
         self.plotting = plotting
         self.eval_freq = 1
         self.save_freq = 1
-        self.model_savepath = 'Log/saved_models/'
+        self.model_savepath = 'Log/saved_models/IP_saved/'
         self.logfile_savepath = 'Log/losses/IP_loss/'
         self.plot_freq = Docking().plot_freq
 
-        self.log_header = 'Epoch\tLoss\tRMSD\n'
+        self.log_header = 'Epoch\tLoss\trmsd\n'
         self.log_format = '%d\t%f\t%f\n'
 
-        self.dockingFFT = TorchDockingFFT()
-        self.dim = self.dockingFFT.dim
-        self.num_angles = self.dockingFFT.num_angles
+        self.dockingFFT = dockingFFT
+        self.dim = TorchDockingFFT().dim
+        self.num_angles = TorchDockingFFT().num_angles
 
         self.model = cur_model
         self.optimizer = cur_optimizer
         self.experiment = cur_experiment
+
+        ## sample buffer for BF or MC eval on ideal learned energy surface
+        self.alpha_buffer = SampleBuffer(num_examples=sample_buffer_length)
+        self.free_energy_buffer = SampleBuffer(num_examples=sample_buffer_length)
+
+        self.BF_eval = BF_eval
+        self.MC_eval = MC_eval
+        self.MC_eval_num_epochs = MC_eval_num_epochs
+        if self.MC_eval:
+            self.eval_epochs = self.MC_eval_num_epochs
+            self.sigma_alpha = sigma_alpha
 
         self.UtilityFunctions = UtilityFunctions()
 
@@ -60,14 +76,17 @@ class BruteForceDockingTrainer:
         :param resume_training: resume training from a loaded model state or train fresh model
         :param resume_epoch: epoch to load model and resume training
         """
+
         if self.plotting:
             self.eval_freq = 1
 
         ### Continue training on existing model?
         start_epoch = self.resume_training_or_not(resume_training, resume_epoch)
+
         num_epochs = start_epoch + train_epochs
 
         for epoch in range(start_epoch, num_epochs):
+
             checkpoint_dict = {
                 'epoch': epoch,
                 'state_dict': self.model.state_dict(),
@@ -85,21 +104,40 @@ class BruteForceDockingTrainer:
                     self.save_checkpoint(checkpoint_dict, model_savefile)
                     print('saving model ' + model_savefile)
 
-            ### Evaluation epoch
+            ### Evaluation epoch(s)
             if epoch % self.eval_freq == 0 or epoch == 1:
-                if valid_stream:
-                    self.model.eval()
-                    stream_name = 'VALIDset'
-                    self.run_epoch(valid_stream, epoch, training=False, stream_name=stream_name)
+                if self.MC_eval:
+                    self.resume_training_or_not(resume_training, resume_epoch)
+                    for i in range(self.eval_epochs):
+                        print('Monte Carlo eval epoch', i)
+                        print('current sigma_alpha', self.sigma_alpha)
+                        rmsd_validlog = self.logfile_savepath + 'log_RMSDsVALIDset_epoch' + str(
+                            epoch - 1) + self.experiment + '.txt'
+                        rmsd_testlog = self.logfile_savepath + 'log_RMSDsTESTset_epoch' + str(
+                            epoch - 1) + self.experiment + '.txt'
+                        with open(rmsd_validlog, 'w') as fout:
+                            fout.write('Validation RMSD\n')
+                        with open(rmsd_testlog, 'w') as fout:
+                            fout.write('Testing RMSD\n')
 
-                if test_stream:
-                    self.model.eval()
-                    stream_name = 'TESTset'
-                    self.run_epoch(test_stream, epoch, training=False, stream_name=stream_name)
+                        if valid_stream:
+                            stream_name = 'VALIDset'
+                            self.run_epoch(valid_stream, epoch, training=False, stream_name=stream_name)
+                        if test_stream:
+                            stream_name = 'TESTset'
+                            self.run_epoch(test_stream, epoch, training=False, stream_name=stream_name)
+
+                else:
+                    if valid_stream:
+                        stream_name = 'VALIDset'
+                        self.run_epoch(valid_stream, epoch, training=False, stream_name=stream_name)
+                    if test_stream:
+                        stream_name = 'TESTset'
+                        self.run_epoch(test_stream, epoch, training=False, stream_name=stream_name)
 
     def run_epoch(self, data_stream, epoch, training=False, stream_name='train_stream'):
         """
-        Run the model on each example in an epoch.
+        Run the model for an epoch.
 
         :param data_stream: input data stream
         :param epoch: current epoch number
@@ -108,36 +146,41 @@ class BruteForceDockingTrainer:
         """
         stream_loss = []
         pos_idx = torch.tensor([0])
-        rmsd_logfile = self.logfile_savepath + 'log_RMSDs'+stream_name+'_epoch' + str(epoch) + self.experiment + '.txt'
+        rmsd_logfile = self.logfile_savepath + 'log_RMSDs' + stream_name + '_epoch' + str(epoch) + self.experiment + '.txt'
         for data in tqdm(data_stream):
-            train_output = [self.run_model(data, pos_idx=pos_idx, training=training, stream_name=stream_name)]
+            train_output = [
+                self.run_model(data, pos_idx=pos_idx, training=training, stream_name=stream_name, epoch=epoch)]
             stream_loss.append(train_output)
-            with open(rmsd_logfile,'a') as fout:
+            with open(rmsd_logfile, 'a') as fout:
                 fout.write('%f\n' % (train_output[0][-1]))
+                fout.close()
             pos_idx += 1
 
         loss_logfile = self.logfile_savepath + 'log_loss_' + stream_name + '_' + self.experiment + '.txt'
         avg_loss = np.average(stream_loss, axis=0)[0, :]
-        print('\nEpoch', epoch, stream_name,':', avg_loss)
+        print('\nEpoch', epoch, stream_name, ':', avg_loss)
         with open(loss_logfile, 'a') as fout:
             fout.write(self.log_format % (epoch, avg_loss[0], avg_loss[1]))
+            fout.close()
 
-    def run_model(self, data, pos_idx, training=True, stream_name='trainset'):
+    def run_model(self, data, pos_idx, training=True, stream_name='trainset', epoch=0):
         """
-        Run the model on the current example in an epoch.
+        Run a model iteration on the current example.
 
         :param data: training example
-        :param training: set to `True` for training, `False` for evalutation.
         :param pos_idx: current example position index
+        :param training: set to `True` for training, `False` for evalutation.
         :param stream_name: data stream name
-        :return: `loss` and `rmsd`
+        :param epoch: epoch count used in plotting
+        :return:
         """
+
         receptor, ligand, gt_rot, gt_txy = data
 
-        receptor = receptor.cuda()
-        ligand = ligand.cuda()
-        gt_rot = gt_rot.cuda().squeeze()
-        gt_txy = gt_txy.cuda().squeeze()
+        receptor = receptor.to(device='cuda', dtype=torch.float)
+        ligand = ligand.to(device='cuda', dtype=torch.float)
+        gt_rot = gt_rot.to(device='cuda', dtype=torch.float).squeeze()
+        gt_txy = gt_txy.to(device='cuda', dtype=torch.float).squeeze()
 
         if training:
             self.model.train()
@@ -146,18 +189,44 @@ class BruteForceDockingTrainer:
 
         ### run model and loss calculation
         ##### call model
-        fft_score = self.model(receptor, ligand, training=training, plotting=self.plotting, plot_count=pos_idx, stream_name=stream_name)
-        fft_score = fft_score.flatten()
+        plot_count = int(pos_idx)
+        if training:
+            lowest_energy, pred_rot, pred_txy, fft_score = self.model(receptor, ligand, gt_rot, plot_count=plot_count,
+                                                                      stream_name=stream_name, plotting=self.plotting)
+        else:
+            if self.BF_eval:
+                lowest_energy, pred_rot, pred_txy, fft_score = self.model(receptor, ligand, plot_count=plot_count,
+                                                                          stream_name=stream_name, plotting=self.plotting,
+                                                                          training=False)
+            else:
+                ## for evaluation, sample buffer is necessary for Monte Carlo multi epoch eval
+                alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
+                free_energies_visited_indices = self.free_energy_buffer.get_free_energies_indices(pos_idx)
+
+                free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score, acceptance_rate = \
+                                self.model(alpha, receptor, ligand,
+                                free_energies_visited=free_energies_visited_indices, sig_alpha=self.sigma_alpha,
+                                plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=False)
+                self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)
+                self.alpha_buffer.push_alpha(pred_rot, pos_idx)
+
+                if plot_count % self.plot_freq == 0:
+                    UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices,
+                                                                                   accumulated_free_energies,
+                                                                                   acceptance_rate,
+                                                                                   stream_name, plot_count=plot_count,
+                                                                                   epoch=epoch)
 
         ### Encode ground truth transformation index into empty energy grid
         with torch.no_grad():
+            rmsd_out = RMSD(ligand, gt_rot, gt_txy, pred_rot.squeeze(), pred_txy.squeeze()).calc_rmsd()
             target_flatindex = self.dockingFFT.encode_transform(gt_rot, gt_txy)
-            pred_rot, pred_txy = self.dockingFFT.extract_transform(fft_score)
-            rmsd_out = RMSD(ligand, gt_rot, gt_txy, pred_rot, pred_txy).calc_rmsd()
 
-        #### Loss functions
-        CE_loss = torch.nn.CrossEntropyLoss()
-        loss = CE_loss(fft_score.squeeze().unsqueeze(0), target_flatindex.unsqueeze(0))
+        if self.debug:
+            print('\npredicted')
+            print(pred_rot, pred_txy)
+            print('\nground truth')
+            print(gt_rot, gt_txy)
 
         ### check parameters and gradients
         ### if weights are frozen or updating
@@ -165,17 +234,19 @@ class BruteForceDockingTrainer:
             self.UtilityFunctions.check_model_gradients(self.model)
 
         if training:
+            #### Loss functions
+            CE_loss = torch.nn.CrossEntropyLoss()
+            loss = CE_loss(fft_score.flatten().unsqueeze(0), target_flatindex.unsqueeze(0))
             self.model.zero_grad()
             loss.backward()
             self.optimizer.step()
         else:
+            loss = torch.zeros(1)
             self.model.eval()
-
-        if self.plotting and not training:
-            if pos_idx % self.plot_freq == 0:
+            if self.plotting and pos_idx % self.plot_freq == 0:
                 with torch.no_grad():
-                    self.UtilityFunctions.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot, pred_txy, pos_idx,stream_name)
-
+                    self.UtilityFunctions.plot_predicted_pose(receptor, ligand, gt_rot, gt_txy, pred_rot.squeeze(),
+                                                              pred_txy.squeeze(), pos_idx, stream_name)
         return loss.item(), rmsd_out.item()
 
     def save_checkpoint(self, state, filename):
@@ -219,24 +290,24 @@ class BruteForceDockingTrainer:
             print('\nRESUMING TRAINING AT EPOCH', start_epoch, '\n')
             with open(self.logfile_savepath + 'log_RMSDsTRAINset_epoch' + str(start_epoch) + self.experiment + '.txt',
                       'w') as fout:
-                fout.write('Training RMSD\n')
+                fout.write('IP Training RMSD\n')
             with open(self.logfile_savepath + 'log_RMSDsVALIDset_epoch' + str(start_epoch) + self.experiment + '.txt',
                       'w') as fout:
-                fout.write('Validation RMSD\n')
+                fout.write('IP Validation RMSD\n')
             with open(self.logfile_savepath + 'log_RMSDsTESTset_epoch' + str(start_epoch) + self.experiment + '.txt',
                       'w') as fout:
-                fout.write('Testing RMSD\n')
+                fout.write('IP Testing RMSD\n')
         else:
             start_epoch = 1
             ### Loss log files
             with open(self.logfile_savepath + 'log_loss_TRAINset_' + self.experiment + '.txt', 'w') as fout:
-                fout.write('Docking Training Loss:\n')
+                fout.write('IP Training Loss:\n')
                 fout.write(self.log_header)
             with open(self.logfile_savepath + 'log_loss_VALIDset_' + self.experiment + '.txt', 'w') as fout:
-                fout.write('Docking Validation Loss:\n')
+                fout.write('IP Validation Loss:\n')
                 fout.write(self.log_header)
             with open(self.logfile_savepath + 'log_loss_TESTset_' + self.experiment + '.txt', 'w') as fout:
-                fout.write('Docking Testing Loss:\n')
+                fout.write('IP Testing Loss:\n')
                 fout.write(self.log_header)
         return start_epoch
 
@@ -253,60 +324,3 @@ class BruteForceDockingTrainer:
         """
         self.train_model(train_epochs, train_stream, valid_stream, test_stream,
                          resume_training=resume_training, resume_epoch=resume_epoch)
-
-
-if __name__ == '__main__':
-
-    #################################################################################
-    # Datasets
-    trainset = '../../Datasets/docking_train_400pool'
-    validset = '../../Datasets/docking_valid_400pool'
-    ### testing set
-    testset = '../../Datasets/docking_test_400pool'
-    #########################
-
-    #### initialization torch settings
-    random_seed = 42
-    np.random.seed(random_seed)
-    torch.manual_seed(random_seed)
-    random.seed(random_seed)
-    torch.cuda.manual_seed(random_seed)
-    torch.backends.cudnn.deterministic = True
-    torch.cuda.set_device(0)
-    # torch.autograd.set_detect_anomaly(True)
-    ######################
-
-    batch_size = 1
-    max_size = 1000
-    train_stream = get_docking_stream(trainset + '.pkl', batch_size, max_size=max_size)
-    valid_stream = get_docking_stream(validset + '.pkl',  max_size=max_size)
-    test_stream = get_docking_stream(testset + '.pkl', max_size=max_size)
-
-    ######################
-    # experiment = 'BF_IP_FINAL_DATASET_100pool_1000ex_30ep'
-    experiment = 'BF_IP_FINAL_DATASET_400pool_1000ex_30ep'
-
-    ######################
-    train_epochs = 10
-    lr = 10 ** -4
-    model = Docking().to(device=0)
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-
-    ######################
-    ### Train model from beginning, evaluate if valid_stream and/or test_stream passed in
-    BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
-        train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
-
-    ### Resume training model at chosen epoch
-    # BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
-    #     train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #     resume_training=True, resume_epoch=13, train_epochs=17)
-
-    # ### Evaluate model on chosen dataset only and plot at chosen epoch and dataset frequency
-    # BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
-    #         train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #         resume_training=True, resume_epoch=15, train_epochs=1)
-
-    ## Plot loss and RMSDs from current experiment
-    PlotterIP(experiment).plot_loss(show=True)
-    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)

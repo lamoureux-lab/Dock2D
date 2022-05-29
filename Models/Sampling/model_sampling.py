@@ -56,7 +56,7 @@ class SamplingModel(nn.Module):
         super(SamplingModel, self).__init__()
         self.num_angles = num_angles
 
-        self.docker = SamplingDocker(dockingFFT, num_angles=self.num_angles, debug=self.debug)
+        self.docker = SamplingDocker(dockingFFT, num_angles=self.num_angles)
 
         self.sample_steps = sample_steps
         self.step_size = step_size
