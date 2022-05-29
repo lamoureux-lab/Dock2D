@@ -82,7 +82,7 @@ class PlotterIP:
         train_log = self.logfile_savepath+'log_RMSDsTRAINset_epoch' + str(plot_epoch) + self.experiment + ".txt"
         valid_log = self.logfile_savepath+'log_RMSDsVALIDset_epoch' + str(plot_epoch) + self.experiment + ".txt"
         test_log = self.logfile_savepath+'log_RMSDsTESTset_epoch' + str(plot_epoch) + self.experiment + ".txt"
-        train, valid, test, avg_validRMSD, avg_testRMSD = None, None, None, None, None
+        train, valid, test, avg_trainRMSD, avg_validRMSD, avg_testRMSD = None, None, None, None, None, None
         subplot_count = 0
 
         print('average RMSDs:')
@@ -105,8 +105,9 @@ class PlotterIP:
             print('test:', avg_testRMSD)
 
         fig, ax = plt.subplots(3, figsize=(20, 10))
-        plt.suptitle('RMSD distribution: epoch' + str(plot_epoch) + ' ' + self.experiment)
-        plt.legend(('train rmsd', 'valid rmsd', 'test rmsd'))
+        plt.suptitle('RMSD distribution: epoch' + str(plot_epoch) + ' ' + self.experiment +'\n'
+                      + 'train:'+ avg_trainRMSD + ' valid:' + avg_validRMSD + ' test:' + avg_testRMSD)
+        plt.legend(['train rmsd', 'valid rmsd', 'test rmsd'])
         plt.xlabel('RMSD')
         binwidth=1
         bins = np.arange(0, 100 + binwidth, binwidth)
