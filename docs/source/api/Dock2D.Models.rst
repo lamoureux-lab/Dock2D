@@ -5,12 +5,28 @@ Models are split into two methodological categories, BruteForce and Sampling, fo
 For BruteForce, the models sample the entire space of rotations and translations.
 For Sampling, only a small subset of the transformational space is sampled.
 
-The two core models modules are :class:`Docking() <Dock2D.Models.model_docking.Docking>` and :class:`Interaction() <Dock2D.Models.model_interaction.Interaction>`.
+The two core models modules use `torch.nn.Module` :class:`Docking() <Dock2D.Models.model_docking.Docking>` and :class:`Interaction() <Dock2D.Models.model_interaction.Interaction>`.
 
-The docking module produces docking features and scoring coefficients using an SE(2)-Convolutional Neural Network,
-and scores the produced features using :doc:`TorchDockingFFT <../api/Dock2D.Utility/Dock2D.Utility.TorchDockingFFT>`.
+    The docking module produces docking features and scoring coefficients using an SE(2)-Convolutional Neural Network,
+    and scores the produced features using :doc:`TorchDockingFFT <../api/Dock2D.Utility/Dock2D.Utility.TorchDockingFFT>`.
 
-The interaction module computes a probability of interaction based on free energies learned using the docking module.
+    The interaction module computes a probability of interaction based on free energies learned using the docking module.
+
+    .. note::
+        Using `torch.nn.Module` creates special members of `__init__` and `forward`:
+
+        `__init__()`
+            Initializes internal Module state, shared by both nn.Module and ScriptModule.
+
+        `forward()`
+            Defines the computation performed at every call.
+
+            Should be overridden by all subclasses.
+
+            Although the recipe for forward pass needs to be defined within this function,
+            one should call the Module instance afterwards instead of this since the former takes care of running the
+            registered hooks while the latter silently ignores them.
+            **e.g. call `Docking()` instead of `Docking().forward()`**, see code for examples.
 
 .. toctree::
    :maxdepth: 2

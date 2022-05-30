@@ -39,21 +39,18 @@ if __name__ == '__main__':
     BFdockingFFT = TorchDockingFFT(num_angles=360)
     model = SamplingModel(BFdockingFFT, num_angles=360, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
+    Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True)
     ######################
     ### Train model from beginning, evaluate if valid_stream and/or test_stream passed in
-    TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True).run_trainer(
-        train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
+    Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Resume training model at chosen epoch
-    # BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
-    #     train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #     resume_training=True, resume_epoch=13, train_epochs=17)
+    # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+    #                     resume_training=True, resume_epoch=13, train_epochs=17)
 
     # ### Evaluate model on chosen dataset only and plot at chosen epoch and dataset frequency
-    # BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
-    #         train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #         resume_training=True, resume_epoch=15, train_epochs=1)
+    # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+    #                     resume_training=True, resume_epoch=15, train_epochs=1)
 
     ## Plot loss and RMSDs from current experiment
     PlotterIP(experiment).plot_loss(show=True)

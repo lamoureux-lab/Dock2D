@@ -21,7 +21,7 @@ class TrainerFI:
         :param docking_optimizer: the docking optimizer initialized outside the trainer
         :param interaction_model: the current interaction model initialized outside the trainer
         :param interaction_optimizer: the interaction optimizer initialized outside the trainer
-        :param experiment:
+        :param experiment: current experiment name
         :param training_case:
         :param path_pretrain:
         :param FI_MC:
@@ -294,7 +294,7 @@ class TrainerFI:
         :param datastream: data stream
         :param stream_name: data stream name
         :param deltaF_logfile: free energy log file name for evaluation set
-        :param experiment: experiment name
+        :param experiment: current experiment name
         """
         log_APRheader = 'Accuracy\tPrecision\tRecall\tF1score\tMCC\n'
         log_APRformat = '%f\t%f\t%f\t%f\t%f\n'

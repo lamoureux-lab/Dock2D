@@ -8,7 +8,7 @@ class PlotterFI:
         """
         Initialize paths and filename prefixes for saving plots.
 
-        :param experiment: name of current experiment
+        :param experiment: current experiment name
         :param logfile_savepath: path to load and save data and figs
         """
         self.experiment = experiment

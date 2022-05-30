@@ -40,17 +40,18 @@ if __name__ == '__main__':
     sampledFFT = TorchDockingFFT(num_angles=1, angle=None)
     model = SamplingModel(sampledFFT, num_angles=1, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=lr)
+    Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    TrainerIP(sampledFFT, model, optimizer, experiment).run_trainer(train_epochs, train_stream=train_stream)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
-    # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, plotting=True, debug=debug).run_trainer(
+    # Trainer.run_trainer(
     #     train_epochs=1, train_stream=train_stream, valid_stream=None, test_stream=None,
     #     resume_training=True, resume_epoch=train_epochs)
 
     ### Resume training for validation sets
-    # BruteSimplifiedDockingTrainer(dockingFFT, model, optimizer, experiment, plotting=plotting, debug=debug).run_trainer(
+    # Trainer.run_trainer(
     #     train_epochs=1, train_stream=None, valid_stream=valid_stream, #test_stream=valid_stream,
     #     resume_training=True, resume_epoch=train_epochs)
 
@@ -59,12 +60,12 @@ if __name__ == '__main__':
     stop = train_epochs
     eval_angles = 360
     eval_model = SamplingModel(sampledFFT, num_angles=eval_angles, IP=True).to(device=0)
+    EvalTrainer = TrainerIP(sampledFFT, eval_model, optimizer, experiment,
+                            BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
     for epoch in range(start, stop):
         if stop-1 == epoch:
             plotting = False
-            TrainerIP(sampledFFT, eval_model, optimizer, experiment,
-                                    BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length).run_trainer(
-                                    train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+            EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
                                     resume_training=True, resume_epoch=epoch)
 
     ## Plot loss and RMSDs from current experiment

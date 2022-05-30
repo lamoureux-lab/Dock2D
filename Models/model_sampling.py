@@ -13,6 +13,14 @@ from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 class SamplingDocker(nn.Module):
     def __init__(self, dockingFFT, num_angles=1, debug=False):
+        """
+        Initialize docking FFT and feature generation using the SE(2)-CNN.
+
+        :param dockingFFT: dockingFFT initialized to match dimensions of current sampling scheme
+        :param num_angles: If a single rotation slice correlation is desired, specify `num_angles=1`,
+        else `num_angles` is the number of angles to linearly space `-pi` to `+pi`
+        :param debug: debugging prints and plots
+        """
         super(SamplingDocker, self).__init__()
         self.num_angles = num_angles
         self.dim = 100
@@ -20,6 +28,17 @@ class SamplingDocker(nn.Module):
         self.dockingFFT = dockingFFT
 
     def forward(self, receptor, ligand, rotation=None, plot_count=1, stream_name='trainset', plotting=False):
+        """
+        Uses TorchDockingFFT() to compute feature correlations for a rotationally sampled stack of examples.
+
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param rotation: pass rotation for single angle correlation
+        :param plot_count: current plotting index
+        :param stream_name: data stream name
+        :param plotting: create plots or not
+        :return: `lowest_energy`, `pred_rot`, `pred_txy`, `fft_score`
+        """
         if 'trainset' not in stream_name:
             training = False
         else:
@@ -30,7 +49,7 @@ class SamplingDocker(nn.Module):
         else:
             plotting = False
 
-        fft_score = self.dockingConv.forward(receptor, ligand, angle=rotation, plotting=plotting, training=training,
+        fft_score = self.dockingConv(receptor, ligand, angle=rotation, plotting=plotting, training=training,
                                              plot_count=plot_count, stream_name=stream_name)
 
         with torch.no_grad():
@@ -51,10 +70,33 @@ class SamplingDocker(nn.Module):
 
 
 class SamplingModel(nn.Module):
-    def __init__(self, dockingFFT, num_angles=1, step_size=10, sample_steps=10, sig_alpha=2,
+    def __init__(self, dockingFFT, num_angles=1, sample_steps=10, step_size=10, sig_alpha=2,
                  IP=False, IP_MC=False, IP_LD=False,
                  FI_BF=False, FI_MC=False,
                  experiment=None):
+        """
+        Initialize sampling for the two molecular recognition tasks, IP and FI.
+        For IP, BruteForce (BF) and BruteSimplified (BS).
+        For FI, BruteForce and MonteCarlo(MC)
+
+        .. note::
+
+            Langevin dynamics (LD) code for IP is included but not reported in our work.
+
+        :param dockingFFT: dockingFFT initialized to match dimensions of current sampling scheme
+        :param num_angles: If a single rotation slice correlation is desired, specify `num_angles=1`,
+        else `num_angles` is the number of angles to linearly space `-pi` to `+pi`
+        :param sample_steps: number of samples per example
+        :param step_size: step size to use in the LD energy gradient based method
+        :param sig_alpha: sigma for rotation used in LD
+        :param IP: interaction pose prediction used for either BF or BS, only difference is the `num_angles` specified.
+        If `num_angles==1` runs the BS model, and BF otherwise.
+        :param IP_MC: Interaction pose trained using BS for docking features, and evaluation using MC.
+        :param IP_LD: Interaction pose trained using either BS or BF and evaluated using LD
+        :param FI_BF: Fact of interaction trained and evaluated using BF
+        :param FI_MC: Fact of interaction trained using MC and evaluated using BF
+        :param experiment: current experiment name
+        """
         super(SamplingModel, self).__init__()
         self.num_angles = num_angles
 
@@ -109,11 +151,11 @@ class SamplingModel(nn.Module):
             else:
                 ## MC sampling eval
                 self.docker.eval()
-                return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
+                return self.montecarlo_sampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
 
         if self.IP_LD:
             if training:
-                ## train using Langevin dynamics
+                ## train either using BF or BS
                 lowest_energy, _, dr, fft_score = self.docker(receptor, ligand, alpha,
                                                               plot_count=plot_count, stream_name=stream_name,
                                                               plotting=plotting)
@@ -142,7 +184,7 @@ class SamplingModel(nn.Module):
         if self.FI_MC:
             if training:
                 ## MC sampling for Fact of Interaction training
-                return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
+                return self.montecarlo_sampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
             else:
                 ### evaluate with brute force
                 self.docker.eval()
@@ -155,9 +197,19 @@ class SamplingModel(nn.Module):
                 # self.docker.eval()
                 # return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, debug=False)
 
+    def montecarlo_sampling(self, alpha, receptor, ligand, plot_count, stream_name, free_energies_visited_indices=None):
+        """
+        Monte Carlo sampling for free energy surface approximation.
+        The `alpha` and `free_energies_visited_indices` are initialized, sampled, and pushed per example per epoch, using instances of SampleBuffer.
 
-    def MCsampling(self, alpha, receptor, ligand, plot_count, stream_name, free_energies_visited_indices=None):
-
+        :param alpha: previously encountered rotation initialized from SampleBuffer
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param plot_count: current plotting index
+        :param stream_name: name of data stream
+        :param free_energies_visited_indices: array of previously encountered free energies indices.
+        :return: `free_energies_visited_indices`, `accumulated_free_energies`, `alpha`, `dr`, `fft_score_stack`, `acceptance_rate`
+        """
         self.docker.eval()
 
         accumulated_free_energies = torch.tensor([[]]).cuda()
@@ -246,6 +298,17 @@ class SamplingModel(nn.Module):
         return free_energies_visited_indices, accumulated_free_energies, alpha.clone(), dr.clone(), fft_score_stack.squeeze(), acceptance_rate
 
     def langevin_dynamics(self, alpha, receptor, ligand, plot_count, stream_name):
+        """
+        Langevin dynamics sampling for free energy surface approximation.
+
+        :param alpha: previously encountered rotation initialized from SampleBuffer
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param plot_count: current plotting index
+        :param stream_name: name of data stream
+        :return: `energy`, `alpha`, `dr`, `fft_score`
+        """
+
 
         noise_alpha = torch.zeros_like(alpha)
 
@@ -274,15 +337,6 @@ class SamplingModel(nn.Module):
             alpha = alpha + rand_rot
 
         return energy, alpha.clone(), dr.clone(), fft_score
-
-    @staticmethod
-    def check_gradients(model, param=None):
-        for n, p in model.named_parameters():
-            if param and param in str(n):
-                print('Name', n, '\nParam', p, '\nGradient', p.grad)
-                return
-            if not param:
-                print('Name', n, '\nParam', p, '\nGradient', p.grad)
 
 
 if __name__ == "__main__":
