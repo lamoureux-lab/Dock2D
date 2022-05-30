@@ -14,19 +14,24 @@ from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, Protein
 
 class ShapeDistributions:
     def __init__(self, protein_pool, dataset_name, show=False):
+        """
+        Initialize checks for generated protein pool.
+
+        :param protein_pool: protein pool filename.pkl
+        :param dataset_name: data set name
+        :param show: show plots (does not affect saving)
+        """
         self.protein_pool = protein_pool
         self.dataset_name = dataset_name
         self.show = show
 
-    def get_counts(self, counts):
-        counter = Counter(counts)
-        print('counter', counter)
-        unique = np.array(list(counter.keys()))
-        inds = unique.argsort()
-        counts = np.array(list(counter.values()))[inds]
-        return unique, counts
-
     def get_dict_counts(self, shape_params):
+        """
+        Initial counts of shape generating parameters used from current protein pool
+
+        :param shape_params: list of shape parameters in order
+        :return: `alpha_counts`, `numpoints_counts`, `params_list`
+        """
         alpha_counts = []
         numpoints_counts = []
         params_list = []
@@ -40,7 +45,28 @@ class ShapeDistributions:
 
         return alpha_counts, numpoints_counts, params_list
 
+    def get_counts(self, counts):
+        """
+        Used to get unique, sorted parameters.
+
+        :param counts: unique counts of current parameter
+        :return: `unique`, `counts`
+        """
+        counter = Counter(counts)
+        print('counter', counter)
+        unique = np.array(list(counter.keys()))
+        inds = unique.argsort()
+        counts = np.array(list(counter.values()))[inds]
+        return unique, counts
+
     def get_unique_fracs(self, counts, dataname):
+        """
+        Fraction of total counts each unique parameter represents in current protein pool
+
+        :param counts: counts of each current parameter
+        :param dataname: name of protein pool
+        :return: `unique`, `fracs`, `barwidth`
+        """
         unique, counts = self.get_counts(counts)
         fracs = np.array(counts)/sum(counts)
         print('\n'+dataname+':\n')
@@ -52,6 +78,22 @@ class ShapeDistributions:
         return unique, fracs, barwidth
 
     def check_missing_examples(self, combination_list, found_list, protein_shapes, params_list):
+        """
+        Check for unrepresented combinations of parameters and regenerate them purely for plotting purposes.
+        For example, given a small protein pool and a broad distribtution of parameters,
+        the tail combination of parameters might never be encountered and saved to the protein pool.
+
+        .. note::
+            This is done just to get an idea of what the desired shape distribution might look like,
+            but the user must either increase the protein pool size or increase relative probabilities of each parameter missing.
+            Increasing protein pool size is the simplist solution.
+
+        :param combination_list: parameter combinations expected to encounter
+        :param found_list: parameter combinations encountered
+        :param protein_shapes: protein shapes extracted from protein pool file
+        :param params_list: list of parameters extracted from protein pool file
+        :return: `indices`
+        """
         missing_list = []
         missing_indices = []
         for i in range(len(combination_list)):
@@ -76,15 +118,19 @@ class ShapeDistributions:
                     found_list.append(i)
                     indices.append(j)
 
-        # print('missing indices', missing_indices)
-        # print('missing_list', missing_list)
-        # print('foundlist', found_list)
-
         return indices
 
-    def get_shape_distributions(self, data, alpha_counts, numpoints_counts, params_list, debug=False):
+    def get_shape_distributions(self, data, debug=False):
+        """
+        Parse protein pool file and get shape distributions based on parameter combinations.
+
+        :param data: loaded protein pool .pkl
+        :return: `shapes_plot`, `alphas_packed`, `numpoints_packed`
+        """
         protein_shapes = data.proteins
         shape_params = data.params
+
+        alpha_counts, numpoints_counts, params_list = self.get_dict_counts(data.params)
 
         alphas_unique, alphas_fracs, alphas_barwidth = self.get_unique_fracs(alpha_counts, 'alpha values')
         numpoints_unique, numpoints_fracs, numpoints_barwidth = self.get_unique_fracs(numpoints_counts, 'number of points')
@@ -132,11 +178,13 @@ class ShapeDistributions:
         return shapes_plot, alphas_packed, numpoints_packed
 
     def plot_shapes_and_params(self):
+        """
+        Plot a 2D array of example shapes generated using all desired `alpha` and `num_points` parameter combinations and
+        plot a two histograms opposite the axex corresponding to each parameter.
+        """
         data = ProteinPool.load(self.protein_pool)
 
-        alpha_counts, numpoints_counts, params_list = self.get_dict_counts(data.params)
-
-        shapes_plot, alphas_packed, numpoints_packed = self.get_shape_distributions(data, alpha_counts, numpoints_counts, params_list)
+        shapes_plot, alphas_packed, numpoints_packed = self.get_shape_distributions(data)
 
         alphas_unique,  alphas_fracs, alphas_barwidth = alphas_packed
         numpoints_unique, numpoints_fracs, numpoints_barwidth = numpoints_packed
