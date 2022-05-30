@@ -18,7 +18,7 @@ class SamplingDocker(nn.Module):
 
         :param dockingFFT: dockingFFT initialized to match dimensions of current sampling scheme
         :param num_angles: If a single rotation slice correlation is desired, specify `num_angles=1`,
-        else `num_angles` is the number of angles to linearly space `-pi` to `+pi`
+            else `num_angles` is the number of angles to linearly space `-pi` to `+pi`
         :param debug: debugging prints and plots
         """
         super(SamplingDocker, self).__init__()
@@ -85,12 +85,12 @@ class SamplingModel(nn.Module):
 
         :param dockingFFT: dockingFFT initialized to match dimensions of current sampling scheme
         :param num_angles: If a single rotation slice correlation is desired, specify `num_angles=1`,
-        else `num_angles` is the number of angles to linearly space `-pi` to `+pi`
+            else `num_angles` is the number of angles to linearly space `-pi` to `+pi`
         :param sample_steps: number of samples per example
         :param step_size: step size to use in the LD energy gradient based method
         :param sig_alpha: sigma for rotation used in LD
         :param IP: interaction pose prediction used for either BF or BS, only difference is the `num_angles` specified.
-        If `num_angles==1` runs the BS model, and BF otherwise.
+            If `num_angles==1` runs the BS model, and BF otherwise.
         :param IP_MC: Interaction pose trained using BS for docking features, and evaluation using MC.
         :param IP_LD: Interaction pose trained using either BS or BF and evaluated using LD
         :param FI_BF: Fact of interaction trained and evaluated using BF
@@ -120,6 +120,22 @@ class SamplingModel(nn.Module):
 
     def forward(self, receptor, ligand, alpha=None, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
+        """
+        Run models and sampling for the two molecular recognition tasks, IP and FI.
+        For IP, BruteForce (BF) and BruteSimplified (BS).
+        For FI, BruteForce and MonteCarlo(MC)
+
+        :param receptor: receptor shape grid image
+        :param ligand: ligand shape grid image
+        :param alpha: rotation, default is `None`
+        :param free_energies_visited: free energies indices for `FI_MC`
+        :param sig_alpha: sigma alpha used in LD
+        :param plot_count: current plotting index
+        :param stream_name: data stream name
+        :param plotting: create plots or not
+        :param training: train if `True`, else evaluate
+        :return: depends on which model and task is being trained/evaluated
+        """
         if sig_alpha: ## for Langevin Dynamics
             self.sig_alpha = sig_alpha
             self.step_size = sig_alpha
@@ -226,7 +242,6 @@ class SamplingModel(nn.Module):
         betaE = -self.BETA * fft_score
         free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)))
 
-        noise_alpha = torch.zeros_like(alpha)
         prob_list = []
         acceptance = []
         fft_score_list = []
@@ -236,12 +251,10 @@ class SamplingModel(nn.Module):
             else:
                 plotting = False
 
-            # rand_rot = noise_alpha.normal_(0, self.sig_alpha)
-
             rand_rot = 0
             rot_step = 0.01745329251
             for i in range(1000):
-                if torch.rand(1) > 0.5:
+                if torch.rand(1) >= 0.5:
                     rand_rot += rot_step
                 else:
                     rand_rot += -rot_step
@@ -277,7 +290,6 @@ class SamplingModel(nn.Module):
                     fft_score = fft_score_new
                     fft_score_list.append(fft_score)
                     deg_index_alpha = (((alpha * 180.0 / np.pi) + 180.0) % 360).type(torch.long)
-                    # print(free_energies_visited_indices.shape)
                     free_energies_visited_indices = torch.cat((free_energies_visited_indices, deg_index_alpha.reshape(1,1)), dim=1)
                     accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
                 else:
