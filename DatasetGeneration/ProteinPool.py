@@ -30,7 +30,7 @@ class ParamDistribution:
 		"""
 		Normalize probabilities from parameter distribution.
 
-		:param param_name:
+		:param param_name: name of parameter to normalize
 		:return: alpha and number of points normalized probabilities
 		"""
 		Z = 0.0

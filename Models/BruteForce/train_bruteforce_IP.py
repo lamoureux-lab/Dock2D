@@ -6,7 +6,6 @@ from Dock2D.Utility.PlotterIP import PlotterIP
 from Dock2D.Models.model_sampling import SamplingModel
 
 if __name__ == '__main__':
-
     #################################################################################
     # Datasets
     trainset = '../../Datasets/docking_train_400pool.pkl'
@@ -15,7 +14,7 @@ if __name__ == '__main__':
     testset = '../../Datasets/docking_test_400pool.pkl'
     #########################
 
-    #### initialization torch settings
+    #### initialization of random seeds
     random_seed = 42
     np.random.seed(random_seed)
     torch.manual_seed(random_seed)

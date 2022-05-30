@@ -22,12 +22,13 @@ class TrainerFI:
         :param interaction_model: the current interaction model initialized outside the trainer
         :param interaction_optimizer: the interaction optimizer initialized outside the trainer
         :param experiment: current experiment name
-        :param training_case:
-        :param path_pretrain:
-        :param FI_MC:
-        :param debug:
-        :param plotting:
-        :param sample_buffer_length:
+        :param training_case: current training case
+        :param path_pretrain: path to pretrained model
+        :param FI_MC: set `True` to use MonteCarlo (MC) for FI task.
+        :param debug: set to True show debug verbose model
+        :param plotting: create plots or not
+        :param sample_buffer_length: number of keys in the SampleBuffer, has to be `>=` to number of training, validation,
+            or testing examples.
         """
         self.debug = debug
         self.plotting = plotting

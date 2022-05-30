@@ -16,7 +16,7 @@ if __name__ == '__main__':
     # ### testing set
     testset = '../../Datasets/interaction_test_400pool.pkl'
     #########################
-    #### initialization torch settings
+    #### initialization of random seeds
     random_seed = 42
     np.random.seed(random_seed)
     torch.manual_seed(random_seed)

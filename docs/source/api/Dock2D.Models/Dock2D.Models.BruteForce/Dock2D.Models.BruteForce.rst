@@ -1,8 +1,12 @@
 BruteForce/
 ===========
 
-BruteForce models sample the entire space of rotations and translations.
+BruteForce training of models that sample the entire space of rotations and translations.
+Functioning examples of scripts used to train the BruteForce models are below.
 
-.. automodule:: Dock2D.Models.BruteForce.train_bruteforce_IP
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
 
-.. automodule:: Dock2D.Models.BruteForce.train_bruteforce_FI
+   Dock2D.Models.BruteForce.train_bruteforce_IP.rst
+   Dock2D.Models.BruteForce.train_bruteforce_FI.rst

@@ -1,4 +1,4 @@
-from Dock2D.Models.Sampling.train_brutesimplified_docking import *
+from Dock2D.Models.Sampling.train_brutesimplified_IP import *
 
 if __name__ == '__main__':
     #################################################################################
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     norm='ortho'
     lr = 10 ** -2
     dockingFFT = TorchDockingFFT(num_angles=1, angle=None, swap_plot_quadrants=False, debug=debug, normalization=norm)
-    model = SamplingModel(dockingFFT, num_angles=1, IP_MC=True, debug=debug).to(device=0)
+    model = SamplingModel(dockingFFT, num_angles=1, IP_MC=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=lr)
 
     # ### dummy optimizer to schedule sigma of alpha
@@ -48,10 +48,10 @@ if __name__ == '__main__':
 
     ### Initialiize MC evaluation
     eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, IP_MC=True).to(device=0)
-    MonteCarloEvaluation = BruteSimplifiedDockingTrainer(dockingFFT, eval_model, optimizer, experiment,
+    MonteCarloEvaluation = TrainerIP(dockingFFT, eval_model, optimizer, experiment,
                                                          MC_eval=True, MC_eval_num_epochs=MC_eval_num_epochs,
                                                          # sigma_scheduler=sigma_scheduler,
-                                                         sigma_alpha=sigma_alpha,
+                                                         # sigma_alpha=sigma_alpha,
                                                          sample_buffer_length=sample_buffer_length,
                                                          plotting=False)
 

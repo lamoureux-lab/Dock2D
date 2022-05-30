@@ -19,7 +19,7 @@ class SamplingDocker(nn.Module):
         :param dockingFFT: dockingFFT initialized to match dimensions of current sampling scheme
         :param num_angles: If a single rotation slice correlation is desired, specify `num_angles=1`,
             else `num_angles` is the number of angles to linearly space `-pi` to `+pi`
-        :param debug: debugging prints and plots
+        :param debug:  set to True show debug verbose model and plots
         """
         super(SamplingDocker, self).__init__()
         self.num_angles = num_angles

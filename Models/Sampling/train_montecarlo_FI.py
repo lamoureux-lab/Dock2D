@@ -15,7 +15,7 @@ if __name__ == '__main__':
     ### testing set
     testset = '../../Datasets/interaction_test_400pool.pkl'
     #########################
-    #### initialization random settings
+    #### initialization of random seeds (here randomstate is specifically used for MonteCarlo FI)
     random_seed = 42
     randomstate = np.random.RandomState(random_seed)
     np.random.seed(random_seed)

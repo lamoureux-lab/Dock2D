@@ -14,21 +14,21 @@ from Dock2D.Utility.SampleBuffer import SampleBuffer
 class TrainerIP:
     def __init__(self, dockingFFT, cur_model, cur_optimizer, cur_experiment, BF_eval=False, MC_eval=False,
                  MC_eval_num_epochs=10, debug=False, plotting=False,
-                 sigma_alpha=3.0, sample_buffer_length=1000):
+                 sample_buffer_length=1000):
         """
         Initialize trainer for IP task models, paths, and class instances.
 
-        :param dockingFFT:
+        :param dockingFFT: dockingFFT initialized to match dimensions of current sampling scheme
         :param cur_model: the current docking model initialized outside the trainer
         :param cur_optimizer: the optimizer initialized outside the trainer
         :param cur_experiment: current experiment name
-        :param BF_eval:
-        :param MC_eval:
-        :param MC_eval_num_epochs:
+        :param BF_eval: BruteForce evalution of trained model
+        :param MC_eval: MonteCarlo evalutaion of trained model
+        :param MC_eval_num_epochs: number of epochs used in MonteCarlo evaluation
         :param debug: set to `True` to check model parameter gradients
         :param plotting: create plots or not
-        :param sigma_alpha:
-        :param sample_buffer_length:
+        :param sample_buffer_length: number of keys in the SampleBuffer, has to be `>=` to number of training, validation,\
+            or testing examples.
         """
 
         self.debug = debug
@@ -59,7 +59,6 @@ class TrainerIP:
         self.MC_eval_num_epochs = MC_eval_num_epochs
         if self.MC_eval:
             self.eval_epochs = self.MC_eval_num_epochs
-            self.sigma_alpha = sigma_alpha
 
         self.UtilityFunctions = UtilityFunctions()
 
@@ -109,7 +108,6 @@ class TrainerIP:
                     self.resume_training_or_not(resume_training, resume_epoch)
                     for i in range(self.eval_epochs):
                         print('Monte Carlo eval epoch', i)
-                        print('current sigma_alpha', self.sigma_alpha)
                         rmsd_validlog = self.logfile_savepath + 'log_RMSDsVALIDset_epoch' + str(
                             epoch - 1) + self.experiment + '.txt'
                         rmsd_testlog = self.logfile_savepath + 'log_RMSDsTESTset_epoch' + str(
@@ -204,7 +202,7 @@ class TrainerIP:
 
                 free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score, acceptance_rate = \
                                 self.model(alpha, receptor, ligand,
-                                free_energies_visited=free_energies_visited_indices, sig_alpha=self.sigma_alpha,
+                                free_energies_visited=free_energies_visited_indices,
                                 plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=False)
                 self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)
                 self.alpha_buffer.push_alpha(pred_rot, pos_idx)
