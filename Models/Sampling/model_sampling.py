@@ -51,8 +51,10 @@ class SamplingDocker(nn.Module):
 
 
 class SamplingModel(nn.Module):
-    def __init__(self, dockingFFT, num_angles=1, step_size=10, sample_steps=10, sig_alpha=2, IP=False, IP_MC=False, IP_LD=False,
-                 FI=False, experiment=None):
+    def __init__(self, dockingFFT, num_angles=1, step_size=10, sample_steps=10, sig_alpha=2,
+                 IP=False, IP_MC=False, IP_LD=False,
+                 FI_BF=False, FI_MC=False,
+                 experiment=None):
         super(SamplingModel, self).__init__()
         self.num_angles = num_angles
 
@@ -71,7 +73,8 @@ class SamplingModel(nn.Module):
         self.IP_MC = IP_MC
         self.IP_LD = IP_LD
 
-        self.FI = FI
+        self.FI_BF = FI_BF
+        self.FI_MC = FI_MC
 
     def forward(self, receptor, ligand, alpha=None, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
@@ -81,14 +84,14 @@ class SamplingModel(nn.Module):
 
         if self.IP:
             if training:
-                ## BS model train giving the ground truth rotation
+                ## both BS/BF model train
                 lowest_energy, _, dr, fft_score = self.docker(receptor, ligand, alpha,
                                                               plot_count=plot_count, stream_name=stream_name,
                                                               plotting=plotting)
 
                 return lowest_energy, alpha.unsqueeze(0).clone(), dr.clone(), fft_score
             else:
-                ## BS model brute force eval
+                ## brute force eval
                 self.docker.eval()
                 lowest_energy, alpha, dr, fft_score = self.docker(receptor, ligand, plot_count,
                                                                   stream_name, plotting=plotting)
@@ -121,7 +124,22 @@ class SamplingModel(nn.Module):
                 self.docker.eval()
                 return self.langevin_dynamics(alpha, receptor, ligand, plot_count, stream_name)
 
-        if self.FI:
+        if self.FI_BF:
+            if training:
+                _, _, _, fft_score = self.docker(receptor, ligand, alpha,
+                                                              plot_count=plot_count, stream_name=stream_name,
+                                                              plotting=plotting)
+
+                return fft_score
+            else:
+                ## brute force eval
+                self.docker.eval()
+                _, _, _, fft_score = self.docker(receptor, ligand, plot_count,
+                                                                  stream_name, plotting=plotting)
+
+                return fft_score
+
+        if self.FI_MC:
             if training:
                 ## MC sampling for Fact of Interaction training
                 return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
@@ -136,6 +154,7 @@ class SamplingModel(nn.Module):
                 ### evaluate with Monte Carlo?
                 # self.docker.eval()
                 # return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, debug=False)
+
 
     def MCsampling(self, alpha, receptor, ligand, plot_count, stream_name, free_energies_visited_indices=None):
 
@@ -216,7 +235,7 @@ class SamplingModel(nn.Module):
 
         acceptance_rate = sum(acceptance) / self.sample_steps
 
-        if self.FI or self.IP_MC:
+        if self.FI_MC or self.IP_MC:
             fft_score_stack = torch.stack(fft_score_list)
         else:
             fft_score_stack = fft_score
