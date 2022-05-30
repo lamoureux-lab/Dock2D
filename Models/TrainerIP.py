@@ -76,7 +76,6 @@ class TrainerIP:
         :param resume_training: resume training from a loaded model state or train fresh model
         :param resume_epoch: epoch to load model and resume training
         """
-
         if self.plotting:
             self.eval_freq = 1
 
@@ -172,7 +171,7 @@ class TrainerIP:
         :param training: set to `True` for training, `False` for evalutation.
         :param stream_name: data stream name
         :param epoch: epoch count used in plotting
-        :return:
+        :return: `loss` and `rmsd`
         """
 
         receptor, ligand, gt_rot, gt_txy = data

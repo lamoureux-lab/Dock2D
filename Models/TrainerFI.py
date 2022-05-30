@@ -15,7 +15,20 @@ class TrainerFI:
     def __init__(self, docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
                  training_case='scratch', path_pretrain=None, FI_MC=False,
                  debug=False, plotting=False, sample_buffer_length=1000):
+        """
 
+        :param docking_model: the current docking model initialized outside the trainer
+        :param docking_optimizer: the docking optimizer initialized outside the trainer
+        :param interaction_model: the current interaction model initialized outside the trainer
+        :param interaction_optimizer: the interaction optimizer initialized outside the trainer
+        :param experiment:
+        :param training_case:
+        :param path_pretrain:
+        :param FI_MC:
+        :param debug:
+        :param plotting:
+        :param sample_buffer_length:
+        """
         self.debug = debug
         self.plotting = plotting
         self.plot_freq = 500
@@ -59,6 +72,16 @@ class TrainerFI:
 
     def train_model(self, train_epochs, train_stream, valid_stream, test_stream, resume_training=False,
                     resume_epoch=0):
+        """
+        Train model for specified number of epochs and data streams.
+
+        :param train_epochs:  number of epoch to train
+        :param train_stream: training set data stream
+        :param valid_stream: valid set data stream
+        :param test_stream: test set data stream
+        :param resume_training: resume training from a loaded model state or train fresh model
+        :param resume_epoch: epoch to load model and resume training
+        """
         if self.plotting:
             self.eval_freq = 1
 
@@ -125,6 +148,13 @@ class TrainerFI:
                     self.checkAPR(epoch, test_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
 
     def run_epoch(self, data_stream, epoch, training=False):
+        """
+         Run the model for an epoch.
+
+         :param data_stream: input data stream
+         :param epoch: current epoch number
+         :param training: set to `True` for training, `False` for evalutation.
+         """
         stream_loss = []
         pos_idx = torch.tensor([0])
         deltaF_logfile = self.logfile_savepath + self.logtraindF_prefix + str(epoch) + self.experiment + '.txt'
@@ -144,7 +174,16 @@ class TrainerFI:
             fout.write(self.loss_log_format % (epoch, avg_loss[0]))
 
     def run_model(self, data, pos_idx, training=True, stream_name='trainset', epoch=0):
+        """
+        Run a model iteration on the current example.
 
+        :param data: training example
+        :param pos_idx: current example position index
+        :param training: set to `True` for training, `False` for evalutation.
+        :param stream_name: data stream name
+        :param epoch: epoch count used in plotting
+        :return: `loss`, `F`, `F_0`, `gt_interact` and under evalutation, `TP`, `FP`, `TN`, `FN`, plus previously listed values.
+        """
         receptor, ligand, gt_interact = data
 
         receptor = receptor.to(device='cuda', dtype=torch.float)
@@ -226,6 +265,13 @@ class TrainerFI:
 
     @staticmethod
     def classify(pred_interact, gt_interact):
+        """
+        Confusion matrix values.
+
+        :param pred_interact: predicted interaction
+        :param gt_interact: ground truth interaction
+        :return: confusion matrix values `TP`, `FP`, `TN`, `FN`,
+        """
         threshold = 0.5
         TP, FP, TN, FN = 0, 0, 0, 0
         p = pred_interact.item()
@@ -241,6 +287,15 @@ class TrainerFI:
         return TP, FP, TN, FN
 
     def checkAPR(self, check_epoch, datastream, stream_name=None, deltaF_logfile=None, experiment=None):
+        """
+        Check accuracy, precision, recall, F1score and MCC
+
+        :param check_epoch: epoch to evaluate
+        :param datastream: data stream
+        :param stream_name: data stream name
+        :param deltaF_logfile: free energy log file name for evaluation set
+        :param experiment: experiment name
+        """
         log_APRheader = 'Accuracy\tPrecision\tRecall\tF1score\tMCC\n'
         log_APRformat = '%f\t%f\t%f\t%f\t%f\n'
         print('Evaluating ', stream_name)
@@ -252,14 +307,21 @@ class TrainerFI:
         fout.close()
 
     def resume_training_or_not(self, resume_training, resume_epoch):
+        """
+        Resume training the model at specified epoch or not.
+
+        :param resume_training: set to `True` to resume training, `False` to start fresh training.
+        :param resume_epoch: epoch number to resume from
+        :return: starting epoch number, 1 if `resume_training is True`, `resume_epoch+1` otherwise.
+        """
         if resume_training:
             print('Loading docking model at', str(resume_epoch))
             ckp_path = self.model_savepath+'docking_' + self.experiment + str(resume_epoch) + '.th'
             self.docking_model, self.docking_optimizer, _ = self.load_checkpoint(ckp_path, self.docking_model, self.docking_optimizer)
             print('Loading interaction model at', str(resume_epoch))
             ckp_path = self.model_savepath + self.experiment + str(resume_epoch) + '.th'
-            self.interaction_model, self.interaction_optimizer, start_epoch, self.alpha_buffer, self.free_energy_buffer = self.load_checkpoint(
-                                                    ckp_path, self.interaction_model, self.interaction_optimizer, FI=True)
+            self.interaction_model, self.interaction_optimizer, start_epoch, self.alpha_buffer, self.free_energy_buffer=self.load_checkpoint(
+                                                    ckp_path, self.interaction_model, self.interaction_optimizer, FI_MC=self.FI_MC)
 
             start_epoch += 1
 
@@ -282,21 +344,45 @@ class TrainerFI:
 
     @staticmethod
     def save_checkpoint(state, filename, model):
+        """
+        Save current state of the model to a checkpoint dictionary.
+
+        :param state: checkpoint state dictionary
+        :param filename: name of saved file
+        :param model: model to save, either docking or interaction models
+        """
         model.eval()
         torch.save(state, filename)
 
     @staticmethod
-    def load_checkpoint(checkpoint_fpath, model, optimizer, FI=False):
+    def load_checkpoint(checkpoint_fpath, model, optimizer, FI_MC=False):
+        """
+        Load saved checkpoint state dictionary.
+
+
+        :param checkpoint_fpath: path to saved model
+        :param model:  model to load, either docking or interaction models
+        :param optimizer: model optimizer
+        :param FI_MC: return addtionally saved values from state dict
+        :return: `model`, `optimizer`, `checkpoint['epoch']`, and if `FI_MC==True`, additionally return `checkpoint['alpha_buffer']`, `checkpoint['free_energy_buffer']`
+        """
         model.eval()
         checkpoint = torch.load(checkpoint_fpath)
         model.load_state_dict(checkpoint['state_dict'], strict=True)
         optimizer.load_state_dict(checkpoint['optimizer'])
-        if FI:
+        if FI_MC:
             return model, optimizer, checkpoint['epoch'],  checkpoint['alpha_buffer'], checkpoint['free_energy_buffer']
         else:
             return model, optimizer, checkpoint['epoch']
 
     def freeze_weights(self):
+        """
+        Freeze model weights depending on the experiment training case.
+        These range from A) frozen pretrained docking model,
+        B) unfrozen pretrained docking model,
+        C) unfrozen pretrained docking model scoring coefficients, but frozen conv net,
+        D) train the docking model from scratch.
+        """
         if not self.param_to_freeze:
             print('\nAll docking model params unfrozen\n')
             return
@@ -312,6 +398,13 @@ class TrainerFI:
                 param.requires_grad = True
 
     def set_docking_model_state(self):
+        """
+        Initialize the docking model training case.
+        A) frozen pretrained docking model,
+        B) unfrozen pretrained docking model,
+        C) unfrozen pretrained docking model scoring coefficients, but frozen conv net,
+        D) train the docking model from scratch.
+        """
         # CaseA: train with docking model frozen
         if self.training_case == 'A':
             print('Training expA')
@@ -339,5 +432,15 @@ class TrainerFI:
             # self.experiment = self.training_case + '_' + self.experiment
 
     def run_trainer(self, train_epochs, train_stream=None, valid_stream=None, test_stream=None, resume_training=False, resume_epoch=0):
+        """
+        Helper function to run trainer.
+
+        :param train_epochs:  number of epoch to train
+        :param train_stream: training set data stream
+        :param valid_stream: valid set data stream
+        :param test_stream: test set data stream
+        :param resume_training: resume training from a loaded model state or train fresh model
+        :param resume_epoch: epoch to load model and resume training
+        """
         self.train_model(train_epochs, train_stream, valid_stream, test_stream,
                          resume_training=resume_training, resume_epoch=resume_epoch)
