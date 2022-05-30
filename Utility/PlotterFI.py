@@ -21,7 +21,7 @@ class PlotterFI:
 
     def plot_loss(self, show=False, save=True):
         """
-        Plot the current fact-of-interaction (FI_MC) experiments loss curve.
+        Plot the current fact-of-interaction (FI) experiments loss curve.
         The plot will plot all epochs present in the log file.
 
         :param show: show the plot in a window

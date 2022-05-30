@@ -94,7 +94,7 @@ class APR:
         based on confusion matrix values during fact-of-interaction model evaluation.
 
         :param data_stream: data stream
-        :param run_model: run_model() passed from FI_MC model
+        :param run_model: run_model() passed from FI model
         :param epoch: current evaluation epoch
         :param deltaF_logfile: free energies per example and F_0 logfile
         :param experiment: current experiment name
