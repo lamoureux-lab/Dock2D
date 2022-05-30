@@ -60,17 +60,16 @@ if __name__ == '__main__':
     dockingFFT = TorchDockingFFT(num_angles=num_angles, angle=None)
     docking_model = SamplingModel(dockingFFT, num_angles=num_angles, sample_steps=sample_steps, FI_MC=True).to(device=0)
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
+    Trainer = TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
+              training_case, path_pretrain, sample_buffer_length=sample_buffer_length,
+              FI_MC=True)
     ######################
     ### Train model from beginning
-    TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
-              training_case, path_pretrain, sample_buffer_length=sample_buffer_length,
-              FI_MC=True
-              ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
-    # EnergyBasedInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, sigma_alpha=sigma_alpha, debug=debug
-    #                              ).run_trainer(resume_training=True, resume_epoch=15, train_epochs=5,
-    #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(resume_training=True, resume_epoch=5, train_epochs=15,
+                                               train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
     eval_model = SamplingModel(dockingFFT, num_angles=360, FI_MC=True).to(device=0)

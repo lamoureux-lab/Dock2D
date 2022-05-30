@@ -60,21 +60,20 @@ if __name__ == '__main__':
     dockingFFT = TorchDockingFFT(num_angles=num_angles, angle=None)
     docking_model = SamplingModel(dockingFFT, num_angles=num_angles, sample_steps=sample_steps, FI_BF=True).to(device=0)
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
+    Trainer = TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
+              training_case, path_pretrain,
+              FI_MC=False)
     ######################
     ### Train model from beginning
-    TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain,
-              FI_MC=False
-             ).run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
-    # ## Resume training model at chosen epoch
-    # BruteForceInteractionTrainer(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
-    #                              ).run_trainer(resume_training=True, resume_epoch=60, train_epochs=40, train_stream=train_stream, valid_stream=None, test_stream=None)
+    ## Resume training model at chosen epoch
+    Trainer.run_trainer(resume_training=True, resume_epoch=14, train_epochs=6, train_stream=train_stream, valid_stream=None, test_stream=None)
     # #
 
     ### Validate model at chosen epoch
-    # TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, training_case, path_pretrain
-    #                              ).run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #                                            resume_training=True, resume_epoch=train_epochs)
+    Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+                        resume_training=True, resume_epoch=train_epochs)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss(show=True)
