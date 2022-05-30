@@ -28,3 +28,11 @@ The interaction module computes a probability of interaction based on free energ
 .. autoclass:: Dock2D.Models.model_interaction.Interaction
    :special-members: __init__, forward
    :undoc-members:
+
+.. autoclass:: Dock2D.Models.model_sampling.SamplingDocker
+   :special-members: __init__, forward
+   :undoc-members:
+
+.. autoclass:: Dock2D.Models.model_sampling.SamplingModel
+   :special-members: __init__, forward
+   :undoc-members:

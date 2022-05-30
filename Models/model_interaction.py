@@ -6,7 +6,7 @@ class Interaction(nn.Module):
     def __init__(self):
         """
         Initialize parameters for Interaction module and free energy integral calculation.
-        The learned parameter for free energy decision threshold, `F_0`, is initialized here.
+        The learned parameter for free energy decision threshold, :math:`F_0`, is initialized here.
         For the free energy integral, the volume used in the denominator is also initialized here.
         """
         super(Interaction, self).__init__()

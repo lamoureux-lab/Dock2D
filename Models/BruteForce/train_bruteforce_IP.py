@@ -3,7 +3,7 @@ import random
 from Dock2D.Utility.TorchDataLoader import get_docking_stream
 from torch import optim
 from Dock2D.Utility.PlotterIP import PlotterIP
-from Dock2D.Models.Sampling.model_sampling import SamplingModel
+from Dock2D.Models.model_sampling import SamplingModel
 
 if __name__ == '__main__':
 

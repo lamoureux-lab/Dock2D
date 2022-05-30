@@ -4,7 +4,7 @@ from Dock2D.Utility.TorchDataLoader import get_interaction_stream
 from torch import optim
 from Dock2D.Utility.PlotterFI import PlotterFI
 from Dock2D.Models.model_interaction import Interaction
-from Dock2D.Models.Sampling.model_sampling import SamplingModel
+from Dock2D.Models.model_sampling import SamplingModel
 from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 
 
