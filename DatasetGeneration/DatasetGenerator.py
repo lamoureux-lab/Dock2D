@@ -299,8 +299,8 @@ class DatasetGenerator:
 
     def run_generator(self):
         r"""
-        Generates the training, validation, and testing sets for both docking (IP) and interaction (FI) from current protein pool.
-        Write all datasets to .pkl files. Saves all metrics to file. Prints IP and FI dataset stats.
+        Generates the training, validation, and testing sets for both docking (IP) and interaction (FI_MC) from current protein pool.
+        Write all datasets to .pkl files. Saves all metrics to file. Prints IP and FI_MC dataset stats.
         If ``self.plotting=True`` plot and save dataset generation plots.
         Specify ``self.show=True`` to show each plot in a new window (does not affect saving).
 

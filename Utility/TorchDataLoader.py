@@ -140,7 +140,7 @@ def get_interaction_stream(data_path, shuffle=False, number_of_pairs=None, rando
 
 def check_datastream_shuffle(data_stream, rand_index=42):
 	"""
-	Check that interaction stream is shuffled at stream level (for Monte Carlo FI)
+	Check that interaction stream is shuffled at stream level (for Monte Carlo FI_MC)
 	and not at epoch level (each epoch needs to be the same for use with sample buffer).
 	Using np.random.RandomState(), the shuffled example ordering can be preserved for resumable training.
 
