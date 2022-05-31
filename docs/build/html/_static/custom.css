@@ -12,6 +12,14 @@
     background: #f5d3d3;
 }
 
+.wy-side-nav-search .wy-dropdown > a img.logo, .wy-side-nav-search > a img.logo {
+    width: 100px;
+}
+
+.wy-side-nav-content .wy-dropdown > a img.logo, .wy-side-nav-content > a img.logo {
+    width: 100px;
+}
+
 /*.wy-nav-wrap {
     background: #f50505;
 }/*

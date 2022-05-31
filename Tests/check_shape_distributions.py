@@ -146,7 +146,7 @@ class ShapeDistributions:
                     indices.append(j)
 
         if len(found_list) < len(combination_list):
-            print('ERROR: Dataset is incomplete from missing combination(s) of "alpha" and "number of points" in protein pool')
+            print('\nERROR: Dataset is incomplete from missing combination(s) of "alpha" and "number of points" in protein pool')
             print('\tTry increasing dataset size probability parameters to increase shape combination encounter frequencies')
             indices = self.check_missing_examples(combination_list, found_list, protein_shapes, params_list)
 
