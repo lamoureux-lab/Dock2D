@@ -73,7 +73,7 @@ if __name__ == '__main__':
                                                train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
-    eval_model = SamplingModel(dockingFFT, num_angles=360, FI_MC=True).to(device=0)
+    eval_model = SamplingModel(dockingFFT, padded_dim=padded_dim, num_angles=360, FI_MC=True).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI_MC=True, debug=debug).to(device=0) ## eval with monte carlo
     TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
                                   ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
