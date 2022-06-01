@@ -7,7 +7,7 @@ import alphashape
 import shapely.geometry as geom
 
 
-def get_random_points(num_points, xspan, yspan):
+def get_random_points(num_points, xspan, yspan, debug=False):
 	"""
 	Generate radially distributed random point coordinates.
 
@@ -23,6 +23,14 @@ def get_random_points(num_points, xspan, yspan):
 	center_y = (yspan[1] + yspan[0])/2.0
 	points = [[x,y] for x,y in points if np.sqrt(((x-center_x)/radius_x) ** 2 + ((y-center_y)/radius_y) ** 2) < 1.0]
 	points = np.array(points)
+
+	if debug:
+		unzipped_points = list(zip(*points))
+		plt.suptitle('Number of points distributed')
+		plt.title('Input='+str(num_points)+', Output='+str(len(points)))
+		plt.scatter(unzipped_points[0], unzipped_points[1])
+		plt.show()
+
 	return points
 
 
@@ -62,7 +70,7 @@ class Protein:
 		self.hull = hull
 
 	@classmethod
-	def generateConcave(cls, size=50, alpha=1.0, num_points=25, occupancy=0.8):
+	def generateConcave(cls, size=50, alpha=1.0, num_points=25, occupancy=0.8, debug=False):
 		"""
 		Generate concave hull coordinates and convert to grid based shape
 		filled with 1 inside the shape, 0 otherwise.
@@ -75,8 +83,28 @@ class Protein:
 		"""
 		grid_coordinate_span = (0, size)
 		points_coordinate_span = (0.5*(1.0-occupancy)*size, size - 0.5*(1.0-occupancy)*size)
-		points = get_random_points(num_points, points_coordinate_span, points_coordinate_span)
+		points = get_random_points(num_points, points_coordinate_span, points_coordinate_span, debug)
 		optimal = alpha * alphashape.optimizealpha(points, silent=False)
 		hull = alphashape.alphashape(points, optimal)
 		bulk = hull2array(hull, np.zeros((size, size)), grid_coordinate_span, grid_coordinate_span)
 		return cls(bulk, hull=hull)
+
+
+if __name__ == "__main__":
+	import matplotlib.pyplot as plt
+	prot = Protein.generateConcave(alpha=0.8, num_points=100, debug=True)
+
+	def plot_coords(ax, poly, plot_alpha=0.25):
+		x, y = poly.exterior.xy
+		ax.fill(x, y, alpha=plot_alpha)
+
+	fig, ax = plt.subplots()
+	plot_coords(ax, prot.hull)
+	plt.title('Hull generated')
+	plt.show()
+
+	plt.close()
+	plt.imshow(prot.bulk.transpose())
+	plt.title('Hull to array bulk')
+	plt.gca().invert_yaxis()
+	plt.show()
