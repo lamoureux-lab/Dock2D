@@ -59,7 +59,7 @@ if __name__ == '__main__':
     padded_dim = 100
     num_angles = 1
     dockingFFT = TorchDockingFFT(padded_dim=100, num_angles=num_angles)
-    docking_model = SamplingModel(dockingFFT, num_angles=num_angles, sample_steps=sample_steps, FI_MC=True).to(device=0)
+    docking_model = SamplingModel(dockingFFT, padded_dim=padded_dim, num_angles=num_angles, sample_steps=sample_steps, FI_MC=True).to(device=0)
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     Trainer = TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
               training_case, path_pretrain, sample_buffer_length=sample_buffer_length,

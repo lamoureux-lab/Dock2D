@@ -39,7 +39,7 @@ if __name__ == '__main__':
     padded_dim = 100
     num_angles = 360
     BFdockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
-    model = SamplingModel(BFdockingFFT, num_angles=num_angles, IP=True).to(device=0)
+    model = SamplingModel(BFdockingFFT, padded_dim=padded_dim, num_angles=num_angles, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True)
     ######################
