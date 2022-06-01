@@ -11,7 +11,7 @@ import numpy as np
 
 
 class TorchDockingFFT:
-    def __init__(self, padded_dim=100, num_angles=360, angle=None, swap_plot_quadrants=False, normalization='ortho', debug=False):
+    def __init__(self, padded_dim, num_angles, swap_plot_quadrants=False, normalization='ortho', debug=False):
         """
         Initialize docking FFT based on desired usage.
 
@@ -26,10 +26,7 @@ class TorchDockingFFT:
         self.swap_plot_quadrants = swap_plot_quadrants ## used only to make plotting look nice
         self.padded_dim = padded_dim
         self.num_angles = num_angles
-        self.angle = angle
-        if self.num_angles == 1 and angle:
-            self.angles = angle.squeeze().unsqueeze(0).cuda()
-        else:
+        if self.num_angles > 1:
             self.angles = torch.from_numpy(np.linspace(-np.pi, np.pi, num=self.num_angles)).cuda()
 
         self.norm = normalization
@@ -105,7 +102,7 @@ class TorchDockingFFT:
 
         return feat_stack.squeeze()
 
-    def dock_global(self, receptor_feats, ligand_feats, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
+    def dock_global(self, receptor_feats, ligand_feats, angle, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
         """
         Compute FFT scores of shape features in the space of rotationally and translationally sampled ligand features.
         Rotationally sample the the ligand feature using specified number of angles, and repeat the receptor features to match in size.
@@ -122,6 +119,11 @@ class TorchDockingFFT:
         initbox_size = receptor_feats.shape[-1]
         pad_size = initbox_size // 2
 
+        if self.num_angles == 1 and angle:
+            self.angles = angle.squeeze().unsqueeze(0).cuda()
+        else:
+            self.angles = torch.from_numpy(np.linspace(-np.pi, np.pi, num=self.num_angles)).cuda()
+
         rec_feat_repeated = receptor_feats.unsqueeze(0).repeat(self.num_angles, 1, 1, 1)
         lig_feat_repeated = ligand_feats.unsqueeze(0).repeat(self.num_angles, 1, 1, 1)
         lig_feat_rot_sampled = self.UtilityFunctions.rotate(lig_feat_repeated, self.angles)
@@ -137,7 +139,7 @@ class TorchDockingFFT:
             with torch.no_grad():
                 step = 30
                 for i in range(lig_feat_rot_sampled.shape[0]):
-                    print(self.angle)
+                    print(angle)
                     if i % step == 0:
                         plt.title('Torch '+str(i)+' degree rotation')
                         plt.imshow(lig_feat_rot_sampled[i,0,:,:].detach().cpu())

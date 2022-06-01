@@ -203,7 +203,6 @@ class TrainerFI:
         ##### push/pull samples of alpha and free energies to sample buffer
         plot_count = int(pos_idx)
         if self.FI_MC:
-            print('FI_MC')
             alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
             free_energies_visited_indices = self.free_energy_buffer.get_free_energies_indices(pos_idx)
 

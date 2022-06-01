@@ -14,7 +14,6 @@ if __name__ == '__main__':
     ### testing set
     testset = '../../Datasets/docking_test_400pool.pkl'
     #########################
-
     #### initialization of random seeds
     random_seed = 42
     np.random.seed(random_seed)
@@ -31,7 +30,6 @@ if __name__ == '__main__':
     test_stream = get_docking_stream(testset, max_size=max_size)
     ######################
     experiment = 'BF_check_code_consolidated_10ep'
-
     ######################
     train_epochs = 10
     learning_rate = 10 ** -4
@@ -39,7 +37,7 @@ if __name__ == '__main__':
     padded_dim = 100
     num_angles = 360
     BFdockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
-    model = SamplingModel(BFdockingFFT, padded_dim=padded_dim, num_angles=num_angles, IP=True).to(device=0)
+    model = SamplingModel(BFdockingFFT, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True)
     ######################

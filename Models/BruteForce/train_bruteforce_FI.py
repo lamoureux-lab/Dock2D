@@ -59,18 +59,17 @@ if __name__ == '__main__':
     padded_dim = 100
     num_angles = 360
     dockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
-    docking_model = SamplingModel(dockingFFT, padded_dim=padded_dim, num_angles=num_angles, sample_steps=sample_steps, FI_BF=True).to(device=0)
+    docking_model = SamplingModel(dockingFFT, sample_steps=sample_steps, FI_BF=True).to(device=0)
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     Trainer = TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
               training_case, path_pretrain,
               FI_MC=False)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
-    Trainer.run_trainer(resume_training=True, resume_epoch=14, train_epochs=6, train_stream=train_stream, valid_stream=None, test_stream=None)
-    # #
+    # Trainer.run_trainer(resume_training=True, resume_epoch=14, train_epochs=6, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Validate model at chosen epoch
     Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,

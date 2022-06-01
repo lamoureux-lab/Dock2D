@@ -9,7 +9,7 @@ from e2cnn import gspaces
 
 class Docking(nn.Module):
 
-    def __init__(self, padded_dim, num_angles, plot_freq=10, debug=False):
+    def __init__(self, dockingFFT, plot_freq=10, debug=False):
         """
         Initialize parameters for Docking module and TorchDockingFFT used in the forward pass
         to generate shape features and scoring coefficients for the scoring function.
@@ -22,12 +22,12 @@ class Docking(nn.Module):
         super(Docking, self).__init__()
         self.debug = debug
         self.plot_freq = plot_freq
-        self.padded_dim = padded_dim
-        self.num_angles = num_angles
         self.boundW = nn.Parameter(torch.ones(1, requires_grad=True))
         self.crosstermW1 = nn.Parameter(torch.ones(1, requires_grad=True))
         self.crosstermW2 = nn.Parameter(torch.ones(1, requires_grad=True))
         self.bulkW = nn.Parameter(torch.ones(1, requires_grad=True))
+
+        self.dockingFFT = dockingFFT
 
         self.scal = 1
         self.vec = 4
@@ -75,9 +75,10 @@ class Docking(nn.Module):
         rec_feat = self.netSE2(receptor_geomT).tensor.squeeze()
         lig_feat = self.netSE2(ligand_geomT).tensor.squeeze()
 
-        fft_score = TorchDockingFFT(padded_dim=self.padded_dim, num_angles=self.num_angles, angle=angle, debug=self.debug).dock_global(
+        fft_score = self.dockingFFT.dock_global(
             rec_feat,
             lig_feat,
+            angle,
             weight_bound=self.boundW,
             weight_crossterm1=self.crosstermW1,
             weight_crossterm2=self.crosstermW2,
@@ -96,5 +97,3 @@ class Docking(nn.Module):
 
 if __name__ == '__main__':
     print('works')
-    print(Docking())
-    print(list(Docking().parameters()))

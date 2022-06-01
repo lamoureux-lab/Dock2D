@@ -58,22 +58,24 @@ if __name__ == '__main__':
 
     padded_dim = 100
     num_angles = 1
-    dockingFFT = TorchDockingFFT(padded_dim=100, num_angles=num_angles)
-    docking_model = SamplingModel(dockingFFT, padded_dim=padded_dim, num_angles=num_angles, sample_steps=sample_steps, FI_MC=True).to(device=0)
+    dockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
+    docking_model = SamplingModel(dockingFFT,  sample_steps=sample_steps, FI_MC=True).to(device=0)
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     Trainer = TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
               training_case, path_pretrain, sample_buffer_length=sample_buffer_length,
               FI_MC=True)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
-    Trainer.run_trainer(resume_training=True, resume_epoch=5, train_epochs=15,
-                                               train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(resume_training=True, resume_epoch=5, train_epochs=15,
+    #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
-    eval_model = SamplingModel(dockingFFT, padded_dim=padded_dim, num_angles=360, FI_MC=True).to(device=0)
+    eval_angles = 360
+    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
+    eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
     # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI_MC=True, debug=debug).to(device=0) ## eval with monte carlo
     TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
                                   ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,

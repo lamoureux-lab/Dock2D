@@ -31,7 +31,6 @@ if __name__ == '__main__':
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
     experiment = 'BS_check_code_consolidated_10ep'
-
     ######################
     train_epochs = 10
     lr = 10 ** -2
@@ -41,12 +40,12 @@ if __name__ == '__main__':
     padded_dim = 100
     num_angles = 1
     sampledFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
-    model = SamplingModel(sampledFFT, padded_dim=padded_dim, num_angles=num_angles, IP=True).to(device=0)
+    model = SamplingModel(sampledFFT, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(
@@ -62,8 +61,9 @@ if __name__ == '__main__':
     start = train_epochs-1
     stop = train_epochs
     eval_angles = 360
-    eval_model = SamplingModel(sampledFFT, padded_dim=padded_dim, num_angles=eval_angles, IP=True).to(device=0)
-    EvalTrainer = TrainerIP(sampledFFT, eval_model, optimizer, experiment,
+    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
+    eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
+    EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
                             BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
     for epoch in range(start, stop):
         if stop-1 == epoch:
