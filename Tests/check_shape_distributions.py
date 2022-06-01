@@ -53,7 +53,6 @@ class ShapeDistributions:
         :return: `unique`, `counts`
         """
         counter = Counter(counts)
-        print('counter', counter)
         unique = np.array(list(counter.keys()))
         inds = unique.argsort()
         counts = np.array(list(counter.values()))[inds]
