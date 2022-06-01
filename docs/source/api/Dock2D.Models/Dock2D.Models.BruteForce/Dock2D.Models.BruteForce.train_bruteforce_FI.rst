@@ -38,10 +38,10 @@ Functioning example of the script used to train the BruteForce Fact-of-Interacti
         ## number_of_pairs provides max_size of interactions: max_size = (number_of_pairs**2 + number_of_pairs)/2
         number_of_pairs = 100
         train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs)
-        valid_stream = get_interaction_stream(validset, number_of_pairs=100)
-        test_stream = get_interaction_stream(testset, number_of_pairs=100)
+        valid_stream = get_interaction_stream(validset, number_of_pairs=number_of_pairs)
+        test_stream = get_interaction_stream(testset, number_of_pairs=number_of_pairs)
         ######################
-        experiment = 'BF_FI_check_consolodated'
+        experiment = 'BF_FI_check_consolidated'
         ##################### Load and freeze/unfreeze params (training, no eval)
         ### path to pretrained docking model
         # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -65,20 +65,20 @@ Functioning example of the script used to train the BruteForce Fact-of-Interacti
         interaction_model = Interaction().to(device=0)
         interaction_optimizer = optim.Adam(interaction_model.parameters(), lr=lr_interaction)
 
+        padded_dim = 100
         num_angles = 360
-        dockingFFT = TorchDockingFFT(num_angles=num_angles, angle=None)
-        docking_model = SamplingModel(dockingFFT, num_angles=num_angles, sample_steps=sample_steps, FI_BF=True).to(device=0)
+        dockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
+        docking_model = SamplingModel(dockingFFT, sample_steps=sample_steps, FI_BF=True).to(device=0)
         docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
         Trainer = TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
                   training_case, path_pretrain,
                   FI_MC=False)
         ######################
         ### Train model from beginning
-        # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+        Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
         ## Resume training model at chosen epoch
-        Trainer.run_trainer(resume_training=True, resume_epoch=14, train_epochs=6, train_stream=train_stream, valid_stream=None, test_stream=None)
-        # #
+        # Trainer.run_trainer(resume_training=True, resume_epoch=14, train_epochs=6, train_stream=train_stream, valid_stream=None, test_stream=None)
 
         ### Validate model at chosen epoch
         Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,

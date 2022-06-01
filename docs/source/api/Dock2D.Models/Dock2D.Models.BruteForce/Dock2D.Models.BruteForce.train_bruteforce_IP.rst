@@ -13,6 +13,7 @@ Functioning example of the script used to train the BruteForce Interaction Pose 
     from torch import optim
     from Dock2D.Utility.PlotterIP import PlotterIP
     from Dock2D.Models.model_sampling import SamplingModel
+    from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 
     if __name__ == '__main__':
         #################################################################################
@@ -22,7 +23,6 @@ Functioning example of the script used to train the BruteForce Interaction Pose 
         ### testing set
         testset = '../../Datasets/docking_test_400pool.pkl'
         #########################
-
         #### initialization of random seeds
         random_seed = 42
         np.random.seed(random_seed)
@@ -39,13 +39,14 @@ Functioning example of the script used to train the BruteForce Interaction Pose 
         test_stream = get_docking_stream(testset, max_size=max_size)
         ######################
         experiment = 'BF_check_code_consolidated_10ep'
-
         ######################
         train_epochs = 10
         learning_rate = 10 ** -4
 
-        BFdockingFFT = TorchDockingFFT(num_angles=360)
-        model = SamplingModel(BFdockingFFT, num_angles=360, IP=True).to(device=0)
+        padded_dim = 100
+        num_angles = 360
+        BFdockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
+        model = SamplingModel(BFdockingFFT, IP=True).to(device=0)
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
         Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True)
         ######################
