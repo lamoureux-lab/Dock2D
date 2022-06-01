@@ -31,7 +31,7 @@ class ParamDistribution:
 		Normalize probabilities from parameter distribution.
 
 		:param param_name: name of parameter to normalize
-		:return: alpha and number of points normalized probabilities
+		:return: `alpha` and `num_points` normalized probabilities
 		"""
 		Z = 0.0
 		param = getattr(self, param_name)
@@ -42,17 +42,18 @@ class ParamDistribution:
 			new_param.append((val, prob/Z))
 		setattr(self, param_name, new_param)
 
-	def sample(self, param_name):
+	def extract_params(self, param_name):
 		"""
-		Randomly sample parameters from parameter distribution used in protein shape pool generation.
+		Extracts parameters and associated probabilities e.g. `[(alpha, prob),...]` or `[(num_points, prob),...]`
+		from parameter distributions used in protein shape pool generation.
 
 		:param param_name: `alpha` or `num_points`.
 		:type param_name: [str](`alpha` or `num_points`)
-		:return: sampled value and probability
+		:return: two separate tuples of values and probabilities
 		"""
 		param = getattr(self, param_name)
-		vals, prob = zip(*param)
-		return vals, prob
+		vals, probs = zip(*param)
+		return vals, probs
 
 
 class ProteinPool:
@@ -66,7 +67,8 @@ class ProteinPool:
 	@classmethod
 	def generate(cls, num_proteins, params, size=50):
 		"""
-		Generate protein shapes to be used in protein pool.
+		Generate protein shapes to be used in protein pool by randomly sampling `alpha` and `num_points` using their
+		associated probabilities from `param` parameter distributions.
 
 		:param num_proteins: number of proteins to generate in the pool
 		:param params: parameters used in shape generation, list of tuples [(alpha, prob),...] or [(num_points, prob),...]
@@ -74,13 +76,13 @@ class ProteinPool:
 		:return: protein pool shapes and corresponding individual shape parameters
 		"""
 		pool = cls([])
-		stats_alpha = params.sample('alpha')
-		stats_num_points = params.sample('num_points')
-		vals_alpha, prob_alpha = stats_alpha
-		vals_num_points, prob_num_points = stats_num_points
+		stats_alpha = params.extract_params('alpha')
+		stats_num_points = params.extract_params('num_points')
+		vals_alpha, probs_alpha = stats_alpha
+		vals_num_points, probs_num_points = stats_num_points
 		for i in tqdm(range(num_proteins)):
-			alpha = np.random.choice(vals_alpha, p=prob_alpha)
-			num_points = np.random.choice(vals_num_points, p=prob_num_points)
+			alpha = np.random.choice(vals_alpha, p=probs_alpha)
+			num_points = np.random.choice(vals_num_points, p=probs_num_points)
 			prot = Protein.generateConcave(size=size, alpha=alpha, num_points=num_points)
 			pool.proteins.append(prot.bulk)
 			pool.params.append({'alpha': alpha, 'num_points': num_points})
