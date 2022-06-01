@@ -12,7 +12,7 @@ from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 
 class SamplingDocker(nn.Module):
-    def __init__(self, dockingFFT, num_angles=1, debug=False):
+    def __init__(self, dockingFFT, padded_dim, num_angles, debug=False):
         """
         Initialize docking FFT and feature generation using the SE(2)-CNN.
 
@@ -22,10 +22,10 @@ class SamplingDocker(nn.Module):
         :param debug:  set to True show debug verbose model and plots
         """
         super(SamplingDocker, self).__init__()
-        self.num_angles = num_angles
-        self.dim = 100
-        self.dockingConv = Docking(dim=self.dim, num_angles=self.num_angles, debug=debug)
         self.dockingFFT = dockingFFT
+        self.padded_dim = padded_dim
+        self.num_angles = num_angles
+        self.dockingConv = Docking(padded_dim=self.padded_dim, num_angles=self.num_angles, debug=debug)
 
     def forward(self, receptor, ligand, rotation=None, plot_count=1, stream_name='trainset', plotting=False):
         """
@@ -70,7 +70,7 @@ class SamplingDocker(nn.Module):
 
 
 class SamplingModel(nn.Module):
-    def __init__(self, dockingFFT, num_angles=1, sample_steps=10, step_size=10, sig_alpha=2,
+    def __init__(self, dockingFFT, padded_dim, num_angles, sample_steps=10, step_size=10, sig_alpha=2,
                  IP=False, IP_MC=False, IP_LD=False,
                  FI_BF=False, FI_MC=False,
                  experiment=None):
@@ -98,9 +98,10 @@ class SamplingModel(nn.Module):
         :param experiment: current experiment name
         """
         super(SamplingModel, self).__init__()
+        self.padded_dim = padded_dim
         self.num_angles = num_angles
 
-        self.docker = SamplingDocker(dockingFFT, num_angles=self.num_angles)
+        self.docker = SamplingDocker(dockingFFT, padded_dim=self.padded_dim, num_angles=self.num_angles)
 
         self.sample_steps = sample_steps
         self.step_size = step_size

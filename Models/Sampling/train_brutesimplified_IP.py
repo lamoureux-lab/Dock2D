@@ -3,6 +3,7 @@ import random
 from Dock2D.Utility.TorchDataLoader import get_docking_stream
 from torch import optim
 from Dock2D.Utility.PlotterIP import PlotterIP
+from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Models.model_sampling import SamplingModel
 
 if __name__ == '__main__':
@@ -37,8 +38,10 @@ if __name__ == '__main__':
     plotting = False
     show = True
     #####################
-    sampledFFT = TorchDockingFFT(num_angles=1, angle=None)
-    model = SamplingModel(sampledFFT, num_angles=1, IP=True).to(device=0)
+    padded_dim = 100
+    num_angles = 1
+    sampledFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
+    model = SamplingModel(sampledFFT, padded_dim=padded_dim, num_angles=num_angles, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
@@ -59,7 +62,7 @@ if __name__ == '__main__':
     start = train_epochs-1
     stop = train_epochs
     eval_angles = 360
-    eval_model = SamplingModel(sampledFFT, num_angles=eval_angles, IP=True).to(device=0)
+    eval_model = SamplingModel(sampledFFT, padded_dim=padded_dim, num_angles=eval_angles, IP=True).to(device=0)
     EvalTrainer = TrainerIP(sampledFFT, eval_model, optimizer, experiment,
                             BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
     for epoch in range(start, stop):

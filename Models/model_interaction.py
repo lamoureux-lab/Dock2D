@@ -11,8 +11,8 @@ class Interaction(nn.Module):
         """
         super(Interaction, self).__init__()
         self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
-        self.num_angles = 360
-        self.BF_log_volume = torch.log(self.num_angles * torch.tensor(100 ** 2))
+        self.BF_num_angles = 360
+        self.BF_log_volume = torch.log(self.BF_num_angles * torch.tensor(100 ** 2))
 
     def forward(self, brute_force=True, fft_scores=None, free_energies=None):
         """
@@ -37,7 +37,7 @@ class Interaction(nn.Module):
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
         else:
             num_angles_visited = len(free_energies[-1])
-            unvisited_count = self.num_angles-num_angles_visited
+            unvisited_count = self.BF_num_angles-num_angles_visited
             free_energies = torch.cat((free_energies, torch.ones(1, unvisited_count).cuda()), dim=1)
             F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
 

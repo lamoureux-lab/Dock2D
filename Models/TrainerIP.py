@@ -4,7 +4,6 @@ sys.path.append('/home/sb1638/') ## path for cluster
 
 import numpy as np
 from tqdm import tqdm
-from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Models.model_docking import Docking
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 from Dock2D.Utility.ValidationMetrics import RMSD
@@ -37,14 +36,12 @@ class TrainerIP:
         self.save_freq = 1
         self.model_savepath = 'Log/saved_models/IP_saved/'
         self.logfile_savepath = 'Log/losses/IP_loss/'
-        self.plot_freq = Docking().plot_freq
+        self.plot_freq = 10
 
         self.log_header = 'Epoch\tLoss\trmsd\n'
         self.log_format = '%d\t%f\t%f\n'
 
         self.dockingFFT = dockingFFT
-        self.dim = TorchDockingFFT().dim
-        self.num_angles = TorchDockingFFT().num_angles
 
         self.model = cur_model
         self.optimizer = cur_optimizer
