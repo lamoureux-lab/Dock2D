@@ -320,8 +320,12 @@ class TrainerFI:
             self.docking_model, self.docking_optimizer, _ = self.load_checkpoint(ckp_path, self.docking_model, self.docking_optimizer)
             print('Loading interaction model at', str(resume_epoch))
             ckp_path = self.model_savepath + self.experiment + str(resume_epoch) + '.th'
-            self.interaction_model, self.interaction_optimizer, start_epoch, self.alpha_buffer, self.free_energy_buffer=self.load_checkpoint(
-                                                    ckp_path, self.interaction_model, self.interaction_optimizer, FI_MC=self.FI_MC)
+            if self.FI_MC:
+                self.interaction_model, self.interaction_optimizer, start_epoch, self.alpha_buffer, self.free_energy_buffer=self.load_checkpoint(
+                                                        ckp_path, self.interaction_model, self.interaction_optimizer, FI_MC=self.FI_MC)
+            else:
+                self.interaction_model, self.interaction_optimizer, start_epoch =self.load_checkpoint(
+                                                        ckp_path, self.interaction_model, self.interaction_optimizer, FI_MC=self.FI_MC)
 
             start_epoch += 1
 

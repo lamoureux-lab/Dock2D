@@ -47,7 +47,7 @@ class ToyInteractionDataset(Dataset):
 		:param number_of_pairs: specifies the data stream `max_size` as number of unique interactions.
 
 			.. math::
-				\frac{(N^2 + N)}{2}
+				\frac{N(N+1)}{2}
 
 		This is based on `N` interaction pairs. If `N == None`, the entire upper triangle plus diagonal of the interaction pairs array are used.
 		"""
@@ -68,7 +68,7 @@ class ToyInteractionDataset(Dataset):
 		if not number_of_pairs:
 			max_size = len(self.data)
 		else:
-			max_size = int((number_of_pairs**2 + number_of_pairs)/2)
+			max_size = int((number_of_pairs*(number_of_pairs + 1))/2)
 
 		if randomstate:
 			randomstate.shuffle(self.data)
@@ -113,7 +113,7 @@ def get_docking_stream(data_path, shuffle=False, max_size=None, num_workers=0):
 def get_interaction_stream(data_path, shuffle=False, number_of_pairs=None, randomstate=None, num_workers=0):
 	'''
 	Get interaction data as a torch data stream, specifying `N` as `number_of_pairs` which results in
-	:math:`\\frac{(N^2 + N)}{2}` unique interactions.
+	:math:`\\frac{N(N+1)}{2}` unique interactions.
 	The fact of interaction data stream shuffles examples when selecting `number_of_pairs` from the entire dataset,
 	as well as shuffles the data stream before each epoch.
 

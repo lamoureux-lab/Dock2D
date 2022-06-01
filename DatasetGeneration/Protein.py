@@ -78,7 +78,7 @@ class Protein:
 		:param size: the dimensions of the box containing the shape
 		:param alpha: the level of concavity used to generate convex hulls
 		:param num_points: number of points randomly radially distributed to generate the hull
-		:param occupancy: distance to span the the point distributions
+		:param occupancy: distance to span the the point distributions, 0.8 of size 50 gives 40pixels.
 		:return: concave protein shape bulk
 		"""
 		grid_coordinate_span = (0, size)
