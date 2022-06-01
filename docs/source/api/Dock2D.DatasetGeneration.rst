@@ -5,10 +5,10 @@ DatasetGeneration/
 
 **Protein:**
 
-Generate either convex or concave hull based on specifying `alpha` and `num_points`.
+Generate either a convex or concave hull based on specified `alpha` and `num_points`.
 Hulls are created by radially distributing random points, then optimizing a perimeter based on the specified `alpha`.
 Shapes can be convex by setting relatively lower `alpha` and higher `num_points`.
-Hulls coordinates are then converted to grid based shapes,
+Hull coordinates are then converted to grid based shapes,
 where pixels within the hull perimeter are assigned a value of 1, and 0 otherwise.
 
 **ProteinPool:**

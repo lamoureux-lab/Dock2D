@@ -37,6 +37,7 @@ The two core models modules use `torch.nn.Module` :class:`Docking() <Dock2D.Mode
    ../api/Dock2D.Models/Dock2D.Models.TrainerIP.rst
    ../api/Dock2D.Models/Dock2D.Models.TrainerFI.rst
 
+
 .. autoclass:: Dock2D.Models.model_docking.Docking
    :special-members: __init__, forward
    :undoc-members:
