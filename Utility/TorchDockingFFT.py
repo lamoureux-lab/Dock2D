@@ -11,11 +11,11 @@ import numpy as np
 
 
 class TorchDockingFFT:
-    def __init__(self, dim=100, num_angles=360, angle=None, swap_plot_quadrants=False, normalization='ortho', debug=False):
+    def __init__(self, padded_dim=100, num_angles=360, angle=None, swap_plot_quadrants=False, normalization='ortho', debug=False):
         """
         Initialize docking FFT based on desired usage.
 
-        :param dim: dimension of final padded box to follow Nyquist's theorem.
+        :param padded_dim: dimension of final padded box to follow Nyquist's theorem.
         :param num_angles: number of angles to sample
         :param angle: single angle to rotate a shape and evaluate FFT
         :param swap_plot_quadrants: swap FFT output quadrants to make plots origin centered
@@ -24,7 +24,7 @@ class TorchDockingFFT:
         """
         self.debug = debug
         self.swap_plot_quadrants = swap_plot_quadrants ## used only to make plotting look nice
-        self.dim = dim
+        self.padded_dim = padded_dim
         self.num_angles = num_angles
         self.angle = angle
         if self.num_angles == 1 and angle:
@@ -33,7 +33,7 @@ class TorchDockingFFT:
             self.angles = torch.from_numpy(np.linspace(-np.pi, np.pi, num=self.num_angles)).cuda()
 
         self.norm = normalization
-        self.onehot_3Dgrid = torch.zeros([self.num_angles, self.dim, self.dim], dtype=torch.double).cuda()
+        self.onehot_3Dgrid = torch.zeros([self.num_angles, self.padded_dim, self.padded_dim], dtype=torch.double).cuda()
 
         self.UtilityFunctions = UtilityFunctions()
 
@@ -66,20 +66,20 @@ class TorchDockingFFT:
         :return: predicted rotation index and translation indices
         """
         pred_index = torch.argmax(fft_score)
-        pred_rot = (torch.div(pred_index, self.dim ** 2) * torch.div(np.pi, 180)) - np.pi
-        XYind = torch.remainder(pred_index, self.dim ** 2)
+        pred_rot = (torch.div(pred_index, self.padded_dim ** 2) * torch.div(np.pi, 180)) - np.pi
+        XYind = torch.remainder(pred_index, self.padded_dim ** 2)
         if self.swap_plot_quadrants:
-            pred_X = torch.div(XYind, self.dim, rounding_mode='floor') - self.dim//2
-            pred_Y = torch.fmod(XYind, self.dim) - self.dim//2
+            pred_X = torch.div(XYind, self.padded_dim, rounding_mode='floor') - self.padded_dim // 2
+            pred_Y = torch.fmod(XYind, self.padded_dim) - self.padded_dim // 2
         else:
-            pred_X = torch.div(XYind, self.dim, rounding_mode='floor')
-            pred_Y = torch.fmod(XYind, self.dim)
+            pred_X = torch.div(XYind, self.padded_dim, rounding_mode='floor')
+            pred_Y = torch.fmod(XYind, self.padded_dim)
 
         # Just to make translation values look nice caused by grid wrapping + or - signs
-        if pred_X > self.dim//2:
-            pred_X = pred_X - self.dim
-        if pred_Y > self.dim//2:
-            pred_Y = pred_Y - self.dim
+        if pred_X > self.padded_dim//2:
+            pred_X = pred_X - self.padded_dim
+        if pred_Y > self.padded_dim//2:
+            pred_Y = pred_Y - self.padded_dim
         return pred_rot, torch.stack((pred_X, pred_Y), dim=0)
 
     @staticmethod
@@ -107,8 +107,9 @@ class TorchDockingFFT:
 
     def dock_global(self, receptor_feats, ligand_feats, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
         """
-        Compute FFT scores of shape features in space of sampled ligand_sampled_stack feature rotation slices and translation indices.
-        Rotationally sample the
+        Compute FFT scores of shape features in the space of rotationally and translationally sampled ligand features.
+        Rotationally sample the the ligand feature using specified number of angles, and repeat the receptor features to match in size.
+        Then compute docking score using :func:`~dock_translations`.
 
         :param receptor_feats: receptor bulk and boundary feature single features
         :param ligand_feats: ligand bulk and boundary feature single features
@@ -116,7 +117,7 @@ class TorchDockingFFT:
         :param weight_crossterm1: first crossterm scoring coefficient
         :param weight_crossterm2: second crossterm scoring coefficient
         :param weight_bulk: bulk scoring coefficient
-        :return:
+        :return: scored docking feature correlation
         """
         initbox_size = receptor_feats.shape[-1]
         pad_size = initbox_size // 2
