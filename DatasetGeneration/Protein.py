@@ -9,7 +9,7 @@ import shapely.geometry as geom
 
 def get_random_points(num_points, xspan, yspan, debug=False):
 	"""
-	Generate radially distributed random point coordinates.
+	Generate coordinate points uniformly distributed inside the ellipse inscribed in the rectangle defined by `xspan` and `yspan`.
 
 	:param num_points: number of points used to generate hulls
 	:param xspan: distance to span points in the `x` dimension
