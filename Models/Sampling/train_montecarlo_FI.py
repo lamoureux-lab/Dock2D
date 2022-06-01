@@ -32,7 +32,7 @@ if __name__ == '__main__':
     valid_stream = get_interaction_stream(validset, number_of_pairs=100)
     test_stream = get_interaction_stream(testset, number_of_pairs=100)
     ######################
-    experiment = 'MC_FI_check_consolodated'
+    experiment = 'MC_FI_check_consolidated'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'

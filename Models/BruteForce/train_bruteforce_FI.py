@@ -29,10 +29,10 @@ if __name__ == '__main__':
     ## number_of_pairs provides max_size of interactions: max_size = (number_of_pairs**2 + number_of_pairs)/2
     number_of_pairs = 100
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs)
-    valid_stream = get_interaction_stream(validset, number_of_pairs=100)
-    test_stream = get_interaction_stream(testset, number_of_pairs=100)
+    valid_stream = get_interaction_stream(validset, number_of_pairs=number_of_pairs)
+    test_stream = get_interaction_stream(testset, number_of_pairs=number_of_pairs)
     ######################
-    experiment = 'BF_FI_check_consolodated'
+    experiment = 'BF_FI_check_consolidated'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
