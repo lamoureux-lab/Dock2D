@@ -69,10 +69,10 @@ class ShapeDistributions:
         unique, counts = self.get_counts(counts)
         fracs = np.array(counts)/sum(counts)
         print('\n'+dataname+':\n')
-        print('unique values',unique)
+        print('unique values', unique)
         print('counts', counts)
         print('fractions', fracs)
-        barwidth = (unique[-1] - unique[0])/len(unique)
+        barwidth = abs((unique[-1] - unique[0])/len(unique))
 
         return unique, fracs, barwidth
 
@@ -233,6 +233,8 @@ class ShapeDistributions:
         if self.show:
             plt.show()
 
+        return alphas_packed, numpoints_packed
+
 
 if __name__ == "__main__":
 
@@ -241,9 +243,9 @@ if __name__ == "__main__":
     num_proteins = 400
     trainvalidset_protein_pool = data_path+'trainvalidset_protein_pool' + str(num_proteins) + '.pkl'
 
-    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()
+    alphas_packed, numpoints_packed = ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()
 
     num_proteins = 400
     testset_protein_pool = data_path+'testset_protein_pool' + str(num_proteins) + '.pkl'
 
-    ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params()
+    alphas_packed, numpoints_packed = ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params()
