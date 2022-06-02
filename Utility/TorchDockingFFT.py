@@ -27,7 +27,7 @@ class TorchDockingFFT:
         self.padded_dim = padded_dim
         self.num_angles = num_angles
         if self.num_angles > 1:
-            self.angles = torch.from_numpy(np.linspace(-np.pi, np.pi, num=self.num_angles)).cuda()
+            self.angles = torch.from_numpy(np.linspace(-np.pi, np.pi, num=self.num_angles, endpoint=False)).cuda()
 
         self.norm = normalization
         self.onehot_3Dgrid = torch.zeros([self.num_angles, self.padded_dim, self.padded_dim], dtype=torch.double).cuda()
@@ -122,7 +122,7 @@ class TorchDockingFFT:
         if self.num_angles == 1 and angle:
             self.angles = angle.squeeze().unsqueeze(0).cuda()
         else:
-            self.angles = torch.from_numpy(np.linspace(-np.pi, np.pi, num=self.num_angles)).cuda()
+            self.angles = torch.from_numpy(np.linspace(-np.pi, np.pi, num=self.num_angles, endpoint=False)).cuda()
 
         rec_feat_repeated = receptor_feats.unsqueeze(0).repeat(self.num_angles, 1, 1, 1)
         lig_feat_repeated = ligand_feats.unsqueeze(0).repeat(self.num_angles, 1, 1, 1)

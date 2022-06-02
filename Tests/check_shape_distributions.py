@@ -217,9 +217,9 @@ class ShapeDistributions:
         ax1.set_ylabel('alphas')
         ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2g'))
         ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2g'))
-        ax1.set_xticks(np.linspace((plot_lenx/num_cols)/2, plot_lenx-(plot_lenx/num_cols)/2, num_cols))
+        ax1.set_xticks(np.linspace((plot_lenx/num_cols)/2, plot_lenx-(plot_lenx/num_cols)/2, num_cols, endpoint=False))
         ax1.set_xticklabels(numpoints_unique_strs)
-        ax1.set_yticks(np.linspace((plot_leny/num_rows)/2, plot_leny-(plot_leny/num_rows)/2, num_rows))
+        ax1.set_yticks(np.linspace((plot_leny/num_rows)/2, plot_leny-(plot_leny/num_rows)/2, num_rows, endpoint=False))
         ax1.set_yticklabels(alphas_unique_strs[::-1])
         ax1.autoscale(False)
 
