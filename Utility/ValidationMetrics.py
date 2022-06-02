@@ -70,7 +70,6 @@ class RMSD:
 
         I = torch.diag(torch.ones(2, dtype=torch.float64)).cuda()
         # RMSD
-        # RMSD
         rmsd = torch.sum(T * T)
         rmsd = rmsd + torch.sum((I - R) * X, dim=(0, 1))
         rmsd = rmsd + 2.0 * torch.sum(torch.sum(T.unsqueeze(dim=1) * (R1 - R2), dim=0) * C, dim=0)
