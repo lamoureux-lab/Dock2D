@@ -1,5 +1,7 @@
 import torch
 import matplotlib.pyplot as plt
+import numpy as np
+
 from tqdm import tqdm
 from os.path import exists
 from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, ParamDistribution
@@ -85,7 +87,7 @@ class DatasetGenerator:
         self.log_savepath = 'Log/losses/'
 
         ## initialize FFT
-        self.FFT = TorchDockingFFT()
+        self.FFT = TorchDockingFFT(padded_dim=100, num_angles=360)
 
         ## number of unique protein shapes to generate in pool
         self.trainpool_num_proteins = 10
@@ -173,7 +175,8 @@ class DatasetGenerator:
         ligand = torch.tensor(ligand, dtype=torch.float).cuda()
         receptor_stack = self.FFT.make_boundary(receptor)
         ligand_stack = self.FFT.make_boundary(ligand)
-        fft_score = self.FFT.dock_global(receptor_stack, ligand_stack,
+        angle = None
+        fft_score = self.FFT.dock_global(receptor_stack, ligand_stack, angle,
                                          self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk)
 
         return receptor, ligand, fft_score
@@ -321,13 +324,29 @@ class DatasetGenerator:
         test_fft_score_list, test_docking_set, test_interaction_set = self.generate_datasets(
             self.testset_protein_pool, self.testpool_num_proteins)
 
-        ## Slice validation set out for training set
+        ## Slice validation set out of shuffled training docking set
         valid_docking_cutoff_index = int(len(train_docking_set) * self.validation_set_cutoff)
+        np.random.shuffle(train_docking_set)
+        train_docking_set = train_docking_set[:valid_docking_cutoff_index]
         valid_docking_set = train_docking_set[valid_docking_cutoff_index:]
+
+        ## Slice validation set out of simultaneously shuffled training interaction set
         valid_interaction_cutoff_index = int(len(train_interaction_set[-1]) * self.validation_set_cutoff)
-        valid_interaction_set = [train_interaction_set[0],
-                                 train_interaction_set[1][valid_interaction_cutoff_index:],
-                                 train_interaction_set[2][valid_interaction_cutoff_index:]]
+        training_pool_shapes = train_interaction_set[0]
+        train_interaction_set_indices = train_interaction_set[1]
+        train_interaction_set_labels = train_interaction_set[2]
+        temp = list(zip(train_interaction_set_indices, train_interaction_set_labels))
+        np.random.shuffle(temp)
+        shuffled_indices, shuffled_labels = zip(*temp)
+        shuffled_indices_list, shuffled_labels_list = list(shuffled_indices), list(shuffled_labels)
+
+        train_interaction_set = [training_pool_shapes,
+                                 shuffled_indices_list[:valid_interaction_cutoff_index],
+                                 shuffled_labels_list[:valid_interaction_cutoff_index]]
+
+        valid_interaction_set = [training_pool_shapes,
+                                 shuffled_indices_list[valid_interaction_cutoff_index:],
+                                 shuffled_labels_list[valid_interaction_cutoff_index:]]
 
         ### Print dataset stats
         print('\nProtein Pool:', self.trainpool_num_proteins)
