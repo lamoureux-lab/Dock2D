@@ -16,7 +16,7 @@ def get_random_points(num_points, xspan, yspan, debug=False):
 	:param yspan: distance to span points in the `y` dimension
 	:return: points distribution
 	"""
-	points = [[uniform(*xspan), uniform(*yspan)]  for i in range(num_points)]
+	points = [[uniform(*xspan), uniform(*yspan)] for i in range(num_points)]
 	radius_x = (xspan[1] - xspan[0])/2.0
 	radius_y = (yspan[1] - yspan[0])/2.0
 	center_x = (xspan[1] + xspan[0])/2.0
@@ -92,7 +92,7 @@ class Protein:
 
 if __name__ == "__main__":
 	import matplotlib.pyplot as plt
-	prot = Protein.generateConcave(alpha=0.8, num_points=100, debug=True)
+	prot = Protein.generateConcave(alpha=0.98, num_points=80, debug=True)
 
 	def plot_coords(ax, poly, plot_alpha=0.25):
 		x, y = poly.exterior.xy
