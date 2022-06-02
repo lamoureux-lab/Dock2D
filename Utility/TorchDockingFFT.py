@@ -11,6 +11,9 @@ import numpy as np
 
 
 class TorchDockingFFT:
+    """
+    Utility class to perform FFT-based docking.
+    """
     def __init__(self, padded_dim, num_angles, swap_plot_quadrants=False, normalization='ortho', debug=False):
         """
         Initialize docking FFT based on desired usage.
@@ -36,9 +39,9 @@ class TorchDockingFFT:
 
     def encode_transform(self, gt_rot, gt_txy):
         '''
-        One hot encoded ground truth transformation into a 3D array.
+        Encode the ground-truth transformation as a (flattened) 3D one-hot array.
 
-        :param gt_rot: ground truth rotation in radians `[[gt_rot]]`.
+        :param gt_rot: ground truth rotation in radians `[[gt_rot]]`, expected to be between -pi and +pi.
         :param gt_txy: ground truth translation `[[x], [y]]`.
         :return: flattened one hot encoded array.
         '''
@@ -50,14 +53,14 @@ class TorchDockingFFT:
 
         self.onehot_3Dgrid[deg_index_rot, index_txy[0], index_txy[1]] = 1
         target_flatindex = torch.argmax(self.onehot_3Dgrid.flatten()).cuda()
+        ## reset 3D one-hot array after computing flattened index
         self.onehot_3Dgrid[deg_index_rot, index_txy[0], index_txy[1]] = 0
 
         return target_flatindex
 
     def extract_transform(self, fft_score):
         """
-        Extract best score from FFT score r, [x, y]
-        where r is the rotation slice index, x and y are best score translation indices within that slice.
+        Returns the transformation [alpha, [tx, ty]] corresponding to the best (maximum) score
 
         :param fft_score: fft score grid
         :return: predicted rotation index and translation indices
@@ -151,7 +154,8 @@ class TorchDockingFFT:
 
     def dock_translations(self, receptor_sampled_stack, ligand_sampled_stack, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
         """
-        Compute FFT score on receptor and rotationally sampled ligand features stacks of bulk, crossterms, and boundary features.
+        Compute FFT score on receptor and rotationally sampled ligand feature stacks of bulk, crossterms, and boundary features.
+        Maximum score -> minimum energy.
 
         :param receptor_sampled_stack: `self.num_angles` repeated stack of receptor bulk and boundary features
         :param ligand_sampled_stack: `self.num_angles` *rotated* and repeated stack of receptor bulk and boundary features
@@ -169,25 +173,25 @@ class TorchDockingFFT:
         ligand_bulk = ligand_bulk.squeeze()
         ligand_bound = ligand_bound.squeeze()
 
-        # Bulk score
-        cplx_rec = torch.fft.rfft2(receptor_bulk, dim=(-2, -1), norm=self.norm)
-        cplx_lig = torch.fft.rfft2(ligand_bulk, dim=(-2, -1), norm=self.norm)
-        trans_bulk = torch.fft.irfft2(cplx_rec * torch.conj(cplx_lig), dim=(-2, -1), norm=self.norm)
-
-        # Boundary score
+        # boundary:boundary score
         cplx_rec = torch.fft.rfft2(receptor_bound, dim=(-2, -1), norm=self.norm)
         cplx_lig = torch.fft.rfft2(ligand_bound, dim=(-2, -1), norm=self.norm)
         trans_bound = torch.fft.irfft2(cplx_rec * torch.conj(cplx_lig), dim=(-2, -1), norm=self.norm)
 
-        # Boundary - bulk score
+        # boundary:bulk score
         cplx_rec = torch.fft.rfft2(receptor_bound, dim=(-2, -1), norm=self.norm)
         cplx_lig = torch.fft.rfft2(ligand_bulk, dim=(-2, -1), norm=self.norm)
         trans_bulk_bound = torch.fft.irfft2(cplx_rec * torch.conj(cplx_lig), dim=(-2, -1), norm=self.norm)
 
-        # Bulk - boundary score
+        # bulk:boundary score
         cplx_rec = torch.fft.rfft2(receptor_bulk, dim=(-2, -1), norm=self.norm)
         cplx_lig = torch.fft.rfft2(ligand_bound, dim=(-2, -1), norm=self.norm)
         trans_bound_bulk = torch.fft.irfft2(cplx_rec * torch.conj(cplx_lig), dim=(-2, -1), norm=self.norm)
+
+        # bulk:bulk score
+        cplx_rec = torch.fft.rfft2(receptor_bulk, dim=(-2, -1), norm=self.norm)
+        cplx_lig = torch.fft.rfft2(ligand_bulk, dim=(-2, -1), norm=self.norm)
+        trans_bulk = torch.fft.irfft2(cplx_rec * torch.conj(cplx_lig), dim=(-2, -1), norm=self.norm)
 
         ## cross-term score maximizing
         score = weight_bound * trans_bound + weight_crossterm1 * trans_bulk_bound + weight_crossterm2 * trans_bound_bulk - weight_bulk * trans_bulk
