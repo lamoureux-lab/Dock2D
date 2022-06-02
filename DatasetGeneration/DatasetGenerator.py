@@ -90,8 +90,8 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=100, num_angles=360)
 
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 10
-        self.testpool_num_proteins = 10
+        self.trainpool_num_proteins = 400
+        self.testpool_num_proteins = 400
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
@@ -130,6 +130,7 @@ class DatasetGenerator:
             print('\n' + self.trainvalidset_protein_pool, 'already exists!')
             print('This training/validation protein shape pool will be loaded for dataset generation..')
         else:
+            self.trainset_exists = False
             print('\n' + self.trainvalidset_protein_pool, 'does not exist yet...')
             print('Generating pool of', str(self.trainpool_num_proteins), 'protein shapes for training/validation set...')
             self.trainset_pool_stats = self.generate_pool(self.train_params, self.trainvalidset_protein_pool, self.trainpool_num_proteins)
@@ -139,6 +140,7 @@ class DatasetGenerator:
             print('\n' + self.testset_protein_pool, 'already exists!')
             print('This testing protein shape pool will be loaded for dataset generation..')
         else:
+            self.testset_exists = False
             print('\n' + self.testset_protein_pool, 'does not exist yet...')
             print('Generating pool of', str(self.testset_protein_pool), 'protein shapes for testing set...')
             self.testset_pool_stats = self.generate_pool(self.test_params, self.testset_protein_pool, self.testpool_num_proteins)
@@ -327,14 +329,16 @@ class DatasetGenerator:
         ## Slice validation set out of shuffled training docking set
         valid_docking_cutoff_index = int(len(train_docking_set) * self.validation_set_cutoff)
         np.random.shuffle(train_docking_set)
-        train_docking_set = train_docking_set[:valid_docking_cutoff_index]
-        valid_docking_set = train_docking_set[valid_docking_cutoff_index:]
+        shuffled_docking_set = train_docking_set
+        train_docking_set = shuffled_docking_set[:valid_docking_cutoff_index]
+        valid_docking_set = shuffled_docking_set[valid_docking_cutoff_index:]
 
         ## Slice validation set out of simultaneously shuffled training interaction set
         valid_interaction_cutoff_index = int(len(train_interaction_set[-1]) * self.validation_set_cutoff)
         training_pool_shapes = train_interaction_set[0]
         train_interaction_set_indices = train_interaction_set[1]
         train_interaction_set_labels = train_interaction_set[2]
+
         temp = list(zip(train_interaction_set_indices, train_interaction_set_labels))
         np.random.shuffle(temp)
         shuffled_indices, shuffled_labels = zip(*temp)
@@ -347,6 +351,18 @@ class DatasetGenerator:
         valid_interaction_set = [training_pool_shapes,
                                  shuffled_indices_list[valid_interaction_cutoff_index:],
                                  shuffled_labels_list[valid_interaction_cutoff_index:]]
+
+        ## Interaction set stats for train, valid, and test
+        number_of_positive_train_interactions = sum(train_interaction_set_labels)
+        fraction_positive_train_interactions = number_of_positive_train_interactions/len(train_interaction_set_labels)
+
+        valid_interaction_set_labels = valid_interaction_set[2]
+        number_of_positive_valid_interactions = sum(valid_interaction_set_labels)
+        fraction_positive_valid_interactions = number_of_positive_valid_interactions/len(valid_interaction_set_labels)
+
+        test_interaction_set_labels = test_interaction_set[2]
+        number_of_positive_test_interactions = sum(test_interaction_set_labels)
+        fraction_positive_test_interactions = number_of_positive_test_interactions/len(test_interaction_set_labels)
 
         ### Print dataset stats
         print('\nProtein Pool:', self.trainpool_num_proteins)
@@ -394,12 +410,18 @@ class DatasetGenerator:
             fout.write('\nScoring Weights: ' + self.weight_string)
             fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
             fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
+
             fout.write('\n\nRaw Training set:')
             fout.write('\nDocking set length ' + str(len(train_docking_set)))
             fout.write('\nInteraction set length ' + str(len(train_interaction_set[-1])))
+            fout.write('\nInteraction set positive example count ' + str(number_of_positive_train_interactions))
+            fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_train_interactions))
+
             fout.write('\n\nRaw Validation set:')
             fout.write('\nDocking set length ' + str(len(valid_docking_set)))
             fout.write('\nInteraction set length ' + str(len(valid_interaction_set[-1])))
+            fout.write('\nInteraction set positive example count ' + str(number_of_positive_valid_interactions))
+            fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_valid_interactions))
 
         with open(self.datastats_savepath + 'testset_dataset_stats_' + str(self.testpool_num_proteins) + 'pool.txt', 'w') as fout:
             fout.write('TEST DATASET STATS')
@@ -407,9 +429,12 @@ class DatasetGenerator:
             fout.write('\nScoring Weights: ' + self.weight_string)
             fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
             fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
+
             fout.write('\n\nRaw Testing set:')
             fout.write('\nDocking set length ' + str(len(test_docking_set)))
             fout.write('\nInteraction set length ' + str(len(test_interaction_set[-1])))
+            fout.write('\nInteraction set positive example count ' + str(number_of_positive_test_interactions))
+            fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_test_interactions))
 
         ## Save training sets
         docking_train_file = self.data_savepath + 'docking_train_' + str(self.trainpool_num_proteins) + 'pool.pkl'
