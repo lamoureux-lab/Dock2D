@@ -32,7 +32,13 @@ if __name__ == '__main__':
     valid_stream = get_interaction_stream(validset, number_of_pairs=100)
     test_stream = get_interaction_stream(testset, number_of_pairs=100)
     ######################
-    experiment = 'MC_FI_check_consolidated'
+    # experiment = 'MC_FI_check_consolidated'
+    # experiment = 'MC_FI_test_sumto1ofallunvisited'
+    # experiment = 'MC_FI_test_sumto1ofEACHunvisited'
+    # experiment = 'MC_FI_test_dim^2ofEACHunvisited'
+    # experiment = 'MC_FI_test_logdim^2ofEACHunvisited'
+    experiment = 'MC_FI_test_-logdim^2ofEACHunvisited'
+
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -43,7 +49,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 20
+    train_epochs = 5
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
@@ -66,18 +72,17 @@ if __name__ == '__main__':
               FI_MC=True)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### resume training model
     # Trainer.run_trainer(resume_training=True, resume_epoch=5, train_epochs=15,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
-    ### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)
+    ### Evaluate model at chosen epoch (Brute force evaluation)
     eval_angles = 360
     evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
-    # # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI_MC=True, debug=debug).to(device=0) ## eval with monte carlo
-    TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, debug=False
+    TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
                                   ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 

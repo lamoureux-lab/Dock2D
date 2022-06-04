@@ -105,7 +105,7 @@ class APR:
         TP, FP, TN, FN = 0, 0, 0, 0
 
         for data in tqdm(data_stream):
-            tp, fp, tn, fn, F, F_0, label = run_model(data, pos_idx=0, training=False)
+            tp, fp, tn, fn, F, F_0, label = run_model(data, pos_idx=torch.tensor([0]), training=False)
             # print(tp, fp, tn,fn)
             TP += tp
             FP += fp

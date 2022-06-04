@@ -226,8 +226,9 @@ class TrainerFI:
                                                     stream_name, interaction=gt_interact, plot_count=plot_count, epoch=epoch)
 
         else:
-            fft_score_stack = self.docking_model(receptor, ligand, plotting=self.plotting)
-            pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=True, fft_scores=fft_score_stack)
+            print('ASD:FLKAJD:LAJSD:LAKDSJ ASDLKJHHADKJOHASDLKJHAS')
+            fft_score_stack = self.docking_model(receptor, ligand, plotting=self.plotting, training=training)
+            pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack)
 
 
         ### check parameters and gradients

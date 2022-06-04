@@ -36,10 +36,19 @@ class Interaction(nn.Module):
                 E = E.unsqueeze(0)
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
         else:
+            # num_angles_visited = len(free_energies[-1])
+            # unvisited_count = self.BF_num_angles - num_angles_visited
+            # free_energies = torch.cat((free_energies, torch.ones(1, unvisited_count).cuda()), dim=1)
+            # F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
+
             num_angles_visited = len(free_energies[-1])
-            unvisited_count = self.BF_num_angles-num_angles_visited
-            free_energies = torch.cat((free_energies, torch.ones(1, unvisited_count).cuda()), dim=1)
+            unvisited_count = self.BF_num_angles - num_angles_visited
+            unvisited = -torch.log(torch.tensor(100 ** 2)) * torch.ones(1, unvisited_count).cuda()
+            free_energies = torch.cat((free_energies, unvisited), dim=1)
             F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
+
+            # free_energies = torch.cat((free_energies, torch.ones(1, 1).cuda()), dim=1)
+            # F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
 
         deltaF = F - self.F_0
         pred_interact = torch.sigmoid(-deltaF)
