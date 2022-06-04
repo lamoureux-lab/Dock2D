@@ -75,7 +75,7 @@ class Docking(nn.Module):
         rec_feat = self.netSE2(receptor_geomT).tensor.squeeze()
         lig_feat = self.netSE2(ligand_geomT).tensor.squeeze()
 
-        fft_score = self.dockingFFT.dock_global(
+        fft_score = self.dockingFFT.dock_rotations(
             rec_feat,
             lig_feat,
             angle,

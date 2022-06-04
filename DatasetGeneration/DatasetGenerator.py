@@ -90,8 +90,8 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=100, num_angles=360)
 
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 400
-        self.testpool_num_proteins = 400
+        self.trainpool_num_proteins = 10
+        self.testpool_num_proteins = 10
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
@@ -178,8 +178,8 @@ class DatasetGenerator:
         receptor_stack = self.FFT.make_boundary(receptor)
         ligand_stack = self.FFT.make_boundary(ligand)
         angle = None
-        fft_score = self.FFT.dock_global(receptor_stack, ligand_stack, angle,
-                                         self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk)
+        fft_score = self.FFT.dock_rotations(receptor_stack, ligand_stack, angle,
+                                            self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk)
 
         return receptor, ligand, fft_score
 

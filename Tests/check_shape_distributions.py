@@ -179,7 +179,7 @@ class ShapeDistributions:
     def plot_shapes_and_params(self):
         """
         Plot a 2D array of example shapes generated using all desired `alpha` and `num_points` parameter combinations and
-        plot a two histograms opposite the axex corresponding to each parameter.
+        plot a two histograms opposite the axes corresponding to each parameter.
         """
         data = ProteinPool.load(self.protein_pool)
 
@@ -217,9 +217,9 @@ class ShapeDistributions:
         ax1.set_ylabel('alphas')
         ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2g'))
         ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2g'))
-        ax1.set_xticks(np.linspace((plot_lenx/num_cols)/2, plot_lenx-(plot_lenx/num_cols)/2, num_cols, endpoint=False))
+        ax1.set_xticks(np.linspace((plot_lenx/num_cols)/2, plot_lenx-(plot_lenx/num_cols)/2, num_cols, endpoint=True))
         ax1.set_xticklabels(numpoints_unique_strs)
-        ax1.set_yticks(np.linspace((plot_leny/num_rows)/2, plot_leny-(plot_leny/num_rows)/2, num_rows, endpoint=False))
+        ax1.set_yticks(np.linspace((plot_leny/num_rows)/2, plot_leny-(plot_leny/num_rows)/2, num_rows, endpoint=True))
         ax1.set_yticklabels(alphas_unique_strs[::-1])
         ax1.autoscale(False)
 
@@ -243,9 +243,9 @@ if __name__ == "__main__":
     num_proteins = 400
     trainvalidset_protein_pool = data_path+'trainvalidset_protein_pool' + str(num_proteins) + '.pkl'
 
-    alphas_packed, numpoints_packed = ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()
+    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()
 
     num_proteins = 400
     testset_protein_pool = data_path+'testset_protein_pool' + str(num_proteins) + '.pkl'
 
-    alphas_packed, numpoints_packed = ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params()
+    ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params()

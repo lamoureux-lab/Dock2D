@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, RandomSampler
 import numpy as np
 
 
-class ToyDockingDataset(Dataset):
+class InteractionPoseDataset(Dataset):
 	def __init__(self, path, max_size=None):
 		r"""
 		:param path: path to docking dataset .pkl file.
@@ -36,7 +36,7 @@ class ToyDockingDataset(Dataset):
 		return self.dataset_size
 
 
-class ToyInteractionDataset(Dataset):
+class InteractionFacetDataset(Dataset):
 	def __init__(self, path, number_of_pairs=None, randomstate=None):
 		r"""
 		Load data from .pkl dataset file. Build datastream from protein pool,
@@ -104,7 +104,7 @@ def get_docking_stream(data_path, shuffle=False, max_size=None, num_workers=0):
 	:param num_workers: number of cpu threads
 	:return: docking data stream in format of [receptor, ligand, rotation, translation] (see DatasetGeneration).
 	'''
-	dataset = ToyDockingDataset(path=data_path, max_size=max_size)
+	dataset = InteractionPoseDataset(path=data_path, max_size=max_size)
 	sampler = RandomSampler(dataset)
 	trainloader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers, shuffle=shuffle)
 	return trainloader
@@ -128,7 +128,7 @@ def get_interaction_stream(data_path, shuffle=False, number_of_pairs=None, rando
 	:param num_workers: number of cpu threads
 	:return: interaction data stream [receptor, ligand, 1 or 0] (see DatasetGeneration).
 	'''
-	dataset = ToyInteractionDataset(path=data_path, number_of_pairs=number_of_pairs, randomstate=randomstate)
+	dataset = InteractionFacetDataset(path=data_path, number_of_pairs=number_of_pairs, randomstate=randomstate)
 	if randomstate:
 		sampler = None
 	else:

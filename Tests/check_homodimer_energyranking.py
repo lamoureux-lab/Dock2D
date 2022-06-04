@@ -34,8 +34,8 @@ if __name__ == "__main__":
 
         receptor_stack = FFT.make_boundary(receptor)
         ligand_stack = FFT.make_boundary(ligand)
-        fft_score = FFT.dock_global(receptor_stack, ligand_stack,
-                                    weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
+        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack,
+                                       weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
 
         rot, trans = FFT.extract_transform(fft_score)
         lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()

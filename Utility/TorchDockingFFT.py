@@ -45,7 +45,7 @@ class TorchDockingFFT:
         :param gt_txy: ground truth translation `[[x], [y]]`.
         :return: flattened one hot encoded array.
         '''
-        deg_index_rot = (((gt_rot * 180.0/np.pi) + 180.0) % self.num_angles).type(torch.long)
+        deg_index_rot = (((gt_rot * 180.0/np.pi) + 180.0) / (360.0 / self.num_angles)).type(torch.long)
         index_txy = gt_txy.type(torch.long)
 
         if self.num_angles == 1:
@@ -105,7 +105,7 @@ class TorchDockingFFT:
 
         return feat_stack.squeeze()
 
-    def dock_global(self, receptor_feats, ligand_feats, angle, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
+    def dock_rotations(self, receptor_feats, ligand_feats, angle, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
         """
         Compute FFT scores of shape features in the space of rotationally and translationally sampled ligand features.
         Rotationally sample the the ligand feature using specified number of angles, and repeat the receptor features to match in size.
@@ -247,7 +247,7 @@ if __name__ == '__main__':
     data_stream = get_docking_stream(dataset, max_size=max_size)
 
     swap_quadrants = True
-    FFT = TorchDockingFFT(swap_plot_quadrants=swap_quadrants)
+    FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
 
     weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk = 10, 20, 20, 200
 
@@ -266,7 +266,8 @@ if __name__ == '__main__':
 
         receptor_stack = FFT.make_boundary(receptor)
         ligand_stack = FFT.make_boundary(ligand)
-        fft_score = FFT.dock_global(receptor_stack, ligand_stack, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
+        angle=None
+        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
         rot, trans = FFT.extract_transform(fft_score)
         lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
         FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy)
