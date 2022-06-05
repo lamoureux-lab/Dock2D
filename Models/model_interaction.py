@@ -12,7 +12,8 @@ class Interaction(nn.Module):
         super(Interaction, self).__init__()
         self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
         self.BF_num_angles = 360
-        self.BF_log_volume = torch.log(self.BF_num_angles * torch.tensor(100 ** 2))
+        self.translation_volume = torch.tensor(100 ** 2)
+        self.BF_log_volume = torch.log(self.BF_num_angles * self.translation_volume)
 
     def forward(self, brute_force=True, fft_scores=None, free_energies=None):
         """
@@ -28,7 +29,6 @@ class Interaction(nn.Module):
         :param free_energies: sampling method free energy array
         :return: `pred_interact`, `deltaF`, `F`, `F_0`
         """
-        ##TODO: pass BETA, has to be returned from MC docker
 
         if brute_force:
             E = -fft_scores.squeeze()
@@ -36,14 +36,14 @@ class Interaction(nn.Module):
                 E = E.unsqueeze(0)
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
         else:
-            # num_angles_visited = len(free_energies[-1])
-            # unvisited_count = self.BF_num_angles - num_angles_visited
+            # visited_count = len(free_energies[-1])
+            # unvisited_count = self.BF_num_angles - visited_count
             # free_energies = torch.cat((free_energies, torch.ones(1, unvisited_count).cuda()), dim=1)
             # F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
 
-            num_angles_visited = len(free_energies[-1])
-            unvisited_count = self.BF_num_angles - num_angles_visited
-            unvisited = -torch.log(torch.tensor(100 ** 2)) * torch.ones(1, unvisited_count).cuda()
+            visited_count = len(free_energies[-1])
+            unvisited_count = self.BF_num_angles - visited_count
+            unvisited = -torch.log(self.translation_volume) * torch.ones(1, unvisited_count).cuda()
             free_energies = torch.cat((free_energies, unvisited), dim=1)
             F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
 

@@ -107,7 +107,6 @@ class SamplingModel(nn.Module):
         self.experiment = experiment
         self.sig_alpha = sig_alpha
         self.step_size = self.sig_alpha
-        self.BETA = torch.tensor(1.0)
 
         self.IP = IP
         self.IP_MC = IP_MC
@@ -115,6 +114,9 @@ class SamplingModel(nn.Module):
 
         self.FI_BF = FI_BF
         self.FI_MC = FI_MC
+
+        self.random_walk_steps = 100
+        self.rot_step = 0.01745329251
 
     def forward(self, receptor, ligand, alpha=None, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
                 training=True):
@@ -230,15 +232,15 @@ class SamplingModel(nn.Module):
         for index_alpha in free_energies_visited_indices[0]:
             alpha_update = (index_alpha * np.pi / 180)
             _, _, _, fft_score_update = self.docker(receptor, ligand, alpha_update)
-            betaE_update = -self.BETA * fft_score_update
-            free_energy = -1 / self.BETA * (torch.logsumexp(-betaE_update, dim=(0, 1)))
+            E_update = -fft_score_update
+            free_energy = -(torch.logsumexp(-E_update, dim=(0, 1)))
             accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
 
         _, _, dr, fft_score = self.docker(receptor, ligand, alpha,
                                           plot_count=plot_count, stream_name=stream_name,
                                           plotting=False)
-        betaE = -self.BETA * fft_score
-        free_energy = -1 / self.BETA * (torch.logsumexp(-betaE, dim=(0, 1)))
+        E = -fft_score
+        free_energy = -(torch.logsumexp(-E, dim=(0, 1)))
 
         prob_list = []
         acceptance = []
@@ -250,18 +252,17 @@ class SamplingModel(nn.Module):
                 plotting = False
 
             rand_rot = 0
-            rot_step = 0.01745329251
-            for i in range(1000):
+            for i in range(self.random_walk_steps):
                 if torch.rand(1) >= 0.5:
-                    rand_rot += rot_step
+                    rand_rot += self.rot_step
                 else:
-                    rand_rot += -rot_step
+                    rand_rot -= self.rot_step
             alpha_new = alpha + rand_rot
             _, _, dr_new, fft_score_new = self.docker(receptor, ligand, alpha_new,
                                                       plot_count=plot_count, stream_name=stream_name,
                                                       plotting=plotting)
-            betaE_new = -self.BETA * fft_score_new
-            free_energy_new = -1 / self.BETA * (torch.logsumexp(-betaE_new, dim=(0, 1)))
+            E_new = -fft_score_new
+            free_energy_new = -(torch.logsumexp(-E_new, dim=(0, 1)))
 
             ## Accept
             if free_energy_new <= free_energy:
@@ -276,7 +277,7 @@ class SamplingModel(nn.Module):
                 free_energies_visited_indices = torch.cat((free_energies_visited_indices, deg_index_alpha.reshape(1,1)), dim=1)
                 accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
             else:
-                prob = min(torch.exp(-self.BETA * (free_energy_new - free_energy)).item(), 1)
+                prob = min(torch.exp(-(free_energy_new - free_energy)).item(), 1)
                 rand0to1 = torch.rand(1).cuda()
                 prob_list.append(prob)
                 ## Accept
@@ -319,9 +320,7 @@ class SamplingModel(nn.Module):
         :return: `energy`, `alpha`, `dr`, `fft_score`
         """
 
-
         noise_alpha = torch.zeros_like(alpha)
-
         langevin_opt = optim.SGD([alpha], lr=self.step_size, momentum=0.0)
 
         energy = None
