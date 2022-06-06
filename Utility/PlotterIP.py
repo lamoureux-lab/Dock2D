@@ -35,7 +35,6 @@ class PlotterIP:
         valid = pd.read_csv(self.logfile_savepath+'log_loss_VALIDset_'+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
         test = pd.read_csv(self.logfile_savepath+'log_loss_TESTset_'+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
 
-
         fig, ax = plt.subplots(2, figsize=(20,10))
         ax[0].plot(train['Epoch'].to_numpy(), train['RMSD'].to_numpy())
         ax[0].plot(valid['Epoch'].to_numpy(), valid['RMSD'].to_numpy())

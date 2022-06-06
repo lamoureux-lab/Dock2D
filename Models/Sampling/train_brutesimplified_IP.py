@@ -31,12 +31,15 @@ if __name__ == '__main__':
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
     # experiment = 'BS_check_code_consolidated_10ep'
-    experiment = 'BS_check_singlecrossterm_10ep'
+    # experiment = 'BS_check_singlecrossterm_10ep'
+
+    # experiment = 'BS_lr-2_30ep'
+    # experiment = 'BS_lr-3_30ep'
+    experiment = 'BS_lr-4_30ep'
     ######################
-    train_epochs = 10
+    train_epochs = 30
     lr = 10 ** -2
     plotting = False
-    show = True
     #####################
     padded_dim = 100
     num_angles = 1
@@ -46,7 +49,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(
@@ -59,7 +62,7 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
-    start = train_epochs-1
+    start = 1
     stop = train_epochs
     eval_angles = 360
     evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
@@ -68,10 +71,10 @@ if __name__ == '__main__':
                             BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
     for epoch in range(start, stop):
         if stop-1 == epoch:
-            plotting = False
-            EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                                    resume_training=True, resume_epoch=epoch)
+            plotting = True
+        EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+                                resume_training=True, resume_epoch=epoch)
 
     ## Plot loss and RMSDs from current experiment
-    PlotterIP(experiment).plot_loss(ylim=None)
-    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
+    PlotterIP(experiment).plot_loss(ylim=None, show=True)
+    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)
