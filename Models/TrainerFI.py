@@ -219,16 +219,15 @@ class TrainerFI:
 
             self.alpha_buffer.push_alpha(pred_rot, pos_idx)
             self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)
-            pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack, free_energies=accumulated_free_energies)
+            pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, free_energies_visited=accumulated_free_energies)
 
             if plot_count % self.plot_freq == 0 and training:
                 UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices, accumulated_free_energies, acceptance_rate,
                                                     stream_name, interaction=gt_interact, plot_count=plot_count, epoch=epoch)
 
         else:
-            print('ASD:FLKAJD:LAJSD:LAKDSJ ASDLKJHHADKJOHASDLKJHAS')
             fft_score_stack = self.docking_model(receptor, ligand, plotting=self.plotting, training=training)
-            pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack)
+            pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=True, fft_scores=fft_score_stack)
 
 
         ### check parameters and gradients
