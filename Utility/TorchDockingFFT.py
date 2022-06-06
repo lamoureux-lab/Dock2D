@@ -107,12 +107,14 @@ class TorchDockingFFT:
 
     def dock_rotations(self, receptor_feats, ligand_feats, angle, weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk):
         """
-        Compute FFT scores of shape features in the space of rotationally and translationally sampled ligand features.
+        Compute FFT scores of shape features in the space of all rotations and translation ligand features.
         Rotationally sample the the ligand feature using specified number of angles, and repeat the receptor features to match in size.
         Then compute docking score using :func:`~dock_translations`.
 
         :param receptor_feats: receptor bulk and boundary feature single features
         :param ligand_feats: ligand bulk and boundary feature single features
+        :param angle: angle is the case where we only want to sample 1 correlation at a specific angle, default is `None`,
+        otherwise the num_angles just does `np.linspace()` from 0 to 360.
         :param weight_bound: boundary scoring coefficient
         :param weight_crossterm1: first crossterm scoring coefficient
         :param weight_crossterm2: second crossterm scoring coefficient
