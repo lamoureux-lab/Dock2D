@@ -4,12 +4,12 @@ TorchDataLoader
 .. automodule:: Dock2D.Utility.TorchDataLoader
    :undoc-members:
 
-.. autoclass:: Dock2D.Utility.TorchDataLoader.ToyDockingDataset
+.. autoclass:: Dock2D.Utility.TorchDataLoader.InteractionPoseDataset
    :special-members: __init__, __getitem__, __len__
    :members:
    :undoc-members:
 
-.. autoclass:: Dock2D.Utility.TorchDataLoader.ToyInteractionDataset
+.. autoclass:: Dock2D.Utility.TorchDataLoader.InteractionFactDataset
    :special-members: __init__, __getitem__, __len__
    :members:
    :undoc-members:

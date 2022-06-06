@@ -114,7 +114,7 @@ class TorchDockingFFT:
         :param receptor_feats: receptor bulk and boundary feature single features
         :param ligand_feats: ligand bulk and boundary feature single features
         :param angle: angle is the case where we only want to sample 1 correlation at a specific angle, default is `None`,
-        otherwise the num_angles just does `np.linspace()` from 0 to 360.
+            otherwise the num_angles just does `np.linspace()` from 0 to 360.
         :param weight_bound: boundary scoring coefficient
         :param weight_crossterm: crossterm scoring coefficient
         :param weight_bulk: bulk scoring coefficient

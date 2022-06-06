@@ -225,8 +225,8 @@ class DatasetGenerator:
                 if lowest_energy < self.docking_decision_threshold:
                     docking_set.append([receptor, ligand, rot, trans])
 
+                ## picking interaction shapes
                 free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)) - volume)
-
                 if free_energy < self.interaction_decision_threshold:
                     interaction = torch.tensor(1)
                 else:

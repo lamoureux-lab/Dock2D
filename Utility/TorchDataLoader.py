@@ -36,7 +36,7 @@ class InteractionPoseDataset(Dataset):
 		return self.dataset_size
 
 
-class InteractionFacetDataset(Dataset):
+class InteractionFactDataset(Dataset):
 	def __init__(self, path, number_of_pairs=None, randomstate=None):
 		r"""
 		Load data from .pkl dataset file. Build datastream from protein pool,
@@ -128,7 +128,7 @@ def get_interaction_stream(data_path, shuffle=False, number_of_pairs=None, rando
 	:param num_workers: number of cpu threads
 	:return: interaction data stream [receptor, ligand, 1 or 0] (see DatasetGeneration).
 	'''
-	dataset = InteractionFacetDataset(path=data_path, number_of_pairs=number_of_pairs, randomstate=randomstate)
+	dataset = InteractionFactDataset(path=data_path, number_of_pairs=number_of_pairs, randomstate=randomstate)
 	if randomstate:
 		sampler = None
 	else:
