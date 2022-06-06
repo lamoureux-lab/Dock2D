@@ -187,7 +187,6 @@ class SamplingModel(nn.Module):
                 _, _, _, fft_score = self.docker(receptor, ligand, alpha,
                                                               plot_count=plot_count, stream_name=stream_name,
                                                               plotting=plotting)
-
                 return fft_score
             else:
                 ## brute force eval
