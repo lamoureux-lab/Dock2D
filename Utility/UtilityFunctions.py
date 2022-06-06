@@ -278,8 +278,8 @@ class UtilityFunctions():
         :param feat_stack: feature stack for one shape [bulk, boundary]
         :return: orthogonalized feature stack
         """
-        boundW, crosstermW1, crosstermW2, bulkW = scoring_weights
-        A = torch.tensor([[bulkW, crosstermW1],[crosstermW2,boundW]])
+        boundW, crosstermW, bulkW = scoring_weights
+        A = torch.tensor([[bulkW, crosstermW],[crosstermW,boundW]])
         eigvals, V = torch.linalg.eig(A)
         V = V.real
         rv11 = V[0, 0] * feat_stack[0, :, :] + V[1, 0] * feat_stack[1, :, :]
@@ -302,12 +302,11 @@ class UtilityFunctions():
         rec_feat = self.orthogonalize_feats(scoring_weights, rec_feat).squeeze()
         lig_feat = self.orthogonalize_feats(scoring_weights, lig_feat).squeeze()
 
-        boundW, crosstermW1, crosstermW2, bulkW = scoring_weights
+        boundW, crosstermW, bulkW = scoring_weights
         if plot_count == 0:
             print('\nLearned scoring coefficients')
             print('bound', str(boundW.item())[:6])
-            print('crossterm1', str(crosstermW1.item())[:6])
-            print('crossterm2', str(crosstermW2.item())[:6])
+            print('crossterm', str(crosstermW.item())[:6])
             print('bulk', str(bulkW.item())[:6])
         plt.close()
         plt.figure(figsize=(8, 8))

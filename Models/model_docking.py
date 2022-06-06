@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 
-from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 from e2cnn import nn as enn
 from e2cnn import gspaces
@@ -23,8 +22,7 @@ class Docking(nn.Module):
         self.debug = debug
         self.plot_freq = plot_freq
         self.boundW = nn.Parameter(torch.ones(1, requires_grad=True))
-        self.crosstermW1 = nn.Parameter(torch.ones(1, requires_grad=True))
-        self.crosstermW2 = nn.Parameter(torch.ones(1, requires_grad=True))
+        self.crosstermW = nn.Parameter(torch.ones(1, requires_grad=True))
         self.bulkW = nn.Parameter(torch.ones(1, requires_grad=True))
 
         self.dockingFFT = dockingFFT
@@ -32,6 +30,8 @@ class Docking(nn.Module):
         self.scal = 1
         self.vec = 4
 
+        ## N sets number of cyclic groups, N=-1 sets continuous
+        ## maximum_frequency sets the periodicity
         self.SO2 = gspaces.Rot2dOnR2(N=-1, maximum_frequency=4)
         self.feat_type_in1 = enn.FieldType(self.SO2, 1 * [self.SO2.trivial_repr])
         self.feat_type_out1 = enn.FieldType(self.SO2, self.scal * [self.SO2.irreps['irrep_0']] + self.vec * [self.SO2.irreps['irrep_1']])
@@ -53,7 +53,7 @@ class Docking(nn.Module):
     def forward(self, receptor, ligand, training=True, plotting=False, plot_count=1, stream_name='trainset', angle=None):
         """
         Generates features for both receptor and ligand shapes using the SE(2)-ConvNet.
-        These features are then scored based on rotation and translationally sampled FFT correlation,
+        Computes a transformation-dependent score based on the correlation of these features,
 
             .. math::
                 \mathrm{corr}(\mathbf{t}, \phi, R, L) = \int R(\mathbf{r}) \mathbf{M}_\phi L(\mathbf{r}-\mathbf{t}) d\mathbf{r}
@@ -80,8 +80,7 @@ class Docking(nn.Module):
             lig_feat,
             angle,
             weight_bound=self.boundW,
-            weight_crossterm1=self.crosstermW1,
-            weight_crossterm2=self.crosstermW2,
+            weight_crossterm=self.crosstermW,
             weight_bulk=self.bulkW
         )
 
@@ -89,7 +88,7 @@ class Docking(nn.Module):
         if plotting and not training:
             if plot_count % self.plot_freq == 0:
                 with torch.no_grad():
-                    scoring_weights = (self.boundW, self.crosstermW1, self.crosstermW2, self.bulkW)
+                    scoring_weights = (self.boundW, self.crosstermW, self.bulkW)
                     UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
 
         return fft_score

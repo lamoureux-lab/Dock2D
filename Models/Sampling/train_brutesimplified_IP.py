@@ -30,7 +30,8 @@ if __name__ == '__main__':
     test_stream = get_docking_stream(testset, max_size=max_size)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
-    experiment = 'BS_check_code_consolidated_10ep'
+    # experiment = 'BS_check_code_consolidated_10ep'
+    experiment = 'BS_check_singlecrossterm_10ep'
     ######################
     train_epochs = 10
     lr = 10 ** -2
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(

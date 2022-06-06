@@ -45,7 +45,7 @@ class DatasetGenerator:
             self.validation_set_cutoff = 0.8
 
             ## shape feature scoring coefficients
-            self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk = 10, 20, 20, 200
+            self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 20, 200
 
             ## energy cutoff for deciding if a shape interacts or not
             self.docking_decision_threshold = -90
@@ -97,15 +97,14 @@ class DatasetGenerator:
         self.validation_set_cutoff = 0.8
 
         ## shape feature scoring coefficients
-        self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk = 10, 20, 20, 200
+        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 20, 200
 
         ## energy cutoff for deciding if a shape interacts or not
         self.docking_decision_threshold = -90
         self.interaction_decision_threshold = -90
 
         ## string of scoring coefficients for plot titles and filenames
-        self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm1) + ','\
-                             + str(self.weight_crossterm2) + ',' + str(self.weight_bulk)
+        self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm) + ',' + str(self.weight_bulk)
 
         ## training and testing set pool filenames
         self.trainvalidset_protein_pool = 'trainvalidset_protein_pool' + str(self.trainpool_num_proteins) + '.pkl'
@@ -179,7 +178,7 @@ class DatasetGenerator:
         ligand_stack = self.FFT.make_boundary(ligand)
         angle = None
         fft_score = self.FFT.dock_rotations(receptor_stack, ligand_stack, angle,
-                                            self.weight_bound, self.weight_crossterm1, self.weight_crossterm2, self.weight_bulk)
+                                            self.weight_bound, self.weight_crossterm, self.weight_bulk)
 
         return receptor, ligand, fft_score
 

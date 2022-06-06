@@ -74,7 +74,7 @@ class RMSD:
         rmsd = rmsd + torch.sum((I - R) * X, dim=(0, 1))
         rmsd = rmsd + 2.0 * torch.sum(torch.sum(T.unsqueeze(dim=1) * (R1 - R2), dim=0) * C, dim=0)
         if rmsd < 0:
-            rmsd = 0.0
+            rmsd = torch.zeros(1)
         else:
             rmsd = torch.sqrt(rmsd)
 

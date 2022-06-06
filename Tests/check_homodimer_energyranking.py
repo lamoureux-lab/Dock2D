@@ -14,7 +14,7 @@ if __name__ == "__main__":
     max_size = None
     data_stream = get_docking_stream(dataset, max_size=max_size)
 
-    FFT = TorchDockingFFT()
+    FFT = TorchDockingFFT(padded_dim=100, num_angles=360)
 
     plot_all_poses = False
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     heterodimer_Elist = []
     Energy_list = []
 
-    weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk = 10, 20, 20, 200
+    weight_bound, weight_crossterm, weight_bulk = 10, 20, 200
 
     for data in tqdm(data_stream):
         receptor, ligand, gt_rot, gt_txy = data
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         receptor_stack = FFT.make_boundary(receptor)
         ligand_stack = FFT.make_boundary(ligand)
         fft_score = FFT.dock_rotations(receptor_stack, ligand_stack,
-                                       weight_bound, weight_crossterm1, weight_crossterm2, weight_bulk)
+                                       weight_bound, weight_crossterm, weight_bulk)
 
         rot, trans = FFT.extract_transform(fft_score)
         lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
