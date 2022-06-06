@@ -114,7 +114,7 @@ class APR:
             with open(deltaF_logfile, 'a') as fout:
                 fout.write('%f\t%f\t%d\n' % (F, F_0, label))
 
-        PlotterFI(stream_name+experiment).plot_deltaF_distribution(filename=deltaF_logfile, plot_epoch=epoch, show=True, xlim=None, binwidth=1)
+        PlotterFI(stream_name+experiment).plot_deltaF_distribution(filename=deltaF_logfile, plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
         accuracy = float(TP + TN) / float(TP + TN + FP + FN)
         if (TP + FP) > 0:
