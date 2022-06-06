@@ -35,9 +35,12 @@ if __name__ == '__main__':
 
     # experiment = 'BS_lr-2_30ep'
     # experiment = 'BS_lr-3_30ep'
-    experiment = 'BS_lr-4_30ep'
+    # experiment = 'BS_lr-4_30ep'
+
+    experiment = 'BS_lr-2_10ep_check_NoNormPool'
+
     ######################
-    train_epochs = 30
+    train_epochs = 10
     lr = 10 ** -2
     plotting = False
     #####################
@@ -49,7 +52,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(

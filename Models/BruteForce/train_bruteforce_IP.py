@@ -30,10 +30,11 @@ if __name__ == '__main__':
     test_stream = get_docking_stream(testset, max_size=max_size)
     ######################
     # experiment = 'BF_check_code_consolidated_10ep'
-    experiment = 'BF_manuscript_30ep'
+    # experiment = 'BF_manuscript_30ep'
+    experiment = 'BF_lr-3_30ep'
     ######################
     train_epochs = 30
-    learning_rate = 10 ** -4
+    learning_rate = 10 ** -3
 
     padded_dim = 100
     num_angles = 360
