@@ -20,11 +20,11 @@ class Interaction(nn.Module):
         Calculate the difference in free energy, :math:`\\Delta F`, using either a stack of `fft_scores` or sampled free energies.
 
             .. math::
-                \Delta F = -\ln \\frac{1}{V} \sum_{\mathbf{t}, \phi} e^{-E(\mathbf{t}, \phi)} - F_0
+                \Delta F = -\ln Z = -\ln \sum_{\mathbf{t}, \phi} e^{-E(\mathbf{t}, \phi)} - F_0
 
         then convert to a probability using a sigmoid function.
 
-        :param brute_force: set to True to calculate the BruteForce free energy integral using fft_scores converted to energies.
+        :param brute_force: set to True to calculate the BruteForce free energy integral using `fft_scores` converted to energies.
         :param fft_scores: used in BruteForce free energy calculation
         :param free_energies: sampling method free energy array
         :return: `pred_interact`, `deltaF`, `F`, `F_0`
