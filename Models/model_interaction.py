@@ -11,6 +11,7 @@ class Interaction(nn.Module):
         """
         super(Interaction, self).__init__()
         self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
+        self.F_0_prime = nn.Parameter(torch.zeros(1, requires_grad=True))
         self.BF_num_angles = 360
         self.translation_volume = torch.tensor(100 ** 2)
         self.BF_log_volume = torch.log(self.BF_num_angles * self.translation_volume)
@@ -36,16 +37,22 @@ class Interaction(nn.Module):
                 E = E.unsqueeze(0)
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
         else:
+            visited_count = len(free_energies[-1])
+            unvisited_count = self.BF_num_angles - visited_count
+            unvisited = self.F_0_prime * torch.ones(1, unvisited_count).cuda()
+            free_energies = torch.cat((free_energies, unvisited), dim=1)
+            F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
+
             # visited_count = len(free_energies[-1])
             # unvisited_count = self.BF_num_angles - visited_count
             # free_energies = torch.cat((free_energies, torch.ones(1, unvisited_count).cuda()), dim=1)
             # F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
 
-            visited_count = len(free_energies[-1])
-            unvisited_count = self.BF_num_angles - visited_count
-            unvisited = -torch.log(self.translation_volume) * torch.ones(1, unvisited_count).cuda()
-            free_energies = torch.cat((free_energies, unvisited), dim=1)
-            F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
+            # visited_count = len(free_energies[-1])
+            # unvisited_count = self.BF_num_angles - visited_count
+            # unvisited = -torch.log(self.translation_volume) * torch.ones(1, unvisited_count).cuda()
+            # free_energies = torch.cat((free_energies, unvisited), dim=1)
+            # F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
 
             # free_energies = torch.cat((free_energies, torch.ones(1, 1).cuda()), dim=1)
             # F = -(torch.logsumexp(-free_energies, dim=(0, 1)) - self.BF_log_volume)
