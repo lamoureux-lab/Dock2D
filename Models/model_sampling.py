@@ -201,13 +201,14 @@ class SamplingModel(nn.Module):
                 ## MC sampling for Fact of Interaction training
                 return self.montecarlo_sampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
             else:
+                # print('evaluating with bruteforce')
                 ### evaluate with brute force
                 self.docker.eval()
                 lowest_energy, _, dr, fft_score = self.docker(receptor, ligand, alpha, plot_count,
                                                               stream_name, plotting=plotting)
                 current_free_energies = None
                 acceptance_rate = None
-                return lowest_energy, current_free_energies, alpha.unsqueeze(0).clone(), dr.unsqueeze(0).clone(), fft_score, acceptance_rate
+                return lowest_energy, current_free_energies, _, dr.unsqueeze(0).clone(), fft_score, acceptance_rate
                 ### evaluate with Monte Carlo?
                 # self.docker.eval()
                 # return self.MCsampling(alpha, receptor, ligand, plot_count, stream_name, debug=False)
