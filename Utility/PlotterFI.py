@@ -77,7 +77,7 @@ class PlotterFI:
         y2, x2, _ = plt.hist(hist_data[1], label=labels, bins=bins, rwidth=binwidth, color=['g'], alpha=0.25)
 
         if dataframe['F_0'][0] != 'NA':
-            plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=max(y1.max(), y2.max())+1, linestyles='dashed', label='F_0', colors='k')
+            plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=max(max(y1), max(y2))+1, linestyles='dashed', label='F_0', colors='k')
             plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10})
         else:
             plt.legend(('non-interaction (-)', ' interaction (+)'), prop={'size': 10})

@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_check_consolidated'
     # experiment = 'BF_FI_manuscript_30ep'
 
-    experiment = 'BF_FI_check_traineval_2ep'
+    experiment = 'BF_FI_check_traineval_10ep'
 
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 2
+    train_epochs = 10
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
@@ -70,7 +70,7 @@ if __name__ == '__main__':
               FI_MC=False)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
     # Trainer.run_trainer(resume_training=True, resume_epoch=14, train_epochs=6, train_stream=train_stream, valid_stream=None, test_stream=None)
