@@ -23,7 +23,7 @@ if __name__ == "__main__":
     Energy_list = []
 
     weight_bound, weight_crossterm, weight_bulk = 10, 20, 200
-
+    angle = None
     for data in tqdm(data_stream):
         receptor, ligand, gt_rot, gt_txy = data
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
         receptor_stack = FFT.make_boundary(receptor)
         ligand_stack = FFT.make_boundary(ligand)
-        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack,
+        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle,
                                        weight_bound, weight_crossterm, weight_bulk)
 
         rot, trans = FFT.extract_transform(fft_score)

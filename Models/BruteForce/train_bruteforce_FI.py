@@ -34,8 +34,9 @@ if __name__ == '__main__':
     ######################
     # experiment = 'BF_FI_check_consolidated'
     # experiment = 'BF_FI_manuscript_30ep'
+    # experiment = 'BF_FI_check_traineval_10ep'
 
-    experiment = 'BF_FI_check_traineval_10ep'
+    experiment = 'BF_FI_train2death'
 
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 10
+    train_epochs = 100
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
@@ -70,15 +71,15 @@ if __name__ == '__main__':
               FI_MC=False)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
-    # Trainer.run_trainer(resume_training=True, resume_epoch=14, train_epochs=6, train_stream=train_stream, valid_stream=None, test_stream=None)
-
-    ### Validate model at chosen epoch
+    Trainer.run_trainer(resume_training=True, resume_epoch=300, train_epochs=100, train_stream=train_stream, valid_stream=None, test_stream=None)
+    #
+    ## Validate model at chosen epoch
     Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                        resume_training=True, resume_epoch=train_epochs)
-
+                        resume_training=True, resume_epoch=400)
+    #
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss(show=True)
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=400, show=True)

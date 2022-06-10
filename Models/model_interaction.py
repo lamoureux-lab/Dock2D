@@ -10,11 +10,14 @@ class Interaction(nn.Module):
         For the free energy integral, the volume used in the denominator is also initialized here.
         """
         super(Interaction, self).__init__()
-        self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
-        self.F_0_prime = nn.Parameter(torch.zeros(1,1, requires_grad=True))
         self.BF_num_angles = 360
         self.translation_volume = torch.tensor(100 ** 2)
         self.BF_log_volume = torch.log(self.BF_num_angles * self.translation_volume)
+
+        self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
+
+        # self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
+        self.F_0_prime = nn.Parameter(-torch.log(torch.tensor(100 ** 2)))
 
     def forward(self, brute_force=True, fft_scores=None, free_energies_visited=None):
         """
@@ -37,15 +40,6 @@ class Interaction(nn.Module):
                 E = E.unsqueeze(0)
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
         else:
-            # visited_count = len(free_energies_visited[-1])
-            # unvisited_count = self.BF_num_angles - visited_count
-            # unvisited = -torch.log(self.F_0_prime) * torch.ones(1, unvisited_count).cuda()
-            # free_energies_all = torch.cat((free_energies_visited, unvisited), dim=1)
-            # F = -(torch.logsumexp(-free_energies_all, dim=(0, 1)) - self.BF_log_volume)
-
-            # free_energies_all = torch.cat((free_energies_visited, self.F_0_prime), dim=1)
-            # F = -(torch.logsumexp(-free_energies_all, dim=(0, 1)) - self.BF_log_volume)
-
             visited_count = len(free_energies_visited[-1])
             unvisited_count = self.BF_num_angles - visited_count
             unvisited = self.F_0_prime * torch.ones(1, unvisited_count).cuda()

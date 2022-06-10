@@ -204,7 +204,7 @@ class TrainerFI:
         plot_count = int(pos_idx)
         if self.FI_MC:
             if training:
-                # print('MC Train')
+                # print('MC Training =',training)
                 alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
                 free_energies_visited_indices = self.free_energy_buffer.get_free_energies_indices(pos_idx)
 
@@ -236,7 +236,7 @@ class TrainerFI:
                 pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=self.BF_eval, fft_scores=fft_score_stack, free_energies_visited=accumulated_free_energies)
 
         else:
-            # print('BF model')
+            # print('BF Training =', training)
             fft_score_stack = self.docking_model(receptor, ligand, plotting=self.plotting, training=training)
             pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=True, fft_scores=fft_score_stack)
 
@@ -417,7 +417,7 @@ class TrainerFI:
         Initialize the docking model training case.
         A) frozen pretrained docking model,
         B) unfrozen pretrained docking model,
-        C) unfrozen pretrained docking model scoring coefficients, but frozen conv net,
+        C) frozen conv net, unfrozen pretrained docking model scoring coefficients
         D) train the docking model from scratch.
         """
         # CaseA: train with docking model frozen

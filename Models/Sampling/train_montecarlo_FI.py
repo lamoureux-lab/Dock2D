@@ -35,7 +35,14 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_test_-logdim^2ofEACHunvisited'
     # experiment = 'MC_FI_steps=50_-logdim^2ofEACHunvisited'
 
-    experiment = 'MC_FI_test_F_0_prime_5ep'
+    # experiment = 'MC_FI_test_F_0_prime_5ep'
+    # experiment = 'MC_FI_test_singleparam_F_0_prime_5ep'
+    # experiment = 'MC_FI_defaultcomparision_5ep'
+    # experiment = 'MC_FI_defaultcomparision_10ep'
+    # experiment = 'MC_FI_defaultcomparision_NO_FPRIME_10ep'
+    experiment = 'MC_FI_FPRIME_log100^2_20ep'
+    # experiment = 'MC_FI_defaultcomparision_NO_FPRIME_20ep'
+
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -46,7 +53,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 5
+    train_epochs = 20
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
@@ -69,10 +76,10 @@ if __name__ == '__main__':
               FI_MC=True)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
-
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    #
     ### resume training model
-    # Trainer.run_trainer(resume_training=True, resume_epoch=25, train_epochs=5,
+    # Trainer.run_trainer(resume_training=True, resume_epoch=15, train_epochs=5,
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force evaluation)
@@ -80,9 +87,9 @@ if __name__ == '__main__':
     evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
     TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
-                                  ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
+                                  ).run_trainer(resume_training=True, resume_epoch=1, train_epochs=1,
                                                 train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
-    PlotterFI(experiment).plot_loss()
+    PlotterFI(experiment).plot_loss(show=True)
     PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=True)
