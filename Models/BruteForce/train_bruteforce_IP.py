@@ -31,7 +31,9 @@ if __name__ == '__main__':
     ######################
     # experiment = 'BF_check_code_consolidated_10ep'
     # experiment = 'BF_manuscript_30ep'
-    experiment = 'BF_lr-3_30ep'
+    # experiment = 'BF_lr-3_30ep'
+    experiment = 'BF_lr-3_30ep_latest_400poolcheck'
+
     ######################
     train_epochs = 30
     learning_rate = 10 ** -3
