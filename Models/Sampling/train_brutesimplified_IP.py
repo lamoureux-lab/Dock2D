@@ -38,10 +38,11 @@ if __name__ == '__main__':
     # experiment = 'BS_lr-4_30ep'
 
     # experiment = 'BS_lr-2_10ep_check_NoNormPool'
-    experiment = 'BS_lr-2_10ep_latest_400poolcheck'
+    # experiment = 'BS_lr-2_10ep_latest_400poolcheck'
+    experiment = 'BS_lr-2_30ep_latest_400poolcheck'
 
     ######################
-    train_epochs = 10
+    train_epochs = 30
     lr = 10 ** -2
     plotting = False
     #####################
