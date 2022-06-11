@@ -38,13 +38,13 @@ class Interaction(nn.Module):
             E = -fft_scores.squeeze()
             if len(E.shape) < 3:
                 E = E.unsqueeze(0)
-            F = -(torch.logsumexp(-E, dim=(0, 1, 2)) - self.BF_log_volume)
+            F = -(torch.logsumexp(-E, dim=(0, 1, 2)))
         else:
             visited_count = len(free_energies_visited[-1])
             unvisited_count = self.BF_num_angles - visited_count
             unvisited = self.F_0_prime * torch.ones(1, unvisited_count).cuda()
             free_energies_all = torch.cat((free_energies_visited, unvisited), dim=1)
-            F = -(torch.logsumexp(-free_energies_all, dim=(0, 1)) - self.BF_log_volume)
+            F = -(torch.logsumexp(-free_energies_all, dim=(0, 1)))
 
             # visited_count = len(free_energies_visited[-1])
             # unvisited_count = self.BF_num_angles - visited_count
