@@ -90,8 +90,8 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=100, num_angles=360)
 
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 10
-        self.testpool_num_proteins = 10
+        self.trainpool_num_proteins = 400
+        self.testpool_num_proteins = 400
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
@@ -352,6 +352,7 @@ class DatasetGenerator:
                                  shuffled_labels_list[valid_interaction_cutoff_index:]]
 
         ## Interaction set stats for train, valid, and test
+        train_interaction_set_labels = train_interaction_set[2]
         number_of_positive_train_interactions = sum(train_interaction_set_labels)
         fraction_positive_train_interactions = number_of_positive_train_interactions/len(train_interaction_set_labels)
 

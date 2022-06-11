@@ -37,7 +37,8 @@ if __name__ == '__main__':
     # experiment = 'BS_lr-3_30ep'
     # experiment = 'BS_lr-4_30ep'
 
-    experiment = 'BS_lr-2_10ep_check_NoNormPool'
+    # experiment = 'BS_lr-2_10ep_check_NoNormPool'
+    experiment = 'BS_lr-2_10ep_latest_400poolcheck'
 
     ######################
     train_epochs = 10
