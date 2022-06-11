@@ -6,13 +6,14 @@ from Dock2D.Utility.PlotterIP import PlotterIP
 from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 from Dock2D.Models.model_sampling import SamplingModel
 
+
 if __name__ == '__main__':
     #################################################################################
     # Datasets
-    trainset = '../../Datasets/docking_train_400pool.pkl'
-    validset = '../../Datasets/docking_valid_400pool.pkl'
+    trainset = '../Datasets/docking_train_400pool.pkl'
+    validset = '../Datasets/docking_valid_400pool.pkl'
     ### testing set
-    testset = '../../Datasets/docking_test_400pool.pkl'
+    testset = '../Datasets/docking_test_400pool.pkl'
     #########################
     #### initialization of random seeds
     random_seed = 42
@@ -40,11 +41,12 @@ if __name__ == '__main__':
     # experiment = 'BS_lr-2_10ep_check_NoNormPool'
     # experiment = 'BS_lr-2_10ep_latest_400poolcheck'
     experiment = 'BS_lr-2_30ep_latest_400poolcheck'
+    #
+    # experiment = 'BF_eval_homodimer_tiling'
 
     ######################
-    train_epochs = 30
+    train_epochs = 13
     lr = 10 ** -2
-    plotting = False
     #####################
     padded_dim = 100
     num_angles = 1
@@ -52,14 +54,6 @@ if __name__ == '__main__':
     model = SamplingModel(sampledFFT, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
-    ######################
-    ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
-
-    ### Resume training model at chosen epoch
-    # Trainer.run_trainer(
-    #     train_epochs=1, train_stream=train_stream, valid_stream=None, test_stream=None,
-    #     resume_training=True, resume_epoch=train_epochs)
 
     ### Resume training for validation sets
     # Trainer.run_trainer(
@@ -67,19 +61,13 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
-    start = 1
-    stop = train_epochs
+    plotting = True
     eval_angles = 360
     evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
     EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
-                            BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
-    for epoch in range(start, stop):
-        if stop-1 == epoch:
-            plotting = True
-        EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                                resume_training=True, resume_epoch=epoch)
+                            BF_eval=True, plotting=plotting, tiling=True)
 
-    ## Plot loss and RMSDs from current experiment
-    PlotterIP(experiment).plot_loss(ylim=None, show=True)
-    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)
+    EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream,
+                            test_stream=test_stream,
+                            resume_training=True, resume_epoch=train_epochs)

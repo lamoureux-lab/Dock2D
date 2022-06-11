@@ -50,7 +50,7 @@ class Docking(nn.Module):
             enn.NormPool(self.feat_type_out_final),
         )
 
-    def forward(self, receptor, ligand, training=True, plotting=False, plot_count=1, stream_name='trainset', angle=None):
+    def forward(self, receptor, ligand, angle=None,  training=True, plotting=False, plot_count=1, stream_name='trainset'):
         """
         Generates features for both receptor and ligand shapes using the SE(2)-ConvNet.
         Computes a transformation-dependent score based on the correlation of these features,
