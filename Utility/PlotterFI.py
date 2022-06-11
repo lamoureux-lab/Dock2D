@@ -37,7 +37,8 @@ class PlotterFI:
         plt.title('log_loss_TRAINset_'+ self.experiment)
         plt.xlabel('epochs')
         plt.ylabel('loss')
-        plt.ylim([0, train['Loss'].to_numpy().max()])
+        if len(train['Loss'].to_numpy()) > 2:
+            plt.ylim([0, train['Loss'].to_numpy().max()])
         plt.grid(visible=True)
         # num_epochs = len(train['Epoch'].to_numpy())
         # plt.xticks(np.arange(0, num_epochs+1, num_epochs//10))

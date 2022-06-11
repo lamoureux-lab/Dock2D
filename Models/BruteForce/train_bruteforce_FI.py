@@ -36,7 +36,10 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_manuscript_30ep'
     # experiment = 'BF_FI_check_traineval_10ep'
 
-    experiment = 'BF_FI_train2death'
+    # experiment = 'BF_FI_train2death'
+    # experiment = 'BF_FI_500ep_latest_400poolcheck'
+
+    experiment = 'BF_FI_latest_400poolcheck_F0BFvolume'
 
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
@@ -74,7 +77,7 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
-    Trainer.run_trainer(resume_training=True, resume_epoch=400, train_epochs=100, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(resume_training=True, resume_epoch=100, train_epochs=400, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ## Validate model at chosen epoch
     Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,

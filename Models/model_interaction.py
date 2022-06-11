@@ -14,7 +14,7 @@ class Interaction(nn.Module):
         self.translation_volume = torch.tensor(100 ** 2)
         self.BF_log_volume = torch.log(self.BF_num_angles * self.translation_volume)
 
-        self.F_0 = nn.Parameter(self.BF_log_volume, requires_grad=True)
+        self.F_0 = nn.Parameter(-self.BF_log_volume, requires_grad=True)
 
         # self.F_0 = nn.Parameter(torch.zeros(1, requires_grad=True))
         self.F_0_prime = nn.Parameter(-torch.log(torch.tensor(100 ** 2)))
