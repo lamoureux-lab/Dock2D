@@ -61,13 +61,112 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
-    plotting = True
-    eval_angles = 360
-    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
-    eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
-    EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
-                            BF_eval=True, plotting=plotting, tiling=True)
 
-    EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream,
-                            test_stream=test_stream,
-                            resume_training=True, resume_epoch=train_epochs)
+
+    import matplotlib.pyplot as plt
+    plotting = True
+    show=False
+    eval_angles = 360
+
+    stream_name = 'tiling'
+    pos_idx = 0
+    for data in tqdm(test_stream):
+        receptor, ligand, gt_rot, gt_txy = data
+
+        monomer1 = receptor.squeeze().detach().cpu()
+        monomer2 = ligand.squeeze().detach().cpu()
+        shape_diff = abs(monomer1 - monomer2)
+        sum_shape_diff = torch.sum(shape_diff)
+
+        if sum_shape_diff == 0:
+            print('homodimer found')
+            homodimer = np.hstack((monomer1, monomer2, shape_diff))
+            # plt.imshow(homodimer)
+            # plt.colorbar()
+            # plt.show()
+
+            homodimer_data = monomer1, monomer2, gt_rot, gt_txy
+
+            num_cycles = 3
+            for i in range(num_cycles):
+                evalFFT = TorchDockingFFT(padded_dim=100, num_angles=eval_angles)
+                eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
+                lowest_energy, pred_rot, pred_txy, fft_score = eval_model(receptor, ligand, plotting=plotting,
+                                                                          training=False)
+
+                # UtilityFunctions(stream_name).plot_predicted_pose(monomer1, monomer2, pred_rot, pred_txy, pred_rot.squeeze(),
+                #                                      pred_txy.squeeze(), pos_idx, stream_name=stream_name)
+
+                pred_rot = pred_rot.squeeze()
+                pred_txy = pred_txy.squeeze()
+                pair = UtilityFunctions(stream_name).plot_assembly(monomer1.detach().cpu().numpy(), monomer2.detach().cpu().numpy(),
+                                                    pred_rot.squeeze().detach().cpu().numpy(),
+                                                    (pred_txy[0].detach().cpu().numpy(), pred_txy[1].detach().cpu().numpy()), tiling=True)
+
+                receptor = torch.tensor(pair).cuda().unsqueeze(0)
+                receptor_image = receptor.clamp(min=0, max=num_cycles+1)
+                ligand = receptor
+                monomer1 = receptor.squeeze()
+                monomer2 = monomer1
+                if i == num_cycles-1:
+                    plt.close()
+                    plt.imshow(receptor_image.squeeze().detach().cpu())
+                    plt.colorbar()
+                    title = 'homodimer_tiling_ex' + str(pos_idx)
+                    plt.title(title)
+                    plt.savefig('Figs/Features_and_poses/'+title)
+
+                    if show:
+                        plt.show()
+
+        else:
+            print('heterodimer found')
+            heterodimer = np.hstack((monomer1, monomer2, shape_diff))
+            # plt.imshow(homodimer)
+            # plt.colorbar()
+            # plt.show()
+
+            heterodimer_data = monomer1, monomer2, gt_rot, gt_txy
+
+            num_cycles = 3
+            for i in range(num_cycles):
+                evalFFT = TorchDockingFFT(padded_dim=100, num_angles=eval_angles)
+                eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
+                lowest_energy, pred_rot, pred_txy, fft_score = eval_model(receptor, ligand, plotting=plotting,
+                                                                          training=False)
+
+                # UtilityFunctions(stream_name).plot_predicted_pose(monomer1, monomer2, pred_rot, pred_txy, pred_rot.squeeze(),
+                #                                      pred_txy.squeeze(), pos_idx, stream_name=stream_name)
+
+                pred_rot = pred_rot.squeeze()
+                pred_txy = pred_txy.squeeze()
+                pair = UtilityFunctions(stream_name).plot_assembly(monomer1.detach().cpu().numpy(),
+                                                                   monomer2.detach().cpu().numpy(),
+                                                                   pred_rot.squeeze().detach().cpu().numpy(),
+                                                                   (pred_txy[0].detach().cpu().numpy(),
+                                                                    pred_txy[1].detach().cpu().numpy()), tiling=True)
+
+                receptor = torch.tensor(pair).cuda().unsqueeze(0)
+                receptor = receptor.clamp(min=0, max=1)
+                ligand = receptor
+                monomer1 = receptor.squeeze()
+                monomer2 = monomer1
+                if i == num_cycles - 1:
+                    plt.close()
+                    plt.imshow(receptor.squeeze().detach().cpu())
+                    plt.colorbar()
+                    title = 'heterodimer_tiling_ex' + str(pos_idx)
+                    plt.title(title)
+                    plt.savefig('Figs/Features_and_poses/'+title)
+
+                    if show:
+                        plt.show()
+                #
+                # plt.close()
+                # plt.imshow(monomer1.detach().cpu())
+                # plt.colorbar()
+                # plt.show()
+
+            # break
+
+        pos_idx += 1

@@ -159,7 +159,7 @@ class UtilityFunctions():
             plt.xlabel('Rotation indices')
             plt.savefig('Figs/EnergySurfaces/' + mcsampled_energies_name + '.png')
 
-    def plot_assembly(self, receptor, ligand, gt_rot, gt_txy, pred_rot=None, pred_txy=None):
+    def plot_assembly(self, receptor, ligand, gt_rot, gt_txy, pred_rot=None, pred_txy=None, tiling=False):
         """
         Plot the predicting docking pose for the IP task. From left to right, plots the ground truth docking pose,
         the pose passed into the model, and the predicted docking pose.
@@ -173,11 +173,16 @@ class UtilityFunctions():
         :return: plotting object with specified poses
         """
         box_size = receptor.shape[-1]
-        receptor_copy = receptor * -100
-        ligand_copy = ligand * 200
+        if tiling:
+            receptor_copy = receptor
+            ligand_copy = ligand
+        else:
+            receptor_copy = receptor * -100
+            ligand_copy = ligand * 200
+
 
         padding = box_size//2
-        if box_size < 100:
+        if box_size < 150:
             receptor_copy = np.pad(receptor_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
             ligand_copy = np.pad(ligand_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
 
@@ -195,8 +200,11 @@ class UtilityFunctions():
             transformligand += receptor_copy
 
             pair = np.vstack((gt_transformlig, inputshapes, transformligand))
+        elif tiling:
+            pair = abs(gt_transformlig)
         else:
             pair = np.vstack((gt_transformlig, inputshapes))
+
 
         return pair
 

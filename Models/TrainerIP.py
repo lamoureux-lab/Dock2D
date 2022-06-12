@@ -13,7 +13,7 @@ from Dock2D.Utility.SampleBuffer import SampleBuffer
 class TrainerIP:
     def __init__(self, dockingFFT, cur_model, cur_optimizer, cur_experiment, BF_eval=False, MC_eval=False,
                  MC_eval_num_epochs=10, debug=False, plotting=False,
-                 sample_buffer_length=1000):
+                 sample_buffer_length=1000, tiling=False):
         """
         Initialize trainer for IP task models, paths, and class instances.
 

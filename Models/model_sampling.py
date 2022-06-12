@@ -57,9 +57,6 @@ class SamplingDocker(nn.Module):
             if len(fft_score.shape) > 2:
                 deg_index_rot = (((pred_rot * 180.0 / np.pi) + 180.0) % self.num_angles).type(torch.long)
                 best_score = fft_score[deg_index_rot, pred_txy[0], pred_txy[1]]
-                print('plotting', plotting)
-                print('self.num_angles', self.num_angles)
-                print('plot_count', plot_count)
                 if plotting and self.num_angles == 360 and plot_count % 10 == 0:
                     UtilityFunctions().plot_rotation_energysurface(fft_score, pred_txy, self.num_angles, stream_name,
                                                                    plot_count)
