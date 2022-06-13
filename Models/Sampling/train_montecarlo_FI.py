@@ -40,8 +40,11 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_defaultcomparision_5ep'
     # experiment = 'MC_FI_defaultcomparision_10ep'
     # experiment = 'MC_FI_defaultcomparision_NO_FPRIME_10ep'
-    experiment = 'MC_FI_FPRIME_log100^2_20ep'
+    # experiment = 'MC_FI_FPRIME_log100^2_20ep'
     # experiment = 'MC_FI_defaultcomparision_NO_FPRIME_20ep'
+
+    experiment = 'MC_FI_FPRIME_init-log100^2_100ep'
+
 
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
@@ -53,7 +56,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 20
+    train_epochs = 100
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
@@ -76,7 +79,7 @@ if __name__ == '__main__':
               FI_MC=True)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
     # Trainer.run_trainer(resume_training=True, resume_epoch=15, train_epochs=5,
