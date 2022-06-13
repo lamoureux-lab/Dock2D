@@ -180,9 +180,26 @@ class UtilityFunctions():
             receptor_copy = receptor * -100
             ligand_copy = ligand * 200
 
+        # def pad_to_match_shape(a, shape):
+        #     y_, x_ = shape
+        #     y, x = a.shape[-2], a.shape[-1]
+        #     y_pad = (y_ - y)
+        #     x_pad = (x_ - x)
+        #     return np.pad(a, ((y_pad // 2, y_pad // 2 + y_pad % 2),
+        #                       (x_pad // 2, x_pad // 2 + x_pad % 2)),
+        #                   mode='constant')
+        #
+        # # padding = box_size//2
+        # padded_dim_rec = receptor.shape[-2], receptor.shape[-1]
+        # padded_dim_lig = [ligand.shape[-2]+padding, ligand.shape[-1]+padding]
+        # print(padded_dim_rec, padded_dim_lig)
+        # shape = [1000, 1103]
+
+        # receptor_copy = pad_to_match_shape(receptor, shape)
+        # ligand_copy = pad_to_match_shape(ligand, padded_dim_rec)
 
         padding = box_size//2
-        if box_size < 150:
+        if box_size < 100:
             receptor_copy = np.pad(receptor_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
             ligand_copy = np.pad(ligand_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
 
@@ -201,7 +218,8 @@ class UtilityFunctions():
 
             pair = np.vstack((gt_transformlig, inputshapes, transformligand))
         elif tiling:
-            pair = abs(gt_transformlig)
+            pair, ligand_copy = abs(gt_transformlig), abs(ligand_copy)
+            return pair, ligand_copy
         else:
             pair = np.vstack((gt_transformlig, inputshapes))
 

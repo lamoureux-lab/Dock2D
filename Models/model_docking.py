@@ -81,7 +81,7 @@ class Docking(nn.Module):
             angle,
             weight_bound=self.boundW,
             weight_crossterm=self.crosstermW,
-            weight_bulk=self.bulkW*2
+            weight_bulk=self.bulkW
         )
 
         #### Plot shape features

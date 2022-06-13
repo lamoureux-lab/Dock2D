@@ -281,7 +281,6 @@ class TrainerIP:
 
             # print(self.model)
             # print(list(self.model.named_parameters()))
-            print('\nRESUMING TRAINING AT EPOCH', start_epoch, '\n')
             with open(self.logfile_savepath + 'log_RMSDsTRAINset_epoch' + str(start_epoch) + self.experiment + '.txt',
                       'w') as fout:
                 fout.write('IP Training RMSD\n')
@@ -291,6 +290,7 @@ class TrainerIP:
             with open(self.logfile_savepath + 'log_RMSDsTESTset_epoch' + str(start_epoch) + self.experiment + '.txt',
                       'w') as fout:
                 fout.write('IP Testing RMSD\n')
+            print('\nRUNNING MODEL AT EPOCH', start_epoch, '\n')
         else:
             start_epoch = 1
             ### Loss log files

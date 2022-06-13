@@ -44,7 +44,6 @@ if __name__ == '__main__':
     ######################
     train_epochs = 30
     lr = 10 ** -2
-    plotting = False
     #####################
     padded_dim = 100
     num_angles = 1
@@ -67,8 +66,9 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
-    start = 1
-    stop = train_epochs
+    plotting = True
+    start = 13
+    stop = 14
     eval_angles = 360
     evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
@@ -82,4 +82,4 @@ if __name__ == '__main__':
 
     ## Plot loss and RMSDs from current experiment
     PlotterIP(experiment).plot_loss(ylim=None, show=True)
-    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=True)
+    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=stop, show=True)
