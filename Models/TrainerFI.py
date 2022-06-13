@@ -346,7 +346,7 @@ class TrainerFI:
             print('\ninteraction model:\n', self.interaction_model)
             self.UtilityFuncs.check_model_gradients(self.interaction_model)
 
-            print('\nLOADING MODEL AT EPOCH', start_epoch, '\n')
+            print('\nRUNNING MODEL AT EPOCH', start_epoch, '\n')
         else:
             start_epoch = 1
             ### Loss log files
