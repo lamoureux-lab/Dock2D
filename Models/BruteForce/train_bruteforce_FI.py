@@ -39,7 +39,8 @@ if __name__ == '__main__':
     # experiment = 'BF_FI_train2death'
     # experiment = 'BF_FI_500ep_latest_400poolcheck'
 
-    experiment = 'BF_FI_latest_400poolcheck_F0BFvolume'
+    # experiment = 'BF_FI_latest_400poolcheck_F0BFvolume'
+    experiment = 'BF_FI_latest_400poolcheck_F0BFvol_dataLSEvol'
 
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 100
+    train_epochs = 500
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
-    Trainer.run_trainer(resume_training=True, resume_epoch=400, train_epochs=100, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(resume_training=True, resume_epoch=423, train_epochs=77, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ## Validate model at chosen epoch
     Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,

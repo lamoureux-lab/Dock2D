@@ -87,7 +87,9 @@ class DatasetGenerator:
         self.log_savepath = 'Log/losses/'
 
         ## initialize FFT
-        self.FFT = TorchDockingFFT(padded_dim=100, num_angles=360)
+        padded_dim=100
+        num_angles = 360
+        self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
 
         ## number of unique protein shapes to generate in pool
         self.trainpool_num_proteins = 400
@@ -100,8 +102,10 @@ class DatasetGenerator:
         self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 20, 200
 
         ## energy cutoff for deciding if a shape interacts or not
-        self.docking_decision_threshold = -90
-        self.interaction_decision_threshold = -90
+        self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
+        energy_threshold = -90 - self.LSEvolume
+        self.docking_decision_threshold = energy_threshold
+        self.interaction_decision_threshold = energy_threshold
 
         ## string of scoring coefficients for plot titles and filenames
         self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm) + ',' + str(self.weight_bulk)
@@ -204,8 +208,8 @@ class DatasetGenerator:
 
         plot_accepted_rejected_examples = False
 
-        translation_space = torch.tensor(protein_shapes[0].shape[-1])
-        volume = torch.log(360 * translation_space ** 2)
+        # translation_space = torch.tensor(protein_shapes[0].shape[-1])
+        # volume = torch.log(360 * translation_space ** 2)
 
         freeE_logfile = self.log_savepath+'log_rawdata_FI_'+protein_pool_prefix+'.txt'
         with open(freeE_logfile, 'w') as fout:
@@ -226,7 +230,7 @@ class DatasetGenerator:
                     docking_set.append([receptor, ligand, rot, trans])
 
                 ## picking interaction shapes
-                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)) - volume)
+                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)) - self.LSEvolume)
                 if free_energy < self.interaction_decision_threshold:
                     interaction = torch.tensor(1)
                 else:

@@ -193,9 +193,9 @@ class ShapeDistributions:
         plot_lenx = shapes_plot.shape[1]
         plot_leny = shapes_plot.shape[0]
 
-        plt.figure(figsize=(num_rows*2,num_cols*2))
+        plt.figure(figsize=(num_cols*2, num_rows*2))
         gs = gridspec.GridSpec(4, 4)
-        # gs.update(wspace=0.05, hspace=0.05)
+        gs.update(wspace=0.05, hspace=0.05)
         ax0 = plt.subplot(gs[0, 0:-1])
         ax1 = plt.subplot(gs[1:, 0:-1])
         ax2 = plt.subplot(gs[1:, -1])
@@ -208,10 +208,12 @@ class ShapeDistributions:
         ax0.bar(numpoints_unique_strs, numpoints_fracs)
         ax0.grid(False)
         ax0.set_ylabel('fraction')
+        ax0.set_ylim([0,0.5])
+        ax0.set_yticks([0,0.5])
         plt.setp(ax0.get_xticklabels(), visible=False)
-        ax0.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+        ax0.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
-        ax1.imshow(shapes_plot, cmap=plt.get_cmap('binary'))
+        ax1.imshow(shapes_plot, cmap=plt.get_cmap('gist_heat_r'))
         ax1.grid(False)
         ax1.set_xlabel('number of points')
         ax1.set_ylabel('alphas')
@@ -226,9 +228,11 @@ class ShapeDistributions:
         ax2.barh(alphas_unique_strs, alphas_fracs)
         ax2.grid(False)
         ax2.set_xlabel('fraction')
-        ax2.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
+        ax2.set_xlim([0,0.5])
+        ax2.set_xticks([0,0.5])
+        ax2.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
         plt.setp(ax2.get_yticklabels(), visible=False)
-        plt.savefig('Figs/ShapeDistributions/'+self.dataset_name + str(len(data.proteins)) + 'pool_combined_shapes_params')
+        plt.savefig('Figs/ShapeDistributions/'+self.dataset_name + str(len(data.proteins)) + 'pool_combined_shapes_params.pdf', format='pdf')
 
         if self.show:
             plt.show()
@@ -242,10 +246,10 @@ if __name__ == "__main__":
 
     num_proteins = 400
     trainvalidset_protein_pool = data_path+'trainvalidset_protein_pool' + str(num_proteins) + '.pkl'
-
+    rcParams.update({'font.size': 15})
     ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()
 
     num_proteins = 400
     testset_protein_pool = data_path+'testset_protein_pool' + str(num_proteins) + '.pkl'
-
+    rcParams.update({'font.size': 20})
     ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params()
