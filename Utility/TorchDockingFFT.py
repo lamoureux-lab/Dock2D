@@ -82,29 +82,6 @@ class TorchDockingFFT:
             pred_Y = pred_Y - self.padded_dim
         return pred_rot, torch.stack((pred_X, pred_Y), dim=0)
 
-    @staticmethod
-    def make_boundary(grid_shape):
-        """
-        Create the boundary feature for data generation and unit testing.
-
-        :param grid_shape: input shape grid image
-        :return: features stack with original shape as "bulk" and created "boundary"
-        """
-        grid_shape = grid_shape.unsqueeze(0).unsqueeze(0)
-        epsilon = 1e-5
-        sobel_top = torch.tensor([[[[1, 2, 1], [0, 0, 0], [-1, -2, -1]]]], dtype=torch.float).cuda()
-        sobel_left = sobel_top[0,0,:,:].t().view(1,1,3,3)
-
-        feat_top = F.conv2d(grid_shape, weight=sobel_top, padding=1)
-        feat_left = F.conv2d(grid_shape, weight=sobel_left, padding=1)
-
-        top = feat_top + epsilon
-        right = feat_left + epsilon
-        boundary = torch.sqrt(top ** 2 + right ** 2)
-        feat_stack = torch.cat([grid_shape, boundary], dim=1)
-
-        return feat_stack.squeeze()
-
     def dock_rotations(self, receptor_feats, ligand_feats, angle, weight_bound, weight_crossterm, weight_bulk):
         """
         Compute FFT scores of shape features in the space of all rotations and translation ligand features.
@@ -248,7 +225,7 @@ if __name__ == '__main__':
 
     swap_quadrants = True
     FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
-
+    UtilityFuncs = UtilityFunctions()
     weight_bound, weight_crossterm, weight_bulk = 10, 20, 200
 
     for data in tqdm(data_stream):
@@ -264,8 +241,8 @@ if __name__ == '__main__':
         gt_rot = gt_rot.cuda()
         gt_txy = gt_txy.cuda()
 
-        receptor_stack = FFT.make_boundary(receptor)
-        ligand_stack = FFT.make_boundary(ligand)
+        receptor_stack = UtilityFuncs.make_boundary(receptor)
+        ligand_stack = UtilityFuncs.make_boundary(ligand)
         angle=None
         fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bound, weight_crossterm, weight_bulk)
         rot, trans = FFT.extract_transform(fft_score)

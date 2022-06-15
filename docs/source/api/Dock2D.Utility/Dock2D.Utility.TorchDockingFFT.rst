@@ -6,5 +6,5 @@ TorchDockingFFT
 
 .. autoclass:: Dock2D.Utility.TorchDockingFFT.TorchDockingFFT
    :special-members: __init__
-   :members: encode_transform, extract_transform, make_boundary, dock_rotations, dock_translations, check_fft_predictions
+   :members: encode_transform, extract_transform, dock_rotations, dock_translations, check_fft_predictions
    :undoc-members:

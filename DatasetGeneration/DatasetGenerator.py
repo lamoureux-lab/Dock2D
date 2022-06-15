@@ -90,7 +90,7 @@ class DatasetGenerator:
         padded_dim=100
         num_angles = 360
         self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
-
+        self.UtilityFuncs = UtilityFunctions()
         ## number of unique protein shapes to generate in pool
         self.trainpool_num_proteins = 400
         self.testpool_num_proteins = 400
@@ -178,8 +178,8 @@ class DatasetGenerator:
         """
         receptor = torch.tensor(receptor, dtype=torch.float).cuda()
         ligand = torch.tensor(ligand, dtype=torch.float).cuda()
-        receptor_stack = self.FFT.make_boundary(receptor)
-        ligand_stack = self.FFT.make_boundary(ligand)
+        receptor_stack = self.UtilityFuncs.make_boundary(receptor)
+        ligand_stack = self.UtilityFuncs.make_boundary(ligand)
         angle = None
         fft_score = self.FFT.dock_rotations(receptor_stack, ligand_stack, angle,
                                             self.weight_bound, self.weight_crossterm, self.weight_bulk)

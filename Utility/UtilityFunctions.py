@@ -6,6 +6,9 @@ import numpy as np
 import torch
 from torch.nn import functional as F
 from Dock2D.Utility.ValidationMetrics import RMSD
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+rcParams.update({'font.size': 20})
 
 
 class UtilityFunctions():
@@ -73,6 +76,29 @@ class UtilityFunctions():
         output_volume[:, :L2, :L2] = input_volume[:, L2:L, L2:L]
 
         return output_volume
+
+    @staticmethod
+    def make_boundary(grid_shape):
+        """
+        Create the boundary feature for data generation and unit testing.
+
+        :param grid_shape: input shape grid image
+        :return: features stack with original shape as "bulk" and created "boundary"
+        """
+        grid_shape = grid_shape.unsqueeze(0).unsqueeze(0)
+        epsilon = 1e-5
+        sobel_top = torch.tensor([[[[1, 2, 1], [0, 0, 0], [-1, -2, -1]]]], dtype=torch.float).cuda()
+        sobel_left = sobel_top[0, 0, :, :].t().view(1, 1, 3, 3)
+
+        feat_top = F.conv2d(grid_shape, weight=sobel_top, padding=1)
+        feat_left = F.conv2d(grid_shape, weight=sobel_left, padding=1)
+
+        top = feat_top + epsilon
+        right = feat_left + epsilon
+        boundary = torch.sqrt(top ** 2 + right ** 2)
+        feat_stack = torch.cat([grid_shape, boundary], dim=1)
+
+        return feat_stack.squeeze()
 
     def rotate(self, repr, angle):
         """
@@ -352,16 +378,33 @@ class UtilityFunctions():
         ligand = F.pad(ligand, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
         rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
         lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        rec_plot = np.hstack((receptor.squeeze().t().detach().cpu(),
+
+        pad_size3x = pad_size*3
+        receptor = receptor[:, pad_size:pad_size3x, pad_size:pad_size3x]
+        ligand = ligand[:, pad_size:pad_size3x, pad_size:pad_size3x]
+        rec_feat = rec_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
+        lig_feat = lig_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
+
+        # UtilFFT = TorchDockingFFT(padded_dim=50, num_angles=1)
+        rec_bulk, rec_bound = self.make_boundary(receptor.view(50,50))
+        lig_bulk, lig_bound = self.make_boundary(ligand.view(50,50))
+
+        rec_input_plot = np.hstack((receptor.squeeze().t().detach().cpu(), rec_bound.squeeze().t().detach().cpu()))
+        lig_input_plot = np.hstack((ligand.squeeze().t().detach().cpu(), lig_bound.squeeze().t().detach().cpu()))
+
+        plt.imshow(rec_input_plot)
+        plt.show()
+
+        rec_feat_plot = np.hstack((
                               rec_feat[0].squeeze().t().detach().cpu(),
                               rec_feat[1].squeeze().t().detach().cpu()))
-        lig_plot = np.hstack((ligand.squeeze().t().detach().cpu(),
+        lig_feat_plot = np.hstack((ligand.squeeze().t().detach().cpu(),
                               lig_feat[0].squeeze().t().detach().cpu(),
                               lig_feat[1].squeeze().t().detach().cpu()))
 
         norm = colors.CenteredNorm(vcenter=0.0) # center normalized color scale
-        stacked_image = np.vstack((rec_plot, lig_plot))
-        plt.imshow(stacked_image, cmap='coolwarm', norm=norm)  # plot scale limits
+        stacked_image = np.vstack((rec_feat_plot, lig_feat_plot))
+        plt.imshow(stacked_image, cmap='cividis', norm=norm)  # plot scale limits
         # plt.colorbar()
         plt.colorbar(shrink=0.5, location='left')
         plt.title('Input', loc='left')
@@ -380,7 +423,7 @@ class UtilityFunctions():
             left=False,
             right=False,
             labelleft=False)
-        plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png')
+        plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.pdf', format='pdf')
         # plt.show()
 
 

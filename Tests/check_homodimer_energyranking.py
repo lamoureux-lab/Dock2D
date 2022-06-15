@@ -55,8 +55,8 @@ def homodimer_vs_heterodimer(setname, interaction=False, plot_all_poses=False):
             # plt.imshow(shape_diff)
             # plt.colorbar()
             # plt.show()
-            receptor_stack = FFT.make_boundary(receptor)
-            ligand_stack = FFT.make_boundary(ligand)
+            receptor_stack = UtilityFunctions().make_boundary(receptor)
+            ligand_stack = UtilityFunctions().make_boundary(ligand)
             fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle,
                                            weight_bound, weight_crossterm, weight_bulk)
 

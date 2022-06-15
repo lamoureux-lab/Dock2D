@@ -5,7 +5,7 @@ UtilityFunctions
    :undoc-members:
 
 .. autoclass:: Dock2D.Utility.UtilityFunctions.UtilityFunctions
-   :members: write_pkl, read_pkl, check_model_gradients, weights_init,
+   :members: write_pkl, read_pkl, check_model_gradients, weights_init, make_boundary,
              swap_quadrants, rotate, rotate_gridligand, translate_gridligand,
              plot_rotation_energysurface, plot_assembly, plot_predicted_pose, orthogonalize_feats, plot_features
    :undoc-members:
