@@ -7,8 +7,8 @@ import torch
 from torch.nn import functional as F
 from Dock2D.Utility.ValidationMetrics import RMSD
 from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
-rcParams.update({'font.size': 20})
+# rcParams.update({'figure.autolayout': True})
+rcParams.update({'font.size': 16})
 
 
 class UtilityFunctions():
@@ -93,8 +93,8 @@ class UtilityFunctions():
         feat_top = F.conv2d(grid_shape, weight=sobel_top, padding=1)
         feat_left = F.conv2d(grid_shape, weight=sobel_left, padding=1)
 
-        top = feat_top + epsilon
-        right = feat_left + epsilon
+        top = feat_top
+        right = feat_left
         boundary = torch.sqrt(top ** 2 + right ** 2)
         feat_stack = torch.cat([grid_shape, boundary], dim=1)
 
@@ -331,7 +331,7 @@ class UtilityFunctions():
         :return: orthogonalized feature stack
         """
         boundW, crosstermW, bulkW = scoring_weights
-        A = torch.tensor([[bulkW, crosstermW],[crosstermW,boundW]])
+        A = torch.tensor([[boundW, crosstermW],[crosstermW, bulkW]])
         eigvals, V = torch.linalg.eig(A)
         V = V.real
         rv11 = V[0, 0] * feat_stack[0, :, :] + V[1, 0] * feat_stack[1, :, :]
@@ -361,70 +361,165 @@ class UtilityFunctions():
             print('crossterm', str(crosstermW.item())[:6])
             print('bulk', str(bulkW.item())[:6])
         plt.close()
-        plt.figure(figsize=(8, 8))
-        if rec_feat.shape[-1] < receptor.shape[-1]:
-            pad_size = (receptor.shape[-1] - rec_feat.shape[-1]) // 2
-            if rec_feat.shape[-1] % 2 == 0:
-                rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-                lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-            else:
-                rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size + 1, pad_size, pad_size + 1]), mode='constant',
-                                 value=0)
-                lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size + 1, pad_size, pad_size + 1]), mode='constant',
-                                 value=0)
+        # plt.figure(figsize=(8, 8))
+        # if rec_feat.shape[-1] < receptor.shape[-1]:
+        #     pad_size = (receptor.shape[-1] - rec_feat.shape[-1]) // 2
+        #     if rec_feat.shape[-1] % 2 == 0:
+        #         rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+        #         lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+        #     else:
+        #         rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size + 1, pad_size, pad_size + 1]), mode='constant',
+        #                          value=0)
+        #         lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size + 1, pad_size, pad_size + 1]), mode='constant',
+        #                          value=0)
 
-        pad_size = (receptor.shape[-1]) // 2
-        receptor = F.pad(receptor, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        ligand = F.pad(ligand, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+        # pad_size = (receptor.shape[-1]) // 2
+        # receptor = F.pad(receptor, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+        # ligand = F.pad(ligand, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+        # rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
+        # lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
 
-        pad_size3x = pad_size*3
-        receptor = receptor[:, pad_size:pad_size3x, pad_size:pad_size3x]
-        ligand = ligand[:, pad_size:pad_size3x, pad_size:pad_size3x]
-        rec_feat = rec_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
-        lig_feat = lig_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
+        # pad_size3x = pad_size*3
+        # receptor = receptor[:, pad_size:pad_size3x, pad_size:pad_size3x]
+        # ligand = ligand[:, pad_size:pad_size3x, pad_size:pad_size3x]
+        # rec_feat = rec_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
+        # lig_feat = lig_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
 
-        # UtilFFT = TorchDockingFFT(padded_dim=50, num_angles=1)
+        # rec_input_plot = np.hstack((receptor.squeeze().t().detach().cpu(), rec_bound.squeeze().t().detach().cpu()))
+        # lig_input_plot = np.hstack((ligand.squeeze().t().detach().cpu(), lig_bound.squeeze().t().detach().cpu()))
+
+        # plt.imshow(rec_input_plot, cmap='gist_heat_r')
+        # plt.colorbar()
+        # plt.show()
+
+        # rec_feat_plot = np.hstack((rec_input_plot,
+        #                       rec_feat[0].squeeze().t().detach().cpu(),
+        #                       rec_feat[1].squeeze().t().detach().cpu()))
+        # lig_feat_plot = np.hstack((lig_input_plot,
+        #                       lig_feat[0].squeeze().t().detach().cpu(),
+        #                       lig_feat[1].squeeze().t().detach().cpu()))
+        #
+        # norm = colors.CenteredNorm(vcenter=0.0) # center normalized color scale
+        # stacked_image = np.vstack((rec_feat_plot, lig_feat_plot))
+
         rec_bulk, rec_bound = self.make_boundary(receptor.view(50,50))
         lig_bulk, lig_bound = self.make_boundary(ligand.view(50,50))
+        rec_bulk, rec_bound = rec_bulk.squeeze().t().detach().cpu(), rec_bound.squeeze().t().detach().cpu()
+        lig_bulk, lig_bound = lig_bulk.squeeze().t().detach().cpu(), lig_bound.squeeze().t().detach().cpu()
 
-        rec_input_plot = np.hstack((receptor.squeeze().t().detach().cpu(), rec_bound.squeeze().t().detach().cpu()))
-        lig_input_plot = np.hstack((ligand.squeeze().t().detach().cpu(), lig_bound.squeeze().t().detach().cpu()))
+        rec_feat_bulk, rec_feat_bound = rec_feat[0].squeeze().t().detach().cpu(), rec_feat[1].squeeze().t().detach().cpu()
+        lig_feat_bulk, lig_feat_bound = lig_feat[0].squeeze().t().detach().cpu(), lig_feat[1].squeeze().t().detach().cpu()
 
-        plt.imshow(rec_input_plot)
+        # print(rec_bulk.shape, lig_bulk.shape)
+        # print(rec_bound.shape, lig_bound.shape)
+        # print(rec_feat_bulk.shape, lig_feat_bulk.shape)
+        # print(rec_feat_bound.shape, lig_feat_bound.shape)
+
+        figs_list = [[rec_bulk, rec_bound], [rec_feat_bulk, rec_feat_bound], [lig_bulk, lig_bound], [lig_feat_bulk, lig_feat_bound]]
+        rows, cols = 2, 2
+        fig, ax = plt.subplots(rows, cols, figsize=(8,8))
+        plt.subplots_adjust(wspace=0, hspace=0)
+
+        norm = colors.CenteredNorm(vcenter=0.0)  # center normalized color scale
+        # norm = plt.colors.DivergingNorm(vcenter=0)
+        shrink_bar = 0.8
+        # extent = [0, 100, 0, 100]
+        extent = None
+        aspect = None
+        cmap_data = 'binary'
+        cmap_feats = 'seismic'
+        # cmap_feats = 'binary'
+        # cmap_feats = 'Spectral'
+        # cmap_feats = 'coolwarm'
+        # cmap_feats = 'PiYG'
+
+        # plt.tight_layout()
+        for i in range(rows):
+            for j in range(cols):
+                ax[i,j].grid(b=None)
+                ax[i,j].axis('off')
+
+                data = figs_list[i][j]
+
+                if j == 0: #first col
+                    # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
+                    if i == 0: #first row
+                        ax[i, j].set_title('input bulk')
+                        im = ax[i, j].imshow(data, cmap=cmap_data)
+                        tick_list = [0.0,  0.5, 1.0]
+                        cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left', ticks=tick_list)
+                        cb1.set_ticklabels(list(map(str, tick_list)))
+                    if i == 1:
+                        ax[i, j].set_title('learned bulk')
+                        im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
+                        # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
+                        cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left')#, ticks=tick_list)
+                        # cb2.set_ticklabels(list(map(str, tick_list)))
+                else:
+                    # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
+                    if i == 0: #first row
+                        ax[i, j].set_title('input boundary')
+                        im = ax[i, j].imshow(data/data.max(), cmap=cmap_data)
+                        # tick_list = list(np.linspace(-data.max().item(), data.max().item(), 5, endpoint=False))
+                        tick_list = [0.0,  0.5, 1.0]
+                        cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right', ticks=tick_list)
+                        cb1.set_ticklabels(list(map(str, tick_list)))
+                        # cb1.set_ticks(list(map(str, tick_list)))
+                        # cb1.set_ticks(tick_list)
+
+                    if i == 1:
+                        ax[i, j].set_title('learned boundary')
+                        im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
+                        # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
+                        cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right')#, ticks=tick_list)
+                        # cb2.set_ticklabels(list(map(str, tick_list)))
+
+                # if j == 0: #left column
+                #     loc = 'left'
+                #     if i == 0: #first row
+                #         ax[i,j].set_title('input')
+                #         im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
+                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
+                #     if i == 1:#second row
+                #         ax[i,j].set_title('learned bulk')
+                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm, extent=extent, aspect=aspect)
+                #         # ticks = np.array([data.min(), data.max()])
+                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
+                #
+                # else: #right column
+                #     loc = 'right'
+                #     if i == 0: #first row
+                #         ax[i,j].set_title('boundary')
+                #         im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
+                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
+                #     if i == 1:#second row
+                #         ax[i,j].set_title('learned boundary')
+                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm, extent=extent, aspect=aspect)
+                #         # ticks = np.array([data.min(), data.max()])
+                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
+
+        # plt.imshow(stacked_image, cmap='cividis', norm=norm)  # plot scale limits
+        # # plt.colorbar()
+        # plt.colorbar(shrink=0.5, location='left')
+        # plt.title('Input', loc='left')
+        # plt.title('F1_bulk')
+        # plt.title('F2_bound', loc='right')
+        # plt.grid(False)
+        # plt.tick_params(
+        #     axis='x',  # changes apply to the x-axis
+        #     which='both',  # both major and minor ticks are affected
+        #     bottom=False,  # ticks along the bottom edge are off
+        #     top=False,  # ticks along the top edge are off
+        #     labelbottom=False)  # labels along the bottom
+        # plt.tick_params(
+        #     axis='y',
+        #     which='both',
+        #     left=False,
+        #     right=False,
+        #     labelleft=False)
+
+        # plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png', format='png')
         plt.show()
-
-        rec_feat_plot = np.hstack((
-                              rec_feat[0].squeeze().t().detach().cpu(),
-                              rec_feat[1].squeeze().t().detach().cpu()))
-        lig_feat_plot = np.hstack((ligand.squeeze().t().detach().cpu(),
-                              lig_feat[0].squeeze().t().detach().cpu(),
-                              lig_feat[1].squeeze().t().detach().cpu()))
-
-        norm = colors.CenteredNorm(vcenter=0.0) # center normalized color scale
-        stacked_image = np.vstack((rec_feat_plot, lig_feat_plot))
-        plt.imshow(stacked_image, cmap='cividis', norm=norm)  # plot scale limits
-        # plt.colorbar()
-        plt.colorbar(shrink=0.5, location='left')
-        plt.title('Input', loc='left')
-        plt.title('F1_bulk')
-        plt.title('F2_bound', loc='right')
-        plt.grid(False)
-        plt.tick_params(
-            axis='x',  # changes apply to the x-axis
-            which='both',  # both major and minor ticks are affected
-            bottom=False,  # ticks along the bottom edge are off
-            top=False,  # ticks along the top edge are off
-            labelbottom=False)  # labels along the bottom
-        plt.tick_params(
-            axis='y',
-            which='both',
-            left=False,
-            right=False,
-            labelleft=False)
-        plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.pdf', format='pdf')
-        # plt.show()
 
 
 if __name__ == '__main__':

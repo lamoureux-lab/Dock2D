@@ -33,8 +33,9 @@ if __name__ == '__main__':
     # experiment = 'BF_manuscript_30ep'
     # experiment = 'BF_lr-3_30ep'
     experiment = 'BF_lr-3_30ep_latest_400poolcheck'
-
     ######################
+    plotting = True
+
     train_epochs = 30
     learning_rate = 10 ** -3
 
@@ -43,18 +44,18 @@ if __name__ == '__main__':
     BFdockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
     model = SamplingModel(BFdockingFFT, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True)
+    Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True, plotting=plotting)
     ######################
     ### Train model from beginning, evaluate if valid_stream and/or test_stream passed in
-    Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
+    # Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
     #                     resume_training=True, resume_epoch=13, train_epochs=17)
 
     # ### Evaluate model on chosen dataset only and plot at chosen epoch and dataset frequency
-    # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #                     resume_training=True, resume_epoch=15, train_epochs=1)
+    Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+                        resume_training=True, resume_epoch=30, train_epochs=1)
 
     ## Plot loss and RMSDs from current experiment
     PlotterIP(experiment).plot_loss(show=True)
