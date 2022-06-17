@@ -72,14 +72,25 @@ class PlotterFI:
         plt.suptitle('deltaF distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
 
         labels = sorted(dataframe.Label.unique())
+        print('labels', labels)
         F = dataframe['F']
+        print(F.shape)
         bins = np.arange(F.min(), F.max() + binwidth, binwidth)
         hist_data = [dataframe.loc[dataframe.Label == x, 'F'] for x in labels]
+        # if len(F.shape) > 1:
         y1, x1, _ = plt.hist(hist_data[0], label=labels, bins=bins, rwidth=binwidth, color=['r'], alpha=0.25)
+        print('len(hist_data)', len(hist_data))
+        print('len(hist_data[0])', len(hist_data[0]))
+        print('len(hist_data[1])', len(hist_data[1]))
         y2, x2, _ = plt.hist(hist_data[1], label=labels, bins=bins, rwidth=binwidth, color=['g'], alpha=0.25)
+        ymax = max(max(y1), max(y2)) + 1
+        # else:
+        #     print(hist_data)
+        #     y1, x1, _ = plt.hist(hist_data, label=labels, bins=bins, color=['r', 'g'], rwidth=binwidth, alpha=0.25)
+        #     ymax = y1.max() + 1
 
         if dataframe['F_0'][0] != 'NA':
-            plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=max(max(y1), max(y2))+1, linestyles='dashed', label='F_0', colors='k')
+            plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=ymax, linestyles='dashed', label='F_0', colors='k')
             plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10})
         else:
             plt.legend(('non-interaction (-)', ' interaction (+)'), prop={'size': 10})

@@ -74,7 +74,7 @@ class DatasetGenerator:
         """
         ### Initializations START
         self.plotting = True
-        self.plot_freq = 100
+        self.plot_freq = 10
         self.show = True
         self.trainset_pool_stats = None
         self.testset_pool_stats = None
@@ -92,8 +92,8 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
         self.UtilityFuncs = UtilityFunctions()
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 400
-        self.testpool_num_proteins = 400
+        self.trainpool_num_proteins = 50
+        self.testpool_num_proteins = 50
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
@@ -103,7 +103,8 @@ class DatasetGenerator:
 
         ## energy cutoff for deciding if a shape interacts or not
         self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
-        energy_threshold = -90 - self.LSEvolume
+        energy_threshold = -self.LSEvolume
+        # energy_threshold = torch.tensor(-90)
         self.docking_decision_threshold = energy_threshold
         self.interaction_decision_threshold = energy_threshold
 
@@ -192,7 +193,7 @@ class DatasetGenerator:
 
         :param protein_pool: protein pool .pkl filename
         :param num_proteins: can specify size of protein pool to use in generating pairwise interactions, ``None`` uses the entire protein pool.
-        :return: ``fft_score_list`` used only in plotting, the ``docking_set`` is the docking dataset (IP) as a list of lists `[receptor, ligand, rot, trans]`,
+        :return: ``energies_list`` used only in plotting, the ``docking_set`` is the docking dataset (IP) as a list of lists `[receptor, ligand, rot, trans]`,
                  and ``interaction_set`` a list of `[protein_shapes, interactions_list, labels_list]`
         """
         data = ProteinPool.load(self.pool_savepath+protein_pool)
@@ -200,13 +201,17 @@ class DatasetGenerator:
         protein_pool_prefix = protein_pool.split('.')[0]
 
         protein_shapes = data.proteins
-        fft_score_list = [[], []]
+        energies_list = []
         docking_set = []
         interactions_list = []
         labels_list = []
         plot_count = 0
 
-        plot_accepted_rejected_examples = False
+        free_energies = []
+        gt_rotations = []
+        homodimer_count = 0
+        heterodimer_count = 0
+        plot_accepted_rejected_shapes = False
 
         # translation_space = torch.tensor(protein_shapes[0].shape[-1])
         # volume = torch.log(360 * translation_space ** 2)
@@ -228,45 +233,82 @@ class DatasetGenerator:
                 ## picking docking shapes
                 if lowest_energy < self.docking_decision_threshold:
                     docking_set.append([receptor, ligand, rot, trans])
+                    gt_rotations.append(rot.item())
+                    if i == j:
+                        homodimer_count += 1
+                    else:
+                        heterodimer_count += 1
 
                 ## picking interaction shapes
-                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)) - self.LSEvolume)
+                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)))
+                # free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)))
                 if free_energy < self.interaction_decision_threshold:
                     interaction = torch.tensor(1)
                 else:
                     interaction = torch.tensor(0)
+                free_energies.append(free_energy.item())
                 interactions_list.append([i, j])
                 labels_list.append(interaction)
                 with open(freeE_logfile, 'a') as fout:
                     fout.write('%f\t%s\t%d\n' % (free_energy.item(), 'NA', interaction.item()))
 
-                fft_score_list[0].append([i, j])
-                fft_score_list[1].append(lowest_energy.item())
+                energies_list.append(lowest_energy.item())
 
-                if plot_accepted_rejected_examples:
-                    self.plot_accepted_rejected_shapes(receptor, ligand, rot, trans, lowest_energy, fft_score,
+                if plot_accepted_rejected_shapes:
+                    self.plot_accepted_rejected_shapes(receptor, ligand, rot, trans, lowest_energy, free_energy, fft_score,
                                                   protein_pool_prefix, plot_count)
+
+        #
+        # plt.close()
+        # plt.title('Free energies '+protein_pool_prefix+', interaction_threshold='+str(self.interaction_decision_threshold.item())[:6])
+        # plt.hist(free_energies)
+        # plt.show()
+        dimertype_counts = (homodimer_count, heterodimer_count)
+        print('homodimer_count', 'heterodimer_count:')
+        print(dimertype_counts)
+
+        self.plot_MinEnergyandFreeEnergy_distributions(energies_list, free_energies, protein_pool_prefix)
+        self.plot_gt_rotation_distributions(gt_rotations, protein_pool_prefix)
 
         interaction_set = [protein_shapes, interactions_list, labels_list]
 
-        return fft_score_list, docking_set, interaction_set
+        return energies_list, docking_set, interaction_set, dimertype_counts
 
-    def plot_energy_distributions(self, train_fft_score_list, test_fft_score_list, show=False):
+    def plot_gt_rotation_distributions(self, gt_rotations, protein_pool_prefix):
+        plt.close()
+        plt.figure(figsize=(8,4))
+        plt.hist(gt_rotations)
+        plt.xlim([-np.pi-1, np.pi+1])
+        plt.title('Rotation '+protein_pool_prefix+', docking threshold='+str(self.docking_decision_threshold.item())[:6])
+        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_groundtruth_rotation_distribution.png')
+        # plt.show()
+
+    def plot_MinEnergyandFreeEnergy_distributions(self, energies_list, free_energies, protein_pool_prefix):
+        plt.close()
+        plt.figure(figsize=(8,4))
+        plt.title('Energies '+protein_pool_prefix+', docking threshold='+str(self.docking_decision_threshold.item())[:6])
+        plt.hist(energies_list)
+        plt.hist(free_energies)
+        plt.legend(['energy minimums', 'free energies'])
+        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_MinEnergyandFreeEnergy_distribution.png')
+        # plt.show()
+
+    def plot_energy_distributions(self, train_fft_minEnergy_list, test_fft_minEnergy_list, show=False):
         r"""
         Plot histograms of all pairwise energies within training and testing set.
 
-        :param train_fft_score_list: training set FFT scores
-        :param test_fft_score_list: test set FFT scores
+        :param train_fft_minEnergy_list: training set FFT scores
+        :param test_fft_minEnergy_list: test set FFT scores
         :param trainpool_num_proteins: number of proteins in training pool
         :param testpool_num_proteins: number of proteins in testing pool
         :param show: show plot in new window (does not affect plot saving)
         """
         plt.close()
-        plt.title('Docking energies of all pairs')
+        plt.title('docking energies of both datasets, all pairs')
         plt.ylabel('Counts')
         plt.xlabel('Energies')
-        y1, x1, _ = plt.hist(train_fft_score_list[1], alpha=0.33)
-        y2, x2, _ = plt.hist(test_fft_score_list[1], alpha=0.33)
+        y1, x1, _ = plt.hist(train_fft_minEnergy_list, alpha=0.33)
+        y2, x2, _ = plt.hist(test_fft_minEnergy_list, alpha=0.33)
         plt.vlines(self.docking_decision_threshold, ymin=0, ymax=max(y1.max(), y2.max())+1, linestyles='dashed', label='docking decision threshold', colors='k')
         plt.legend(['docking decision threshold', 'training set', 'testing set'])
         savefile = 'Figs/PairEnergyDistributions/energydistribution_' + self.weight_string +\
@@ -275,7 +317,7 @@ class DatasetGenerator:
         if show:
             plt.show()
 
-    def plot_accepted_rejected_shapes(self, receptor, ligand, rot, trans, lowest_energy, fft_score, protein_pool_prefix, plot_count):
+    def plot_accepted_rejected_shapes(self, receptor, ligand, rot, trans, lowest_energy, free_energy, fft_score, protein_pool_prefix, plot_count):
         r"""
         Plot examples of accepted and rejected shape pairs, based on docking and interaction decision thresholds set.
 
@@ -292,11 +334,17 @@ class DatasetGenerator:
             plt.close()
             pair = UtilityFunctions().plot_assembly(receptor.cpu(), ligand.cpu(), rot.cpu(), trans.cpu())
             plt.imshow(pair.transpose())
-            if lowest_energy < self.docking_decision_threshold or lowest_energy < self.interaction_decision_threshold:
-                acc_or_rej = 'ACCEPTED'
+            docking_cond = lowest_energy < self.docking_decision_threshold
+            interaction_cond = free_energy < self.interaction_decision_threshold
+            if docking_cond and interaction_cond:
+                acc_or_rej = 'ACCEPTED_dockingANDinteraction'
+            elif docking_cond and not interaction_cond:
+                acc_or_rej = 'ACCEPTED_docking_REJECTED_interaction'
+            elif not docking_cond and interaction_cond:
+                acc_or_rej = 'ACCEPTED_interaction_REJECTED_docking'
             else:
                 acc_or_rej = 'REJECTED'
-            title = acc_or_rej + '_energy' + str(lowest_energy.item()) + '_docking'+str(self.docking_decision_threshold)+'_interaction'+str(interaction_decision_threshold)
+            title = acc_or_rej + '_energy' + str(lowest_energy.item()) + '_docking'+str(self.docking_decision_threshold)+'_interaction'+str(self.interaction_decision_threshold)
             plt.title(title)
             plt.savefig('Figs/AcceptRejectExamples/' + title + '.png')
 
@@ -323,10 +371,10 @@ class DatasetGenerator:
         """
 
         ### Generate training/validation set
-        train_fft_score_list, train_docking_set, train_interaction_set = self.generate_datasets(
+        train_fft_score_list, train_docking_set, train_interaction_set, train_dimer_count = self.generate_datasets(
             self.trainvalidset_protein_pool, self.trainpool_num_proteins)
         ### Generate testing set
-        test_fft_score_list, test_docking_set, test_interaction_set = self.generate_datasets(
+        test_fft_score_list, test_docking_set, test_interaction_set, test_dimer_count = self.generate_datasets(
             self.testset_protein_pool, self.testpool_num_proteins)
 
         ## Slice validation set out of shuffled training docking set
