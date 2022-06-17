@@ -60,6 +60,8 @@ class SamplingDocker(nn.Module):
                 if plotting and self.num_angles == 360 and plot_count % 10 == 0:
                     UtilityFunctions().plot_rotation_energysurface(fft_score, pred_txy, self.num_angles, stream_name,
                                                                    plot_count)
+                    import matplotlib.pyplot as plt
+                    plt.show()
             else:
                 best_score = fft_score[pred_txy[0], pred_txy[1]]
 

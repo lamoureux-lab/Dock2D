@@ -189,9 +189,13 @@ class TrainerIP:
                                                                       stream_name=stream_name, plotting=self.plotting)
         else:
             if self.BF_eval:
+
                 lowest_energy, pred_rot, pred_txy, fft_score = self.model(receptor, ligand, plot_count=plot_count,
                                                                           stream_name=stream_name, plotting=self.plotting,
                                                                           training=False)
+                print('gt_rot', 'pred_rot')
+                print(gt_rot, pred_rot)
+
             else:
                 ## for evaluation, sample buffer is necessary for Monte Carlo multi epoch eval
                 alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
