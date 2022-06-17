@@ -8,7 +8,7 @@ from torch.nn import functional as F
 from Dock2D.Utility.ValidationMetrics import RMSD
 from matplotlib import rcParams
 # rcParams.update({'figure.autolayout': True})
-rcParams.update({'font.size': 16})
+rcParams.update({'font.size': 14})
 
 
 class UtilityFunctions():
@@ -115,7 +115,7 @@ class UtilityFunctions():
         curr_grid = F.affine_grid(R, size=repr.size(), align_corners=True).type(torch.float)
         return F.grid_sample(repr, curr_grid, align_corners=True)
 
-    def plot_rotation_energysurface(self, fft_score, pred_txy, num_angles=360, stream_name=None, plot_count=0):
+    def plot_rotation_energysurface(self, fft_score, pred_txy, num_angles=360, stream_name=None, plot_count=0, format='png'):
         """
         Plot the lowest energy translation index from `fft_score` per rotation angle as an energy surface curve.
 
@@ -135,13 +135,21 @@ class UtilityFunctions():
                 minimumEnergy = -fft_score[i, pred_txy[0], pred_txy[1]].detach().cpu()
                 mintxy_energies.append(minimumEnergy)
 
+        fig = plt.figure(figsize=(8,5))
+        plt.rcParams['axes.xmargin'] = 0
+        plt.rcParams['axes.ymargin'] = 0.05
+        rcParams.update({'font.size': 14})
+
+        axarr = fig.add_subplot(1,1,1)
         xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
-        hardmin_minEnergies = stream_name + '_energysurface' + '_example' + str(plot_count)
+        plt.xticks(np.linspace(-np.pi, np.pi, 5, endpoint=True))
+        plt.xlim([-np.pi, np.pi])
         plt.plot(xrange, mintxy_energies)
+        hardmin_minEnergies = stream_name + '_energysurface' + '_example' + str(plot_count)
         plt.title('Best Scoring Translation Energy Surface')
         plt.ylabel('Energy')
         plt.xlabel('Rotation (rads)')
-        plt.savefig('Figs/EnergySurfaces/' + hardmin_minEnergies + '.png')
+        plt.savefig('Figs/EnergySurfaces/' + hardmin_minEnergies + '.'+format, format=format)
 
     def plot_MCsampled_energysurface(self, free_energies_visited_indices, accumulated_free_energies, acceptance_rate, stream_name=None, interaction=None, plot_count=0, epoch=0):
         """
@@ -205,24 +213,6 @@ class UtilityFunctions():
         else:
             receptor_copy = receptor * -100
             ligand_copy = ligand * 200
-
-        # def pad_to_match_shape(a, shape):
-        #     y_, x_ = shape
-        #     y, x = a.shape[-2], a.shape[-1]
-        #     y_pad = (y_ - y)
-        #     x_pad = (x_ - x)
-        #     return np.pad(a, ((y_pad // 2, y_pad // 2 + y_pad % 2),
-        #                       (x_pad // 2, x_pad // 2 + x_pad % 2)),
-        #                   mode='constant')
-        #
-        # # padding = box_size//2
-        # padded_dim_rec = receptor.shape[-2], receptor.shape[-1]
-        # padded_dim_lig = [ligand.shape[-2]+padding, ligand.shape[-1]+padding]
-        # print(padded_dim_rec, padded_dim_lig)
-        # shape = [1000, 1103]
-
-        # receptor_copy = pad_to_match_shape(receptor, shape)
-        # ligand_copy = pad_to_match_shape(ligand, padded_dim_rec)
 
         padding = box_size//2
         if box_size < 100:
@@ -518,8 +508,8 @@ class UtilityFunctions():
         #     right=False,
         #     labelleft=False)
 
-        # plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png', format='png')
-        plt.show()
+        plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png', format='png')
+        # plt.show()
 
 
 if __name__ == '__main__':
