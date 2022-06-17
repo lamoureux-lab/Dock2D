@@ -7,7 +7,7 @@ from tqdm import tqdm
 from matplotlib import gridspec
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
+# rcParams.update({'figure.autolayout': True})
 
 from Dock2D.DatasetGeneration.ProteinPool import ProteinPool, Protein
 
@@ -193,6 +193,7 @@ class ShapeDistributions:
         plot_lenx = shapes_plot.shape[1]
         plot_leny = shapes_plot.shape[0]
 
+        plt.close()
         plt.figure(figsize=(num_cols*2, num_rows*2))
         gs = gridspec.GridSpec(4, 4)
         gs.update(wspace=0.05, hspace=0.05)
