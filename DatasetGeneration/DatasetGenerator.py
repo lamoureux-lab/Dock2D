@@ -103,10 +103,11 @@ class DatasetGenerator:
 
         ## energy cutoff for deciding if a shape interacts or not
         self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
-        energy_threshold = -self.LSEvolume
+        # energy_threshold = -90-self.LSEvolume
         # energy_threshold = torch.tensor(-90)
-        self.docking_decision_threshold = energy_threshold
-        self.interaction_decision_threshold = energy_threshold
+        self.docking_decision_threshold = torch.tensor(-90)
+        # self.interaction_decision_threshold = -90-self.LSEvolume
+        self.interaction_decision_threshold = torch.tensor(-90)
 
         ## string of scoring coefficients for plot titles and filenames
         self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm) + ',' + str(self.weight_bulk)
@@ -240,7 +241,7 @@ class DatasetGenerator:
                         heterodimer_count += 1
 
                 ## picking interaction shapes
-                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)))
+                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)) - self.LSEvolume)
                 # free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)))
                 if free_energy < self.interaction_decision_threshold:
                     interaction = torch.tensor(1)
