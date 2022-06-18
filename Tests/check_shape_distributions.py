@@ -56,6 +56,10 @@ class ShapeDistributions:
         unique = np.array(list(counter.keys()))
         inds = unique.argsort()
         counts = np.array(list(counter.values()))[inds]
+        unique = np.array(list(counter.keys()))[inds]
+
+        print('inds,', 'unique,', 'counts')
+        print(inds, unique, counts)
         return unique, counts
 
     def get_unique_fracs(self, counts, dataname):
@@ -167,7 +171,9 @@ class ShapeDistributions:
 
         if debug:
             for i in indices:
-                print('params', shape_params[i])
+                title='params', shape_params[i]
+                print(title)
+                plt.title(title)
                 plt.imshow(protein_shapes[i])
                 plt.show()
 
@@ -176,14 +182,14 @@ class ShapeDistributions:
 
         return shapes_plot, alphas_packed, numpoints_packed
 
-    def plot_shapes_and_params(self):
+    def plot_shapes_and_params(self, debug=False):
         """
         Plot a 2D array of example shapes generated using all desired `alpha` and `num_points` parameter combinations and
         plot a two histograms opposite the axes corresponding to each parameter.
         """
         data = ProteinPool.load(self.protein_pool)
 
-        shapes_plot, alphas_packed, numpoints_packed = self.get_shape_distributions(data)
+        shapes_plot, alphas_packed, numpoints_packed = self.get_shape_distributions(data, debug)
 
         alphas_unique,  alphas_fracs, alphas_barwidth = alphas_packed
         numpoints_unique, numpoints_fracs, numpoints_barwidth = numpoints_packed
@@ -245,10 +251,12 @@ if __name__ == "__main__":
 
     data_path = '../DatasetGeneration/PoolData/'
 
+    debug=True
+
     num_proteins = 400
     trainvalidset_protein_pool = data_path+'trainvalidset_protein_pool' + str(num_proteins) + '.pkl'
     rcParams.update({'font.size': 15})
-    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params()
+    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params(debug=debug)
 
     num_proteins = 400
     testset_protein_pool = data_path+'testset_protein_pool' + str(num_proteins) + '.pkl'
