@@ -58,8 +58,8 @@ class ShapeDistributions:
         counts = np.array(list(counter.values()))[inds]
         unique = np.array(list(counter.keys()))[inds]
 
-        print('inds,', 'unique,', 'counts')
-        print(inds, unique, counts)
+        # print('inds,', 'unique,', 'counts')
+        # print(inds, unique, counts)
         return unique, counts
 
     def get_unique_fracs(self, counts, dataname):
@@ -72,10 +72,10 @@ class ShapeDistributions:
         """
         unique, counts = self.get_counts(counts)
         fracs = np.array(counts)/sum(counts)
-        print('\n'+dataname+':\n')
-        print('unique values', unique)
-        print('counts', counts)
-        print('fractions', fracs)
+        # print('\n'+dataname+':\n')
+        # print('unique values', unique)
+        # print('counts', counts)
+        # print('fractions', fracs)
         barwidth = abs((unique[-1] - unique[0])/len(unique))
 
         return unique, fracs, barwidth
@@ -121,7 +121,7 @@ class ShapeDistributions:
                     found_list.append(i)
                     indices.append(j)
 
-        return indices
+        return indices, missing_list
 
     def get_shape_distributions(self, data, debug=False):
         """
@@ -151,7 +151,9 @@ class ShapeDistributions:
         if len(found_list) < len(combination_list):
             print('\nERROR: Dataset is incomplete from missing combination(s) of "alpha" and "number of points" in protein pool')
             print('\tTry increasing dataset size probability parameters to increase shape combination encounter frequencies')
-            indices = self.check_missing_examples(combination_list, found_list, protein_shapes, params_list)
+            indices, missing_list = self.check_missing_examples(combination_list, found_list, protein_shapes, params_list)
+        else:
+            missing_list = []
 
         num_rows = len(alphas_unique)
         num_cols = len(numpoints_unique)
@@ -180,16 +182,16 @@ class ShapeDistributions:
         alphas_packed = alphas_unique, alphas_fracs, alphas_barwidth
         numpoints_packed = numpoints_unique, numpoints_fracs, numpoints_barwidth
 
-        return shapes_plot, alphas_packed, numpoints_packed
+        return shapes_plot, alphas_packed, numpoints_packed, missing_list
 
-    def plot_shapes_and_params(self, debug=False):
+    def plot_shapes_and_params(self, plot_pub=False, debug=False):
         """
         Plot a 2D array of example shapes generated using all desired `alpha` and `num_points` parameter combinations and
         plot a two histograms opposite the axes corresponding to each parameter.
         """
         data = ProteinPool.load(self.protein_pool)
 
-        shapes_plot, alphas_packed, numpoints_packed = self.get_shape_distributions(data, debug)
+        shapes_plot, alphas_packed, numpoints_packed, missing_list = self.get_shape_distributions(data, debug)
 
         alphas_unique,  alphas_fracs, alphas_barwidth = alphas_packed
         numpoints_unique, numpoints_fracs, numpoints_barwidth = numpoints_packed
@@ -239,7 +241,12 @@ class ShapeDistributions:
         ax2.set_xticks([0,0.5])
         ax2.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
         plt.setp(ax2.get_yticklabels(), visible=False)
-        plt.savefig('Figs/ShapeDistributions/'+self.dataset_name + str(len(data.proteins)) + 'pool_combined_shapes_params.pdf', format='pdf')
+
+        if plot_pub:
+            format = 'pdf'
+        else:
+            format = 'png'
+        plt.savefig('Figs/ShapeDistributions/'+self.dataset_name + str(len(data.proteins)-len(missing_list)) + 'pool_combined_shapes_params.'+format, format=format)
 
         if self.show:
             plt.show()
@@ -251,14 +258,14 @@ if __name__ == "__main__":
 
     data_path = '../DatasetGeneration/PoolData/'
 
-    debug=True
+    debug = False
 
     num_proteins = 400
     trainvalidset_protein_pool = data_path+'trainvalidset_protein_pool' + str(num_proteins) + '.pkl'
     rcParams.update({'font.size': 15})
-    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params(debug=debug)
+    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params(debug=debug, plot_pub=False)
 
     num_proteins = 400
     testset_protein_pool = data_path+'testset_protein_pool' + str(num_proteins) + '.pkl'
     rcParams.update({'font.size': 20})
-    ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params()
+    ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params(debug=debug, plot_pub=False)

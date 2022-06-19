@@ -49,7 +49,7 @@ class PlotterFI:
         if show:
             plt.show()
 
-    def plot_deltaF_distribution(self, filename=None, plot_epoch=None, xlim=None, binwidth=1, show=False, save=True):
+    def plot_deltaF_distribution(self, filename=None, plot_epoch=None, xlim=None, binwidth=1, show=False, save=True, plot_pub=False):
         """
         Plot the labeled free energies of interacting and non-interacting shape pairs as a histogram,
         with a vertical line demarcating the learned `F_0` interaction decision threshold, if applicable.
@@ -69,25 +69,25 @@ class PlotterFI:
         dataframe = pd.read_csv(filename, sep='\t', header=0, names=['F', 'F_0', 'Label'])
 
         fig, ax = plt.subplots(figsize=(10,10))
-        plt.suptitle('deltaF distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
+        if not plot_pub:
+            plt.suptitle('deltaF distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
 
         labels = sorted(dataframe.Label.unique())
         F = dataframe['F']
-        print(F.shape)
         bins = np.arange(F.min(), F.max() + binwidth, binwidth)
         hist_data = [dataframe.loc[dataframe.Label == x, 'F'] for x in labels]
-        print('labels', labels)
-        print(F.shape)
+        # print('labels', labels)
+        # print(F.shape)
 
         if len(labels) > 1:
+            # print('len(hist_data)', len(hist_data))
+            # print('len(hist_data[0])', len(hist_data[0]))
+            # print('len(hist_data[1])', len(hist_data[1]))
             y1, x1, _ = plt.hist(hist_data[0], label=labels, bins=bins, rwidth=binwidth, color=['r'], alpha=0.25)
-            print('len(hist_data)', len(hist_data))
-            print('len(hist_data[0])', len(hist_data[0]))
-            print('len(hist_data[1])', len(hist_data[1]))
             y2, x2, _ = plt.hist(hist_data[1], label=labels, bins=bins, rwidth=binwidth, color=['g'], alpha=0.25)
             ymax = max(max(y1), max(y2)) + 1
         else:
-            print(hist_data)
+            # print(hist_data)
             if labels == [1]:
                 color = 'g'
                 plt.legend(('interaction (+)'), prop={'size': 10})
