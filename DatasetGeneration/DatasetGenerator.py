@@ -449,7 +449,7 @@ class DatasetGenerator:
                   'w') as fout:
             fout.write('TRAIN DATASET STATS')
             fout.write('\nProtein Pool size=' + str(self.trainpool_num_proteins) + ':')
-            fout.write('\nScoring Weights: ' + self.weight_string)
+            fout.write('\nScoring Weights: Bound, Crossterm, Bulk ' + self.weight_string)
             fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
             fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
 
@@ -475,7 +475,7 @@ class DatasetGenerator:
         with open(self.datastats_savepath + 'testset_dataset_stats_' + str(self.testpool_num_proteins) + 'pool.txt', 'w') as fout:
             fout.write('TEST DATASET STATS')
             fout.write('\nProtein Pool size=' + str(self.testpool_num_proteins) + ':')
-            fout.write('\nScoring Weights: ' + self.weight_string)
+            fout.write('\nScoring Weights: Bound, Crossterm, Bulk ' + self.weight_string)
             fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
             fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
 
