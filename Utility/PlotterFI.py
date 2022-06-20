@@ -40,8 +40,6 @@ class PlotterFI:
         if len(train['Loss'].to_numpy()) > 2:
             plt.ylim([0, train['Loss'].to_numpy().max()])
         plt.grid(visible=True)
-        # num_epochs = len(train['Epoch'].to_numpy())
-        # plt.xticks(np.arange(0, num_epochs+1, num_epochs//10))
         plt.xlabel('Epochs')
 
         if save:
@@ -98,11 +96,9 @@ class PlotterFI:
             y1, x1, _ = plt.hist(hist_data, label=labels, bins=bins, color=color, rwidth=binwidth, alpha=0.25)
             ymax = y1.max() + 1
 
-        if dataframe['F_0'][0] != 'NA':
-            plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=ymax, linestyles='dashed', label='F_0', colors='k')
-            plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10})
-        else:
-            plt.legend(('non-interaction (-)', ' interaction (+)'), prop={'size': 10})
+        plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=ymax, linestyles='dashed', label='F_0', colors='k')
+        plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10})
+
 
         if xlim:
             ax.set_xlim([-xlim, 0])
