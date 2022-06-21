@@ -77,7 +77,11 @@ class DatasetGenerator:
         self.plotting = True
         self.plot_freq = 10
         self.show = False
-        self.plot_pub = True
+        self.plot_pub = False
+        if self.plot_pub:
+            self.format = 'pdf'
+        else:
+            self.format = 'png'
         self.trainset_pool_stats = None
         self.testset_pool_stats = None
 
@@ -293,8 +297,8 @@ class DatasetGenerator:
 
         min_FE = min(free_energies_list)
         max_FE = max(free_energies_list)
-        print(min_FE, max_FE)
-        print('num interactions', len(labels_list))
+        # print(min_FE, max_FE)
+        # print('num interactions', len(labels_list))
         for i in range(len(labels_list)):
             receptor_index = indices_list[i][0]
             ligand_index = indices_list[i][1]
@@ -306,18 +310,17 @@ class DatasetGenerator:
 
             if label == 1:# and free_energy < min_FE + 40:
                 if len(plot_data_interacting) < examples_to_plot:
-                    print('interaction found', free_energy)
+                    # print('interaction found', free_energy)
                     pair = UtilityFunctions().plot_assembly(receptor,
                                                             ligand,
                                                             rot.detach().cpu(),
                                                             trans.detach().cpu(),
                                                             interaction_fact=True)
-                    print(pair.shape)
                     plot_data_interacting.append(pair)
                     interacting_FE.append(free_energy)
             if label == 0 and free_energy > max_FE - 10:
                 if len(plot_data_noninteracting) < examples_to_plot:
-                    print('non-interaction found', free_energy)
+                    # print('non-interaction found', free_energy)
                     pair = UtilityFunctions().plot_assembly(receptor,
                                                             ligand,
                                                             rot.detach().cpu(),
@@ -346,7 +349,7 @@ class DatasetGenerator:
 
         for i in range(examples_to_plot):
             plt.text((i+1)*spacer-offset, 0.1*spacer, str(interacting_FE[i]))
-            plt.text((i+1)*spacer-offset, spacer, str(noninteracting_FE[i]))
+            plt.text((i+1)*spacer-offset, 1.1*spacer, str(noninteracting_FE[i]))
 
         cmap = 'gist_heat_r'
         plt.imshow(plot, cmap=cmap)
@@ -354,7 +357,7 @@ class DatasetGenerator:
         plt.axis('off')
         # plt.show()
         # protein_pool_prefix_title = ' '.join(protein_pool_prefix.split('_'))
-        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_interactionsVSnon-interactions.png')
+        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_interactionsVSnon-interactions.'+self.format, format=self.format)
 
     def plot_gt_rotation_distributions(self, gt_rotations, protein_pool_prefix):
         plt.close()
@@ -365,7 +368,7 @@ class DatasetGenerator:
         plt.title('Rotation '+protein_pool_prefix_title+', docking<'+str(self.docking_decision_threshold.item())[:6])
         plt.xlabel('rotation (rads)')
         plt.ylabel('counts')
-        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_groundtruth_rotation_distribution.png')
+        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_groundtruth_rotation_distribution.'+self.format, format=self.format)
 
     def plot_energy_distributions(self, energies_list, free_energies, protein_pool_prefix):
         r"""
@@ -392,7 +395,7 @@ class DatasetGenerator:
         plt.vlines(self.interaction_decision_threshold, ymin=0, ymax=ymax, linestyles='dotted', label=interaction_label, colors='k')
         plt.legend([docking_label, interaction_label, 'energy minimums', 'free energies'])
 
-        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_MinEnergyandFreeEnergy_distribution.png')
+        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_MinEnergyandFreeEnergy_distribution.'+self.format, format=self.format)
 
     def plot_accepted_rejected_shapes(self, receptor, ligand, rot, trans, minimum_energy, free_energy, fft_score, protein_pool_prefix, plot_count):
         r"""
@@ -423,7 +426,7 @@ class DatasetGenerator:
                 acc_or_rej = 'REJECTED'
             title = acc_or_rej + '_energy' + str(minimum_energy.item()) + '_docking' + str(self.docking_decision_threshold) + '_interaction' + str(self.interaction_decision_threshold)
             plt.title(title)
-            plt.savefig('Figs/AcceptRejectExamples/' + title + '.png')
+            plt.savefig('Figs/AcceptRejectExamples/' + title + '.png') # not included in manuscript
             protein_pool_prefix = ' '.join(protein_pool_prefix.split('_'))
 
             ### plot corresponding 2d energy surface best scoring translation energy vs rotation angle
