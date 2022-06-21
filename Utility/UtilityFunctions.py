@@ -213,7 +213,7 @@ class UtilityFunctions():
         elif interaction_fact:
             receptor_copy = receptor * 2
             ligand_copy = ligand
-            padding = box_size
+            padding = box_size//2
             receptor_copy = np.pad(receptor_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
             ligand_copy = np.pad(ligand_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
         else:
