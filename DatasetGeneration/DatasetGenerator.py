@@ -77,7 +77,7 @@ class DatasetGenerator:
         self.plotting = True
         self.plot_freq = 10
         self.show = False
-        self.plot_pub = False
+        self.plot_pub = True
         if self.plot_pub:
             self.format = 'pdf'
         else:
@@ -286,7 +286,7 @@ class DatasetGenerator:
         shuffled_indices, shuffled_labels, shuffled_free_energies, shuffled_transformations = zip(*temp)
         indices_list, labels_list, free_energies_list, transformations_list = list(shuffled_indices), list(shuffled_labels), list(shuffled_free_energies), list(shuffled_transformations)
 
-        examples_to_plot = 5
+        examples_to_plot = 3
 
         plt.figure(figsize=(examples_to_plot*4, examples_to_plot*2))
 
@@ -342,8 +342,8 @@ class DatasetGenerator:
         midpoint = (examples_to_plot*spacer)//2
         font = {'weight': 'bold',
                 'size': 16,}
-        plt.text(midpoint-len('interacting'), -0.1*spacer, 'interacting', fontdict=font)
-        plt.text(midpoint-len('non-interacting'), 0.9*spacer, 'non-interacting', fontdict=font)
+        plt.text(midpoint-4*len('interacting'), -0.1*spacer, 'interacting', fontdict=font)
+        plt.text(midpoint-4*len('non-interacting'), 0.9*spacer, 'non-interacting', fontdict=font)
         # plt.text(0, 0, s=''.join(str(interacting_FE).split(',')[1:-1]))
         # plt.text(0, 100, s=''.join(str(noninteracting_FE).split(',')[1:-1]))
 
