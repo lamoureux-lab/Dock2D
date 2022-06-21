@@ -70,7 +70,7 @@ class Protein:
 		self.hull = hull
 
 	@classmethod
-	def generateConcave(cls, size=50, alpha=1.0, num_points=25, occupancy=0.8, debug=False):
+	def generateConcave(cls, size, alpha, num_points, occupancy=0.80, debug=False):
 		"""
 		Generate concave hull coordinates and convert to grid based shape
 		filled with 1 inside the shape, 0 otherwise.

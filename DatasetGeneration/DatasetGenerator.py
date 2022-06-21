@@ -107,9 +107,8 @@ class DatasetGenerator:
         self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
 
         # docking_threshold = -self.LSEvolume
-        docking_threshold = -20
-        # interaction_threshold = -84.9036
-        interaction_threshold = -90
+        docking_threshold = -50
+        interaction_threshold = -84.9036
         self.docking_decision_threshold = torch.tensor(docking_threshold)
         self.interaction_decision_threshold = interaction_threshold-self.LSEvolume
 
@@ -122,8 +121,8 @@ class DatasetGenerator:
 
         ### Generate training/validation set protein pool
         ## dataset parameters (value, relative frequency)
-        self.train_alpha = [(0.80, 1), (0.85, 2), (0.90, 1)] # concavity level [0-1)
-        self.train_num_points = [(60, 1), (80, 2), (100, 1)] # number of points for shape generation [0-1)
+        self.train_alpha = [(0.75, 1), (0.85, 2), (0.95, 1)]  # concavity level [0-1)
+        self.train_num_points = [(50, 1), (75, 2), (100, 1)]  # number of points for shape generation [0-1)
         self.train_params = ParamDistribution(alpha=self.train_alpha, num_points=self.train_num_points)
 
         ### Generate testing set protein pool
@@ -199,7 +198,7 @@ class DatasetGenerator:
         :param protein_pool: protein pool .pkl filename
         :param num_proteins: can specify size of protein pool to use in generating pairwise interactions, ``None`` uses the entire protein pool.
         :return: ``energies_list`` used only in plotting, the ``docking_set`` is the docking dataset (IP) as a list of lists `[receptor, ligand, rot, trans]`,
-                 and ``interaction_set`` a list of `[protein_shapes, interactions_list, labels_list]`
+                 and ``interaction_set`` a list of `[protein_shapes, indices_list, labels_list]`
         """
         data = ProteinPool.load(self.pool_savepath+protein_pool)
 
@@ -208,9 +207,10 @@ class DatasetGenerator:
         protein_shapes = data.proteins
         energies_list = []
         free_energies_list = []
+        transformations_list = []
 
         docking_set = []
-        interactions_list = []
+        indices_list = []
         labels_list = []
         plot_count = 0
 
@@ -218,6 +218,7 @@ class DatasetGenerator:
         homodimer_count = 0
         heterodimer_count = 0
         plot_accepted_rejected_shapes = False
+        plot_interacting_examples = True
 
         freeE_logfile = self.log_savepath+'log_rawdata_FI_'+protein_pool_prefix+'.txt'
         with open(freeE_logfile, 'w') as fout:
@@ -255,8 +256,9 @@ class DatasetGenerator:
 
                 energies_list.append(minimum_energy.item())
                 free_energies_list.append(free_energy.item())
-                interactions_list.append([i, j])
+                indices_list.append([i, j])
                 labels_list.append(interaction)
+                transformations_list.append([rot, trans])
 
                 if plot_accepted_rejected_shapes:
                     self.plot_accepted_rejected_shapes(receptor, ligand, rot, trans, minimum_energy, free_energy, fft_score,
@@ -264,9 +266,95 @@ class DatasetGenerator:
 
         dimertype_counts = (homodimer_count, heterodimer_count)
 
-        interaction_set = [protein_shapes, interactions_list, labels_list]
+        interaction_set = [protein_shapes, indices_list, labels_list]
+
+        if plot_interacting_examples:
+            self.plot_interaction_dataset_examples(interaction_set, free_energies_list, transformations_list, protein_pool_prefix)
 
         return energies_list, free_energies_list, protein_pool_prefix, docking_set, interaction_set, dimertype_counts, gt_rotations
+
+    def plot_interaction_dataset_examples(self, interaction_set, free_energies_list, transformations_list, protein_pool_prefix):
+
+        protein_shapes, indices_list, labels_list = interaction_set
+
+        temp = list(zip(indices_list, labels_list, free_energies_list, transformations_list))
+        np.random.shuffle(temp)
+        shuffled_indices, shuffled_labels, shuffled_free_energies, shuffled_transformations = zip(*temp)
+        indices_list, labels_list, free_energies_list, transformations_list = list(shuffled_indices), list(shuffled_labels), list(shuffled_free_energies), list(shuffled_transformations)
+
+        examples_to_plot = 5
+
+        plt.figure(figsize=(examples_to_plot*4, examples_to_plot*2))
+
+        plot_data_interacting = []
+        interacting_FE = []
+        plot_data_noninteracting = []
+        noninteracting_FE = []
+
+        min_FE = min(free_energies_list)
+        max_FE = max(free_energies_list)
+        print(min_FE, max_FE)
+        print('num interactions', len(labels_list))
+        for i in range(len(labels_list)):
+            receptor_index = indices_list[i][0]
+            ligand_index = indices_list[i][1]
+            free_energy = np.around(free_energies_list[i], decimals=2)
+            rot, trans = transformations_list[i]
+            receptor = protein_shapes[receptor_index]
+            ligand = protein_shapes[ligand_index]
+            label = labels_list[i]
+
+            if label == 1:# and free_energy < min_FE + 40:
+                if len(plot_data_interacting) < examples_to_plot:
+                    print('interaction found', free_energy)
+                    pair = UtilityFunctions().plot_assembly(receptor,
+                                                            ligand,
+                                                            rot.detach().cpu(),
+                                                            trans.detach().cpu(),
+                                                            interaction_fact=True)
+                    print(pair.shape)
+                    plot_data_interacting.append(pair)
+                    interacting_FE.append(free_energy)
+            if label == 0 and free_energy > max_FE - 10:
+                if len(plot_data_noninteracting) < examples_to_plot:
+                    print('non-interaction found', free_energy)
+                    pair = UtilityFunctions().plot_assembly(receptor,
+                                                            ligand,
+                                                            rot.detach().cpu(),
+                                                            trans.detach().cpu(),
+                                                            interaction_fact=True)
+                    plot_data_noninteracting.append(pair)
+                    noninteracting_FE.append(free_energy)
+
+            if len(plot_data_interacting) > examples_to_plot and len(plot_data_noninteracting) > examples_to_plot:
+                break
+
+        interacting = np.hstack((plot_data_interacting))
+        noninteracting = np.hstack((plot_data_noninteracting))
+
+        plot = np.vstack((interacting, noninteracting))
+
+        spacer = 100*2
+        offset = 60*2
+        midpoint = (examples_to_plot*spacer)//2
+        font = {'weight': 'bold',
+                'size': 16,}
+        plt.text(midpoint-len('interacting'), -0.1*spacer, 'interacting', fontdict=font)
+        plt.text(midpoint-len('non-interacting'), 0.9*spacer, 'non-interacting', fontdict=font)
+        # plt.text(0, 0, s=''.join(str(interacting_FE).split(',')[1:-1]))
+        # plt.text(0, 100, s=''.join(str(noninteracting_FE).split(',')[1:-1]))
+
+        for i in range(examples_to_plot):
+            plt.text((i+1)*spacer-offset, 0.1*spacer, str(interacting_FE[i]))
+            plt.text((i+1)*spacer-offset, spacer, str(noninteracting_FE[i]))
+
+        cmap = 'gist_heat_r'
+        plt.imshow(plot, cmap=cmap)
+        plt.grid(False)
+        plt.axis('off')
+        # plt.show()
+        # protein_pool_prefix_title = ' '.join(protein_pool_prefix.split('_'))
+        plt.savefig(self.datastats_savepath + protein_pool_prefix+'_interactionsVSnon-interactions.png')
 
     def plot_gt_rotation_distributions(self, gt_rotations, protein_pool_prefix):
         plt.close()
