@@ -94,23 +94,26 @@ class InteractionFactDataset(Dataset):
 		return self.dataset_size
 
 
-def get_docking_stream(data_path, shuffle=False, max_size=None, num_workers=0):
+def get_docking_stream(data_path, shuffle=True, max_size=None, num_workers=0):
 	'''
 	Get docking data as a torch data stream that is randomly shuffled per epoch.
 
 	:param data_path: path to dataset .pkl file.
-	:param shuffle: shuffle must be set to False for RandomSampler()
+	:param shuffle: shuffle using RandomSampler() or not
 	:param max_size: number of docking examples to be loaded into data stream
 	:param num_workers: number of cpu threads
 	:return: docking data stream in format of [receptor, ligand, rotation, translation] (see DatasetGeneration).
 	'''
 	dataset = InteractionPoseDataset(path=data_path, max_size=max_size)
-	sampler = RandomSampler(dataset)
-	trainloader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers, shuffle=shuffle)
+	if shuffle:
+		sampler = RandomSampler(dataset)
+	else:
+		sampler = None
+	trainloader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers)
 	return trainloader
 
 
-def get_interaction_stream(data_path, shuffle=False, number_of_pairs=None, randomstate=None, num_workers=0):
+def get_interaction_stream(data_path, number_of_pairs=None, randomstate=None, num_workers=0):
 	'''
 	Get interaction data as a torch data stream, specifying `N` as `number_of_pairs` which results in
 	:math:`\\frac{N(N+1)}{2}` unique interactions.
@@ -123,7 +126,6 @@ def get_interaction_stream(data_path, shuffle=False, number_of_pairs=None, rando
 		this will result in a one-time shuffle at data stream initialization that can be maintained across loading saved models.
 
 	:param data_path: path to dataset .pkl file.
-	:param shuffle: shuffle must be set to False for RandomSampler()
 	:param number_of_pairs: number of interaction pair examples to be loaded into data stream
 	:param num_workers: number of cpu threads
 	:return: interaction data stream [receptor, ligand, 1 or 0] (see DatasetGeneration).
@@ -134,7 +136,7 @@ def get_interaction_stream(data_path, shuffle=False, number_of_pairs=None, rando
 	else:
 		sampler = RandomSampler(dataset)
 
-	trainloader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers, shuffle=shuffle)
+	trainloader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers)
 	return trainloader
 
 
