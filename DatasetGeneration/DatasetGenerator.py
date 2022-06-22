@@ -85,6 +85,9 @@ class DatasetGenerator:
         self.trainset_pool_stats = None
         self.testset_pool_stats = None
 
+        self.plot_accepted_rejected_examples = False
+        self.plot_interacting_examples = True
+
         ## Paths
         self.pool_savepath = 'PoolData/'
         self.poolstats_savepath = 'PoolData/stats/'
@@ -93,7 +96,7 @@ class DatasetGenerator:
         self.log_savepath = 'Log/losses/'
 
         ## initialize FFT
-        padded_dim=100
+        padded_dim = 100
         num_angles = 360
         self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
         self.UtilityFuncs = UtilityFunctions()
@@ -105,7 +108,7 @@ class DatasetGenerator:
         self.validation_set_cutoff = 0.8
 
         ## shape feature scoring coefficients
-        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 20, 100
+        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 20, 200
 
         ## energy cutoff for deciding if a shape interacts or not
         self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
@@ -155,7 +158,7 @@ class DatasetGenerator:
             print('Generating pool of', str(self.testset_protein_pool), 'protein shapes for testing set...')
             self.testset_pool_stats = self.generate_pool(self.test_params, self.testset_protein_pool, self.testpool_num_proteins)
 
-    def generate_pool(self, params, pool_savefile, num_proteins=500):
+    def generate_pool(self, params, pool_savefile, num_proteins):
         r"""
         Generate the protein pool using parameters for concavity and number of points.
 
@@ -219,8 +222,7 @@ class DatasetGenerator:
         gt_rotations = []
         homodimer_count = 0
         heterodimer_count = 0
-        plot_accepted_rejected_shapes = False
-        plot_interacting_examples = True
+
         shape_status = None
         freeE_logfile = self.log_savepath+'log_rawdata_FI_'+protein_pool_prefix+'.txt'
         with open(freeE_logfile, 'w') as fout:
@@ -249,8 +251,7 @@ class DatasetGenerator:
                         shape_status = 'HETERODIMER'
 
                 ## picking interaction shapes
-                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)) - self.LSEvolume)
-                # free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)))
+                free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)))
                 if free_energy < self.interaction_decision_threshold:
                     interaction = torch.tensor(1)
                 else:
@@ -265,7 +266,7 @@ class DatasetGenerator:
                 labels_list.append(interaction)
                 transformations_list.append([rot, trans])
 
-                if plot_accepted_rejected_shapes:
+                if self.plot_accepted_rejected_examples:
                     self.plot_accepted_rejected_shapes(receptor, ligand, rot, trans, minimum_energy, free_energy, fft_score,
                                                   protein_pool_prefix+shape_status, plot_count)
 
@@ -273,7 +274,7 @@ class DatasetGenerator:
 
         interaction_set = [protein_shapes, indices_list, labels_list]
 
-        if plot_interacting_examples:
+        if self.plot_interacting_examples:
             self.plot_interaction_dataset_examples(interaction_set, free_energies_list, transformations_list, protein_pool_prefix)
 
         return energies_list, free_energies_list, protein_pool_prefix, docking_set, interaction_set, dimertype_counts, gt_rotations
@@ -295,10 +296,12 @@ class DatasetGenerator:
         interacting_FE = []
         plot_data_noninteracting = []
         noninteracting_FE = []
+        visited_indices = []
         pair = None
 
         min_FE = min(free_energies_list)
         max_FE = max(free_energies_list)
+
 
         for i in range(len(labels_list)):
             receptor_index = indices_list[i][0]
@@ -310,7 +313,7 @@ class DatasetGenerator:
             label = labels_list[i]
 
             if label == 1:# and free_energy < min_FE + 20:
-                if len(plot_data_interacting) < examples_to_plot:
+                if len(plot_data_interacting) < examples_to_plot and receptor_index not in visited_indices:
                     # print('interaction found', free_energy)
                     pair = UtilityFunctions().plot_assembly(receptor,
                                                             ligand,
@@ -319,8 +322,9 @@ class DatasetGenerator:
                                                             interaction_fact=True)
                     plot_data_interacting.append(pair)
                     interacting_FE.append(free_energy)
+                    visited_indices.append(receptor_index)
             if label == 0 and free_energy > max_FE - 5:
-                if len(plot_data_noninteracting) < examples_to_plot:
+                if len(plot_data_noninteracting) < examples_to_plot and receptor_index not in visited_indices:
                     # print('non-interaction found', free_energy)
                     pair = UtilityFunctions().plot_assembly(receptor,
                                                             ligand,
@@ -329,6 +333,7 @@ class DatasetGenerator:
                                                             interaction_fact=True)
                     plot_data_noninteracting.append(pair)
                     noninteracting_FE.append(free_energy)
+                    visited_indices.append(receptor_index)
 
             if len(plot_data_interacting) > examples_to_plot and len(plot_data_noninteracting) > examples_to_plot:
                 break
@@ -340,18 +345,20 @@ class DatasetGenerator:
 
         pair_dim = pair.shape[-1]
         spacer = pair_dim
-        offset = spacer*(0.6)
+        offset = spacer*(2/3)
         midpoint = (examples_to_plot*spacer)//2
         font = {'weight': 'bold',
-                'size': 16,}
-        plt.text(midpoint-2*len(' interacting '), -0.1*spacer, 'interacting', fontdict=font)
-        plt.text(midpoint-2*len(' non-interacting '), 0.9*spacer, 'non-interacting', fontdict=font)
+                'size': 20,}
+        plt.text(midpoint-3*len(' interacting '), -0.1*spacer, 'interacting', fontdict=font)
+        plt.text(midpoint-3*len(' non-interacting '), 0.9*spacer, 'non-interacting', fontdict=font)
         # plt.text(0, 0, s=''.join(str(interacting_FE).split(',')[1:-1]))
         # plt.text(0, 100, s=''.join(str(noninteracting_FE).split(',')[1:-1]))
 
+        font = {'weight': 'normal',
+                'size': 20,}
         for i in range(examples_to_plot):
-            plt.text((i+1)*spacer-offset, 0.1*spacer, str(interacting_FE[i]))
-            plt.text((i+1)*spacer-offset, 1.1*spacer, str(noninteracting_FE[i]))
+            plt.text((i+1)*spacer-offset, 0.1*spacer, str(interacting_FE[i]), fontdict=font)
+            plt.text((i+1)*spacer-offset, 1.1*spacer, str(noninteracting_FE[i]), fontdict=font)
 
         cmap = 'gist_heat_r'
         plt.imshow(plot, cmap=cmap)
