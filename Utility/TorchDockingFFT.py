@@ -178,7 +178,7 @@ class TorchDockingFFT:
         else:
             return score
 
-    def check_fft_predictions(self, fft_score, receptor, ligand, gt_rot, gt_txy):
+    def check_fft_predictions(self, fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=False):
         """
         Test function to see how fft scores looks from raw, unlearned, bulk and boundary features used in dataset generation.
 
@@ -197,54 +197,102 @@ class TorchDockingFFT:
         print('gt indices', gt_rot, gt_txy)
         print('RMSD', rmsd_out.item())
         print()
-        plt.title('docking energy surface per shape')
-        plt.grid(False)
-        if self.num_angles == 1:
-            plt.imshow(energies.detach().cpu())
-            plt.colorbar()
-            plt.show()
-        else:
-            plt.imshow(energies[pred_rot.long(), :, :].detach().cpu())
-            plt.colorbar()
-            plt.show()
 
-        pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
-                                                gt_rot.detach().cpu().numpy(), gt_txy.detach().cpu().numpy(),
-                                                pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy())
-        plt.imshow(pair.transpose())
+        cmap = 'gist_heat_r'
+        # cmap = 'seismic'
+
+        if plot_pub:
+            plt.close()
+            receptor = receptor * 2
+            pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
+                                                    pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy(),
+                                                    interaction_fact=True)
+
+            pair = pair[25:125, 25:125]
+            pair = np.clip(pair, a_min=0, a_max=2)
+            energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
+            fig, (ax1, ax2) = plt.subplots(1, 2)
+            ax1.grid(False)
+            ax2.grid(False)
+            ax1.axis('off')
+            ax2.axis('off')
+            ax1.imshow(pair.transpose(), cmap=cmap)
+            vmin = energy_slice.min()
+            vmax = energy_slice.max()
+            norm = mcolors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
+            cax = ax2.imshow(energy_slice.transpose(), cmap='seismic', norm=norm)
+            tick_list = [vmin, 0.0, vmax]
+            plt.subplots_adjust(wspace=-0.1, hspace=0)
+
+            def rounder(x):
+                if x > 0:
+                   return x if x % 100 == 0 else x + 100 - x % 100
+                else:
+                   return x if x % -100 == 0 else x + -100 - x % -100
+
+            tick_list_rounded = [int(rounder(x)) for x in tick_list]
+            vminoffset = 10
+            vmaxoffset = 100
+            tick_list_pos = [i+vminoffset if i < 0 else i+0 if i==0 else i-vmaxoffset for i in tick_list]
+            # print(tick_list)
+            # print(tick_list_pos)
+
+            # tick_list = np.linspace(tick_list[0], tick_list[-1], 5)
+            cb = fig.colorbar(cax, shrink=0.4, ticks=tick_list_pos)
+            # for t in cb.ax.get_yticklabels(): print('ticks', t.get_text())
+            cb.set_ticklabels(list(map(str, tick_list_rounded)))
+
+        else:
+            plt.close()
+            pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
+                                                    gt_rot.detach().cpu().numpy(), gt_txy.detach().cpu().numpy(),
+                                                    pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy(),
+                                                    )
+            plt.imshow(pair.transpose())
+            plt.show()
+            energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
+            plt.imshow(energy_slice.transpose())
+            plt.colorbar()
+
         plt.show()
 
 
 if __name__ == '__main__':
     from Dock2D.Utility.TorchDataLoader import get_docking_stream
     from tqdm import tqdm
+    import matplotlib.colors as mcolors
 
-    dataset = '../Datasets/docking_train_50pool.pkl'
+    plot_pub = True
+    dataset = '../Datasets/docking_test_50pool.pkl'
     max_size = None
-    data_stream = get_docking_stream(dataset, max_size=max_size)
+    data_stream = get_docking_stream(dataset, shuffle=False, max_size=max_size)
 
     swap_quadrants = True
     FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
     UtilityFuncs = UtilityFunctions()
-    weight_bound, weight_crossterm, weight_bulk = 10, 20, 100
+    weight_bound, weight_crossterm, weight_bulk = 10, 20, 200
 
+    plot_of_interest = 35
+    counter = 0
     for data in tqdm(data_stream):
-        receptor, ligand, gt_rot, gt_txy = data
+        if counter == plot_of_interest:
+            receptor, ligand, gt_rot, gt_txy = data
 
-        receptor = receptor.squeeze()
-        ligand = ligand.squeeze()
-        gt_rot = gt_rot.squeeze()
-        gt_txy = gt_txy.squeeze()
+            receptor = receptor.squeeze()
+            ligand = ligand.squeeze()
+            gt_rot = gt_rot.squeeze()
+            gt_txy = gt_txy.squeeze()
 
-        receptor = receptor.cuda()
-        ligand = ligand.cuda()
-        gt_rot = gt_rot.cuda()
-        gt_txy = gt_txy.cuda()
+            receptor = receptor.cuda()
+            ligand = ligand.cuda()
+            gt_rot = gt_rot.cuda()
+            gt_txy = gt_txy.cuda()
 
-        receptor_stack = UtilityFuncs.make_boundary(receptor)
-        ligand_stack = UtilityFuncs.make_boundary(ligand)
-        angle=None
-        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bound, weight_crossterm, weight_bulk)
-        rot, trans = FFT.extract_transform(fft_score)
-        lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
-        FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy)
+            receptor_stack = UtilityFuncs.make_boundary(receptor)
+            ligand_stack = UtilityFuncs.make_boundary(ligand)
+            angle=None
+            fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bound, weight_crossterm, weight_bulk)
+            rot, trans = FFT.extract_transform(fft_score)
+            lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
+            FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=plot_pub)
+        counter += 1
