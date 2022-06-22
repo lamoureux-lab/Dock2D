@@ -105,16 +105,14 @@ class DatasetGenerator:
         self.validation_set_cutoff = 0.8
 
         ## shape feature scoring coefficients
-        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 20, 200
+        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 20, 100
 
         ## energy cutoff for deciding if a shape interacts or not
         self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
 
-        # docking_threshold = -self.LSEvolume
-        docking_threshold = -50
-        interaction_threshold = -84.9036
-        self.docking_decision_threshold = torch.tensor(docking_threshold)
-        self.interaction_decision_threshold = interaction_threshold-self.LSEvolume
+        docking_threshold = torch.tensor(-100)
+        self.docking_decision_threshold = docking_threshold
+        self.interaction_decision_threshold = docking_threshold-self.LSEvolume
 
         ## string of scoring coefficients for plot titles and filenames
         self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm) + ',' + str(self.weight_bulk)
@@ -125,8 +123,8 @@ class DatasetGenerator:
 
         ### Generate training/validation set protein pool
         ## dataset parameters (value, relative frequency)
-        self.train_alpha = [(0.75, 1), (0.85, 2), (0.95, 1)]  # concavity level [0-1)
-        self.train_num_points = [(50, 1), (75, 2), (100, 1)]  # number of points for shape generation [0-1)
+        self.train_alpha = [(0.80, 1), (0.85, 2), (0.90, 1)]  # concavity level [0-1)
+        self.train_num_points = [(60, 1), (80, 2), (100, 1)]  # number of points for shape generation [0-1)
         self.train_params = ParamDistribution(alpha=self.train_alpha, num_points=self.train_num_points)
 
         ### Generate testing set protein pool
@@ -223,7 +221,7 @@ class DatasetGenerator:
         heterodimer_count = 0
         plot_accepted_rejected_shapes = False
         plot_interacting_examples = True
-
+        shape_status = None
         freeE_logfile = self.log_savepath+'log_rawdata_FI_'+protein_pool_prefix+'.txt'
         with open(freeE_logfile, 'w') as fout:
             fout.write('F\tF_0\tLabel\n')
@@ -236,7 +234,8 @@ class DatasetGenerator:
 
                 rot, trans = self.FFT.extract_transform(fft_score)
                 energies = -fft_score
-                minimum_energy = energies[rot.long(), trans[0], trans[1]]
+                deg_index_rot = ((rot * 180.0 / np.pi) + 180.0).type(torch.long)
+                minimum_energy = energies[deg_index_rot, trans[0], trans[1]]
 
                 ## picking docking shapes
                 if minimum_energy < self.docking_decision_threshold:
@@ -244,8 +243,10 @@ class DatasetGenerator:
                     gt_rotations.append(rot.item())
                     if i == j:
                         homodimer_count += 1
+                        shape_status = 'HOMODIMER'
                     else:
                         heterodimer_count += 1
+                        shape_status = 'HETERODIMER'
 
                 ## picking interaction shapes
                 free_energy = -(torch.logsumexp(-energies, dim=(0, 1, 2)) - self.LSEvolume)
@@ -266,7 +267,7 @@ class DatasetGenerator:
 
                 if plot_accepted_rejected_shapes:
                     self.plot_accepted_rejected_shapes(receptor, ligand, rot, trans, minimum_energy, free_energy, fft_score,
-                                                  protein_pool_prefix, plot_count)
+                                                  protein_pool_prefix+shape_status, plot_count)
 
         dimertype_counts = (homodimer_count, heterodimer_count)
 
@@ -286,7 +287,7 @@ class DatasetGenerator:
         shuffled_indices, shuffled_labels, shuffled_free_energies, shuffled_transformations = zip(*temp)
         indices_list, labels_list, free_energies_list, transformations_list = list(shuffled_indices), list(shuffled_labels), list(shuffled_free_energies), list(shuffled_transformations)
 
-        examples_to_plot = 3
+        examples_to_plot = 5
 
         plt.figure(figsize=(examples_to_plot*4, examples_to_plot*2))
 
@@ -294,11 +295,11 @@ class DatasetGenerator:
         interacting_FE = []
         plot_data_noninteracting = []
         noninteracting_FE = []
+        pair = None
 
         min_FE = min(free_energies_list)
         max_FE = max(free_energies_list)
-        # print(min_FE, max_FE)
-        # print('num interactions', len(labels_list))
+
         for i in range(len(labels_list)):
             receptor_index = indices_list[i][0]
             ligand_index = indices_list[i][1]
@@ -308,7 +309,7 @@ class DatasetGenerator:
             ligand = protein_shapes[ligand_index]
             label = labels_list[i]
 
-            if label == 1:# and free_energy < min_FE + 40:
+            if label == 1:# and free_energy < min_FE + 20:
                 if len(plot_data_interacting) < examples_to_plot:
                     # print('interaction found', free_energy)
                     pair = UtilityFunctions().plot_assembly(receptor,
@@ -318,7 +319,7 @@ class DatasetGenerator:
                                                             interaction_fact=True)
                     plot_data_interacting.append(pair)
                     interacting_FE.append(free_energy)
-            if label == 0 and free_energy > max_FE - 10:
+            if label == 0 and free_energy > max_FE - 5:
                 if len(plot_data_noninteracting) < examples_to_plot:
                     # print('non-interaction found', free_energy)
                     pair = UtilityFunctions().plot_assembly(receptor,
@@ -337,13 +338,14 @@ class DatasetGenerator:
 
         plot = np.vstack((interacting, noninteracting))
 
-        spacer = 100*2
-        offset = 60*2
+        pair_dim = pair.shape[-1]
+        spacer = pair_dim
+        offset = spacer*(0.6)
         midpoint = (examples_to_plot*spacer)//2
         font = {'weight': 'bold',
                 'size': 16,}
-        plt.text(midpoint-4*len('interacting'), -0.1*spacer, 'interacting', fontdict=font)
-        plt.text(midpoint-4*len('non-interacting'), 0.9*spacer, 'non-interacting', fontdict=font)
+        plt.text(midpoint-2*len(' interacting '), -0.1*spacer, 'interacting', fontdict=font)
+        plt.text(midpoint-2*len(' non-interacting '), 0.9*spacer, 'non-interacting', fontdict=font)
         # plt.text(0, 0, s=''.join(str(interacting_FE).split(',')[1:-1]))
         # plt.text(0, 100, s=''.join(str(noninteracting_FE).split(',')[1:-1]))
 
@@ -392,7 +394,7 @@ class DatasetGenerator:
         interaction_value = str(self.interaction_decision_threshold.item())[:6]
         interaction_label = 'interaction<'+interaction_value
         plt.vlines(self.docking_decision_threshold, ymin=0, ymax=max(y1.max(), y2.max())+1, linestyles='dashed', label=docking_label, colors='k')
-        plt.vlines(self.interaction_decision_threshold, ymin=0, ymax=ymax, linestyles='dotted', label=interaction_label, colors='k')
+        plt.vlines(self.interaction_decision_threshold, ymin=0, ymax=ymax, linestyles='solid', label=interaction_label, colors='k')
         plt.legend([docking_label, interaction_label, 'energy minimums', 'free energies'])
 
         plt.savefig(self.datastats_savepath + protein_pool_prefix+'_MinEnergyandFreeEnergy_distribution.'+self.format, format=self.format)
