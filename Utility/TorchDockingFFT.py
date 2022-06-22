@@ -219,14 +219,14 @@ if __name__ == '__main__':
     from Dock2D.Utility.TorchDataLoader import get_docking_stream
     from tqdm import tqdm
 
-    dataset = '../Datasets/docking_train_10pool.pkl'
+    dataset = '../Datasets/docking_train_50pool.pkl'
     max_size = None
     data_stream = get_docking_stream(dataset, max_size=max_size)
 
     swap_quadrants = True
     FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
     UtilityFuncs = UtilityFunctions()
-    weight_bound, weight_crossterm, weight_bulk = 10, 20, 200
+    weight_bound, weight_crossterm, weight_bulk = 10, 20, 100
 
     for data in tqdm(data_stream):
         receptor, ligand, gt_rot, gt_txy = data
