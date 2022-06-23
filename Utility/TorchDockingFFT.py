@@ -262,7 +262,7 @@ if __name__ == '__main__':
     from tqdm import tqdm
     import matplotlib.colors as mcolors
 
-    plot_pub = True
+    plot_pub = False
     dataset = '../Datasets/docking_test_50pool.pkl'
     max_size = None
     data_stream = get_docking_stream(dataset, shuffle=False, max_size=max_size)
@@ -270,29 +270,29 @@ if __name__ == '__main__':
     swap_quadrants = True
     FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
     UtilityFuncs = UtilityFunctions()
-    weight_bound, weight_crossterm, weight_bulk = 10, 20, 200
+    weight_bound, weight_crossterm, weight_bulk = 10, 50, 200
 
-    plot_of_interest = 35
+    # plot_of_interest = 35
     counter = 0
     for data in tqdm(data_stream):
-        if counter == plot_of_interest:
-            receptor, ligand, gt_rot, gt_txy = data
+        # if counter == plot_of_interest:
+        receptor, ligand, gt_rot, gt_txy = data
 
-            receptor = receptor.squeeze()
-            ligand = ligand.squeeze()
-            gt_rot = gt_rot.squeeze()
-            gt_txy = gt_txy.squeeze()
+        receptor = receptor.squeeze()
+        ligand = ligand.squeeze()
+        gt_rot = gt_rot.squeeze()
+        gt_txy = gt_txy.squeeze()
 
-            receptor = receptor.cuda()
-            ligand = ligand.cuda()
-            gt_rot = gt_rot.cuda()
-            gt_txy = gt_txy.cuda()
+        receptor = receptor.cuda()
+        ligand = ligand.cuda()
+        gt_rot = gt_rot.cuda()
+        gt_txy = gt_txy.cuda()
 
-            receptor_stack = UtilityFuncs.make_boundary(receptor)
-            ligand_stack = UtilityFuncs.make_boundary(ligand)
-            angle=None
-            fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bound, weight_crossterm, weight_bulk)
-            rot, trans = FFT.extract_transform(fft_score)
-            lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
-            FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=plot_pub)
+        receptor_stack = UtilityFuncs.make_boundary(receptor)
+        ligand_stack = UtilityFuncs.make_boundary(ligand)
+        angle=None
+        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bound, weight_crossterm, weight_bulk)
+        rot, trans = FFT.extract_transform(fft_score)
+        lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
+        FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=plot_pub)
         counter += 1
