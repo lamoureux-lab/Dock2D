@@ -109,9 +109,9 @@ class DatasetGenerator:
 
         ## shape feature scoring coefficients
         # 10, 5, 500
-        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 10, 100
+        # self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 10, 100
 
-        # self.weight_bulk, self.weight_crossterm, self.weight_bound = a00, a10|a01, a11 = 200, -50, -10
+        self.weight_bulk, self.weight_crossterm, self.weight_bound = 100, -10, -10
 
         ## energy cutoff for deciding if a shape interacts or not
         self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
@@ -195,7 +195,7 @@ class DatasetGenerator:
         ligand_stack = self.UtilityFuncs.make_boundary(ligand)
         angle = None
         fft_score = self.FFT.dock_rotations(receptor_stack, ligand_stack, angle,
-                                            self.weight_bound, self.weight_crossterm, self.weight_bulk)
+                                            self.weight_bulk, self.weight_crossterm, self.weight_bound)
 
         return receptor, ligand, fft_score
 
@@ -238,7 +238,7 @@ class DatasetGenerator:
                 receptor, ligand, fft_score = self.generate_interactions(receptor, ligand)
 
                 rot, trans = self.FFT.extract_transform(fft_score)
-                energies = -fft_score
+                energies = fft_score
                 deg_index_rot = ((rot * 180.0 / np.pi) + 180.0).type(torch.long)
                 minimum_energy = energies[deg_index_rot, trans[0], trans[1]]
 
@@ -386,7 +386,7 @@ class DatasetGenerator:
         r"""
         Plot histograms of all pairwise energies and free energies, within training and testing set.
 
-        :param energies_list: all pairwise energies (E = -fft_scores)
+        :param energies_list: all pairwise energies (E = fft_scores)
         :param free_energies: all pairwise energies (logsumexp(-E))
         :param protein_pool_prefix: used in title and filename
         """

@@ -61,7 +61,7 @@ def homodimer_vs_heterodimer(setname, interaction=False, plot_all_poses=False):
                                            weight_bound, weight_crossterm, weight_bulk)
 
             rot, trans = FFT.extract_transform(fft_score)
-            lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
+            lowest_energy = fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
 
             homodimer_Elist.append(lowest_energy.detach().cpu())
 

@@ -35,7 +35,7 @@ class Interaction(nn.Module):
         """
 
         if brute_force:
-            E = -fft_scores.squeeze()
+            E = fft_scores.squeeze()
             if len(E.shape) < 3:
                 E = E.unsqueeze(0)
             F = -(torch.logsumexp(-E, dim=(0, 1, 2)))

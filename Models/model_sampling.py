@@ -234,14 +234,14 @@ class SamplingModel(nn.Module):
         for index_alpha in free_energies_visited_indices[0]:
             alpha_update = (index_alpha * np.pi / 180)
             _, _, _, fft_score_update = self.docker(receptor, ligand, alpha_update)
-            E_update = -fft_score_update
+            E_update = fft_score_update
             free_energy = -(torch.logsumexp(-E_update, dim=(0, 1)))
             accumulated_free_energies = torch.cat((accumulated_free_energies, free_energy.reshape(1,1)), dim=1)
 
         _, _, dr, fft_score = self.docker(receptor, ligand, alpha,
                                           plot_count=plot_count, stream_name=stream_name,
                                           plotting=False)
-        E = -fft_score
+        E = fft_score
         free_energy = -(torch.logsumexp(-E, dim=(0, 1)))
 
         prob_list = []
@@ -263,7 +263,7 @@ class SamplingModel(nn.Module):
             _, _, dr_new, fft_score_new = self.docker(receptor, ligand, alpha_new,
                                                       plot_count=plot_count, stream_name=stream_name,
                                                       plotting=plotting)
-            E_new = -fft_score_new
+            E_new = fft_score_new
             free_energy_new = -(torch.logsumexp(-E_new, dim=(0, 1)))
 
             ## Accept

@@ -128,11 +128,11 @@ class UtilityFunctions():
         plt.close()
         mintxy_energies = []
         if num_angles == 1:
-            minimumEnergy = -fft_score[pred_txy[0], pred_txy[1]].detach().cpu()
+            minimumEnergy = fft_score[pred_txy[0], pred_txy[1]].detach().cpu()
             mintxy_energies.append(minimumEnergy)
         else:
             for i in range(num_angles):
-                minimumEnergy = -fft_score[i, pred_txy[0], pred_txy[1]].detach().cpu()
+                minimumEnergy = fft_score[i, pred_txy[0], pred_txy[1]].detach().cpu()
                 mintxy_energies.append(minimumEnergy)
 
         fig = plt.figure(figsize=(8,5))

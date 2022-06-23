@@ -65,7 +65,12 @@ class TorchDockingFFT:
         :param fft_score: fft score grid
         :return: predicted rotation index and translation indices
         """
-        pred_index = torch.argmax(fft_score)
+        pred_index = torch.argmin(fft_score)
+
+        # print('argmin index of energy', pred_index)
+        # print('argmax index of -energy', torch.argmax(-fft_score))
+        # print('argmax index of fft_score', pred_index)
+        # print('argmin index of -fft_score', torch.argmin(-fft_score))
         pred_rot = (torch.div(pred_index, self.padded_dim ** 2) * torch.div(np.pi, 180)) - np.pi
         XYind = torch.remainder(pred_index, self.padded_dim ** 2)
         if self.swap_plot_quadrants:
@@ -82,7 +87,7 @@ class TorchDockingFFT:
             pred_Y = pred_Y - self.padded_dim
         return pred_rot, torch.stack((pred_X, pred_Y), dim=0)
 
-    def dock_rotations(self, receptor_feats, ligand_feats, angle, weight_bound, weight_crossterm, weight_bulk):
+    def dock_rotations(self, receptor_feats, ligand_feats, angle, weight_bulk, weight_crossterm, weight_bound):
         """
         Compute FFT scores of shape features in the space of all rotations and translation ligand features.
         Rotationally sample the the ligand feature using specified number of angles, and repeat the receptor features to match in size.
@@ -92,9 +97,9 @@ class TorchDockingFFT:
         :param ligand_feats: ligand bulk and boundary feature single features
         :param angle: angle is the case where we only want to sample 1 correlation at a specific angle, default is `None`,
             otherwise the num_angles just does `np.linspace()` from 0 to 360.
-        :param weight_bound: boundary scoring coefficient
-        :param weight_crossterm: crossterm scoring coefficient
         :param weight_bulk: bulk scoring coefficient
+        :param weight_crossterm: crossterm scoring coefficient
+        :param weight_bound: boundary scoring coefficient
         :return: scored docking feature correlation
         """
         initbox_size = receptor_feats.shape[-1]
@@ -126,20 +131,20 @@ class TorchDockingFFT:
                         plt.imshow(lig_feat_rot_sampled[i,0,:,:].detach().cpu())
                         plt.show()
 
-        score = self.dock_translations(rec_feat_repeated, lig_feat_rot_sampled, weight_bound, weight_crossterm, weight_bulk)
+        score = self.dock_translations(rec_feat_repeated, lig_feat_rot_sampled, weight_bulk, weight_crossterm, weight_bound)
 
         return score
 
-    def dock_translations(self, receptor_sampled_stack, ligand_sampled_stack, weight_bound, weight_crossterm, weight_bulk):
+    def dock_translations(self, receptor_sampled_stack, ligand_sampled_stack, weight_bulk, weight_crossterm, weight_bound):
         """
         Compute FFT score on receptor and rotationally sampled ligand feature stacks of bulk, crossterms, and boundary features.
         Maximum score -> minimum energy.
 
         :param receptor_sampled_stack: `self.num_angles` repeated stack of receptor bulk and boundary features
         :param ligand_sampled_stack: `self.num_angles` *rotated* and repeated stack of receptor bulk and boundary features
-        :param weight_bound: boundary scoring coefficient
-        :param weight_crossterm: crossterm scoring coefficient
         :param weight_bulk: bulk scoring coefficient
+        :param weight_crossterm: crossterm scoring coefficient
+        :param weight_bound: boundary scoring coefficient
         :return: FFT score using scoring function
         """
         num_feats_per_shape = 2
@@ -171,7 +176,9 @@ class TorchDockingFFT:
         trans_bulk = torch.fft.irfft2(cplx_rec * torch.conj(cplx_lig), dim=(-2, -1), norm=self.norm)
 
         ## cross-term score maximizing
-        score = weight_bound * trans_bound + weight_crossterm * (trans_bulk_bound + trans_bound_bulk) - weight_bulk * trans_bulk
+        # score = weight_bound * trans_bound + weight_crossterm * (trans_bulk_bound + trans_bound_bulk) - weight_bulk * trans_bulk
+
+        score = weight_bulk * trans_bulk + weight_crossterm * (trans_bulk_bound + trans_bound_bulk) + weight_bound * trans_bound
 
         if self.swap_plot_quadrants:
             return self.UtilityFunctions.swap_quadrants(score)
@@ -191,7 +198,7 @@ class TorchDockingFFT:
         print('\n'+'*'*50)
 
         pred_rot, pred_txy = self.extract_transform(fft_score)
-        energies = -fft_score
+        energies = fft_score
         rmsd_out = RMSD(ligand, gt_rot, gt_txy, pred_rot, pred_txy).calc_rmsd()
         print('extracted predicted indices', pred_rot, pred_txy)
         print('gt indices', gt_rot, gt_txy)
@@ -270,7 +277,7 @@ if __name__ == '__main__':
     swap_quadrants = True
     FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
     UtilityFuncs = UtilityFunctions()
-    weight_bound, weight_crossterm, weight_bulk = 10, 10, 100
+    weight_bulk, weight_crossterm, weight_bound = 100, -10, -10
 
     # plot_of_interest = 35
     counter = 0
@@ -291,8 +298,8 @@ if __name__ == '__main__':
         receptor_stack = UtilityFuncs.make_boundary(receptor)
         ligand_stack = UtilityFuncs.make_boundary(ligand)
         angle=None
-        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bound, weight_crossterm, weight_bulk)
+        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bulk, weight_crossterm, weight_bound)
         rot, trans = FFT.extract_transform(fft_score)
-        lowest_energy = -fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
+        lowest_energy = fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
         FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=plot_pub)
         counter += 1
