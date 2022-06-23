@@ -101,23 +101,24 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
         self.UtilityFuncs = UtilityFunctions()
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 400
-        self.testpool_num_proteins = 400
+        self.trainpool_num_proteins = 50
+        self.testpool_num_proteins = 50
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
 
         ## shape feature scoring coefficients
-        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 50, 200
+        # 10, 5, 500
+        self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 10, 100
 
         # self.weight_bulk, self.weight_crossterm, self.weight_bound = a00, a10|a01, a11 = 200, -50, -10
 
         ## energy cutoff for deciding if a shape interacts or not
         self.LSEvolume = torch.logsumexp(torch.zeros(num_angles, padded_dim, padded_dim), dim=(0,1,2))
 
-        docking_threshold = torch.tensor(-225)
+        docking_threshold = torch.tensor(-100)
         self.docking_decision_threshold = docking_threshold
-        self.interaction_decision_threshold = docking_threshold-self.LSEvolume
+        self.interaction_decision_threshold = docking_threshold
 
         ## string of scoring coefficients for plot titles and filenames
         self.weight_string = str(self.weight_bound) + ',' + str(self.weight_crossterm) + ',' + str(self.weight_bulk)

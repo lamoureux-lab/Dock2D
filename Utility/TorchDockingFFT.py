@@ -263,14 +263,14 @@ if __name__ == '__main__':
     import matplotlib.colors as mcolors
 
     plot_pub = False
-    dataset = '../Datasets/docking_test_50pool.pkl'
+    dataset = '../Datasets/docking_train_50pool.pkl'
     max_size = None
     data_stream = get_docking_stream(dataset, shuffle=False, max_size=max_size)
 
     swap_quadrants = True
     FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
     UtilityFuncs = UtilityFunctions()
-    weight_bound, weight_crossterm, weight_bulk = 10, 50, 200
+    weight_bound, weight_crossterm, weight_bulk = 10, 10, 100
 
     # plot_of_interest = 35
     counter = 0
