@@ -21,9 +21,9 @@ class Docking(nn.Module):
         super(Docking, self).__init__()
         self.debug = debug
         self.plot_freq = plot_freq
-        self.boundW = nn.Parameter(torch.ones(1, requires_grad=True))
-        self.crosstermW = nn.Parameter(torch.ones(1, requires_grad=True))
         self.bulkW = nn.Parameter(torch.ones(1, requires_grad=True))
+        self.crosstermW = nn.Parameter(-torch.ones(1, requires_grad=True))
+        self.boundW = nn.Parameter(-torch.ones(1, requires_grad=True))
 
         self.dockingFFT = dockingFFT
 
@@ -79,16 +79,16 @@ class Docking(nn.Module):
             rec_feat,
             lig_feat,
             angle,
-            weight_bound=self.boundW,
+            weight_bulk=self.bulkW,
             weight_crossterm=self.crosstermW,
-            weight_bulk=self.bulkW
+            weight_bound=self.boundW,
         )
 
         #### Plot shape features
         if plotting and not training:
             if plot_count % self.plot_freq == 0:
                 with torch.no_grad():
-                    scoring_weights = (self.boundW, self.crosstermW, self.bulkW)
+                    scoring_weights = (self.bulkW, self.crosstermW, self.boundW)
                     UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
                     # import matplotlib.pyplot as plt
                     # plt.show()

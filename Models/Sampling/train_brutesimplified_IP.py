@@ -39,7 +39,10 @@ if __name__ == '__main__':
 
     # experiment = 'BS_lr-2_10ep_check_NoNormPool'
     # experiment = 'BS_lr-2_10ep_latest_400poolcheck'
-    experiment = 'BS_lr-2_30ep_latest_400poolcheck'
+    # experiment = 'BS_lr-2_30ep_latest_400poolcheck'
+
+    # experiment = 'BS_negativeEnergy'
+    experiment = 'BS_negativeEnergy_nohardcodedsigns'
 
     ######################
     train_epochs = 30
@@ -66,9 +69,9 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
-    plotting = True
-    start = 13
-    stop = 14
+    plotting = False
+    start = 1
+    stop = 30
     eval_angles = 360
     evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     eval_model = SamplingModel(evalFFT, IP=True).to(device=0)

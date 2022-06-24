@@ -178,7 +178,9 @@ class TorchDockingFFT:
         ## cross-term score maximizing
         # score = weight_bound * trans_bound + weight_crossterm * (trans_bulk_bound + trans_bound_bulk) - weight_bulk * trans_bulk
 
-        score = weight_bulk * trans_bulk + weight_crossterm * (trans_bulk_bound + trans_bound_bulk) + weight_bound * trans_bound
+        # score = (weight_bulk * trans_bulk) - weight_crossterm * (trans_bulk_bound + trans_bound_bulk) - (weight_bound * trans_bound)
+
+        score = (weight_bulk * trans_bulk) + weight_crossterm * (trans_bulk_bound + trans_bound_bulk) + (weight_bound * trans_bound)
 
         if self.swap_plot_quadrants:
             return self.UtilityFunctions.swap_quadrants(score)

@@ -193,8 +193,8 @@ class TrainerIP:
                 lowest_energy, pred_rot, pred_txy, fft_score = self.model(receptor, ligand, plot_count=plot_count,
                                                                           stream_name=stream_name, plotting=self.plotting,
                                                                           training=False)
-                print('gt_rot', 'pred_rot')
-                print(gt_rot, pred_rot)
+                # print('gt_rot', 'pred_rot')
+                # print(gt_rot, pred_rot)
 
             else:
                 ## for evaluation, sample buffer is necessary for Monte Carlo multi epoch eval
@@ -234,7 +234,7 @@ class TrainerIP:
         if training:
             #### Loss functions
             CE_loss = torch.nn.CrossEntropyLoss()
-            loss = CE_loss(fft_score.flatten().unsqueeze(0), target_flatindex.unsqueeze(0))
+            loss = CE_loss(-fft_score.flatten().unsqueeze(0), target_flatindex.unsqueeze(0))
             self.model.zero_grad()
             loss.backward()
             self.optimizer.step()
