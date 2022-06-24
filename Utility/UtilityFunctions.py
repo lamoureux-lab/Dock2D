@@ -8,7 +8,7 @@ from torch.nn import functional as F
 from Dock2D.Utility.ValidationMetrics import RMSD
 from matplotlib import rcParams
 # rcParams.update({'figure.autolayout': True})
-rcParams.update({'font.size': 14})
+# rcParams.update({'font.size': 14})
 
 
 class UtilityFunctions():
@@ -55,6 +55,28 @@ class UtilityFunctions():
             torch.nn.init.kaiming_uniform_(model.weight)
             # torch.nn.init.kaiming_normal_(model.weight)
 
+    def gaussian1D(self, M, mean, sigma, a=1, gaussian_norm=False):
+        '''
+        Create 1D gaussian vector
+        '''
+        if gaussian_norm:
+            a = 1 / (sigma * np.sqrt(2 * np.pi))
+        else:
+            a = a
+        # x = torch.arange(0, M) - (M - 1.0) / 2.0 ## don't substract by 1
+        x = torch.arange(0, M) - (M / 2)
+        var = 2 * sigma ** 2
+        w = a * torch.exp(-((x - mean) ** 2 / var))
+        return w
+
+    def gaussian2D(self, kernlen=50, mean=0, sigma=5.0, a=1, gaussian_norm=False):
+        '''
+        Use the outer product of two gaussian vectors to create 2D gaussian
+        '''
+        gkernel1d = self.gaussian1D(kernlen, mean=mean, sigma=sigma, a=a, gaussian_norm=gaussian_norm)
+        gkernel2d = torch.outer(gkernel1d, gkernel1d)
+        return gkernel2d
+
     def swap_quadrants(self, input_volume):
         """
         FFT returns features centered with the origin at the center of the image, not at the top left corner.
@@ -77,8 +99,7 @@ class UtilityFunctions():
 
         return output_volume
 
-    @staticmethod
-    def make_boundary(grid_shape):
+    def make_boundary(self, grid_shape):
         """
         Create the boundary feature for data generation and unit testing.
 
@@ -86,12 +107,30 @@ class UtilityFunctions():
         :return: features stack with original shape as "bulk" and created "boundary"
         """
         grid_shape = grid_shape.unsqueeze(0).unsqueeze(0)
-        epsilon = 1e-5
         sobel_top = torch.tensor([[[[1, 2, 1], [0, 0, 0], [-1, -2, -1]]]], dtype=torch.float).cuda()
         sobel_left = sobel_top[0, 0, :, :].t().view(1, 1, 3, 3)
 
         feat_top = F.conv2d(grid_shape, weight=sobel_top, padding=1)
         feat_left = F.conv2d(grid_shape, weight=sobel_left, padding=1)
+
+        kernlen=25
+        sigma=0.5
+        padding = kernlen//2
+        gaussian_filter = self.gaussian2D(kernlen=kernlen, mean=0, sigma=sigma, a=1, gaussian_norm=True).view(1, 1, kernlen, kernlen).cuda()
+
+        gaussian_filter = gaussian_filter/torch.sum(gaussian_filter)
+        grid_shape_blurred = F.conv2d(grid_shape, weight=gaussian_filter, padding=padding)
+
+        # kernel_sum = torch.sum(gaussian_filter)
+        # print(grid_shape_blurred.max())
+        # blurred_bulk_plot = grid_shape_blurred.squeeze().detach().cpu()
+        # raw_bulk_plot = grid_shape.squeeze().detach().cpu()
+        # plt.title('original VS. blurred; k='+str(kernlen)+'x'+str(kernlen)+' sig='+str(sigma)+
+        #           '\nkernel_sum='+ str(kernel_sum.item())[:4] +'blurred maxval='+str(grid_shape_blurred.max().item())[:4])
+        # figure = np.hstack((raw_bulk_plot, blurred_bulk_plot))
+        # plt.imshow(figure)
+        # plt.colorbar()
+        # plt.show()
 
         top = feat_top
         right = feat_left
@@ -138,7 +177,7 @@ class UtilityFunctions():
         fig = plt.figure(figsize=(8,5))
         plt.rcParams['axes.xmargin'] = 0
         plt.rcParams['axes.ymargin'] = 0.05
-        rcParams.update({'font.size': 14})
+        # rcParams.update({'font.size': 14})
 
         axarr = fig.add_subplot(1,1,1)
         xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
@@ -422,8 +461,8 @@ class UtilityFunctions():
         # norm = plt.colors.DivergingNorm(vcenter=0)
         shrink_bar = 0.8
         # extent = [0, 100, 0, 100]
-        extent = None
-        aspect = None
+        # extent = None
+        # aspect = None
         cmap_data = 'binary'
         cmap_feats = 'seismic'
         # cmap_feats = 'binary'

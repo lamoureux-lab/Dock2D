@@ -4,11 +4,14 @@ import numpy as np
 from Dock2D.Utility.UtilityFunctions import UtilityFunctions
 
 
-def gaussian1D(M, mean, sigma, a=1):
+def gaussian1D(M, mean, sigma, a=1, gaussian_norm=False):
     '''
     Create 1D gaussian vector
     '''
-    a = a
+    if gaussian_norm:
+        a = 1/(sigma * np.sqrt(2 * np.pi))
+    else:
+        a = a
     # x = torch.arange(0, M) - (M - 1.0) / 2.0 ## don't substract by 1
     x = torch.arange(0, M) - (M / 2)
     var = 2 * sigma**2
@@ -16,11 +19,11 @@ def gaussian1D(M, mean, sigma, a=1):
     return w
 
 
-def gaussian2D(kernlen=50, mean=0, sigma=5, a=1):
+def gaussian2D(kernlen=50, mean=0, sigma=5, a=1, gaussian_norm=False):
     '''
     Use the outer product of two gaussian vectors to create 2D gaussian
     '''
-    gkernel1d = gaussian1D(kernlen, mean=mean, sigma=sigma, a=a)
+    gkernel1d = gaussian1D(kernlen, mean=mean, sigma=sigma, a=a, gaussian_norm=gaussian_norm)
     gkernel2d = torch.outer(gkernel1d, gkernel1d)
     return gkernel2d
 
@@ -36,8 +39,22 @@ if __name__ == '__main__':
     boxsize = 50
     cmap = 'gray'
     vmin, vmax = 0,1
-    gaussian_input1 = gaussian2D(boxsize, mean=mean1, sigma=sigma1, a=amp1)
-    gaussian_input2 = gaussian2D(boxsize, mean=mean2, sigma=sigma2, a=amp2)
+
+    gaussian_norm = True
+    gaussian_input1 = gaussian2D(boxsize, mean=mean1, sigma=sigma1, a=amp1, gaussian_norm=gaussian_norm)
+    gaussian_input2 = gaussian2D(boxsize, mean=mean2, sigma=sigma2, a=amp2, gaussian_norm=gaussian_norm)
+
+    print('Gaussian norm = ', gaussian_norm)
+    print('Check if kernel1 sums to 1: shape, sum', gaussian_input1.shape, torch.sum(gaussian_input1))
+    print('Check if kernel2 sums to 1: shape, sum', gaussian_input1.shape,  torch.sum(gaussian_input2))
+
+    gaussian_norm = False
+    gaussian_input1 = gaussian2D(boxsize, mean=mean1, sigma=sigma1, a=amp1, gaussian_norm=gaussian_norm)
+    gaussian_input2 = gaussian2D(boxsize, mean=mean2, sigma=sigma2, a=amp2, gaussian_norm=gaussian_norm)
+
+    print('Gaussian norm = ', gaussian_norm)
+    print('Check if kernel1 to 1: shape, sum', gaussian_input1.shape, torch.sum(gaussian_input1))
+    print('Check if kernel2 to 1: shape, sum', gaussian_input1.shape,  torch.sum(gaussian_input2))
 
     ### Torch >=v1.8 FFT call norms
     ## Normalization
@@ -66,7 +83,7 @@ if __name__ == '__main__':
     ax[1].set_title('Guassian2 '+'$\mu_2$='+str(mean2)+' $\sigma_1=$'+str(sigma2))
 
     ### Plotting Convolution Output
-    fft = UtilityFuncs.swap_quadrants(gaussian_FFT)
+    fft = UtilityFuncs.swap_quadrants(gaussian_FFT.unsqueeze(0)).squeeze()
     conv = ax[2].imshow(fft, cmap=cmap, vmin=vmin, vmax=vmax)
     ax[2].set_title(r'Gaussian1 $\bigstar$ Gaussian2')
 
