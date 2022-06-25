@@ -305,7 +305,6 @@ class DatasetGenerator:
         min_FE = min(free_energies_list)
         max_FE = max(free_energies_list)
 
-
         for i in range(len(labels_list)):
             receptor_index = indices_list[i][0]
             ligand_index = indices_list[i][1]
@@ -374,7 +373,7 @@ class DatasetGenerator:
     def plot_gt_rotation_distributions(self, gt_rotations, protein_pool_prefix):
         plt.close()
         plt.figure(figsize=(8,6))
-        plt.hist(gt_rotations)
+        plt.hist(gt_rotations, bins=60)
         plt.xlim([-np.pi-0.1, np.pi+0.1])
         protein_pool_prefix_title = ' '.join(protein_pool_prefix.split('_'))
         plt.title('Rotation '+protein_pool_prefix_title+', docking<'+str(self.docking_decision_threshold.item())[:6])

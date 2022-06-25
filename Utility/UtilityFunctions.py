@@ -99,7 +99,7 @@ class UtilityFunctions():
 
         return output_volume
 
-    def make_boundary(self, grid_shape):
+    def make_boundary(self, grid_shape, gaussian_blur_bulk=False):
         """
         Create the boundary feature for data generation and unit testing.
 
@@ -113,24 +113,26 @@ class UtilityFunctions():
         feat_top = F.conv2d(grid_shape, weight=sobel_top, padding=1)
         feat_left = F.conv2d(grid_shape, weight=sobel_left, padding=1)
 
-        kernlen=25
-        sigma=0.5
-        padding = kernlen//2
-        gaussian_filter = self.gaussian2D(kernlen=kernlen, mean=0, sigma=sigma, a=1, gaussian_norm=True).view(1, 1, kernlen, kernlen).cuda()
+        if gaussian_blur_bulk:
+            debug = False
+            kernlen=5
+            sigma=0.25
+            padding = kernlen//2
+            gaussian_filter = self.gaussian2D(kernlen=kernlen, mean=0, sigma=sigma, a=1, gaussian_norm=True).view(1, 1, kernlen, kernlen).cuda()
 
-        gaussian_filter = gaussian_filter/torch.sum(gaussian_filter)
-        grid_shape_blurred = F.conv2d(grid_shape, weight=gaussian_filter, padding=padding)
+            gaussian_filter = gaussian_filter/torch.sum(gaussian_filter)
+            grid_shape_blurred = F.conv2d(grid_shape, weight=gaussian_filter, padding=padding)
 
-        # kernel_sum = torch.sum(gaussian_filter)
-        # print(grid_shape_blurred.max())
-        # blurred_bulk_plot = grid_shape_blurred.squeeze().detach().cpu()
-        # raw_bulk_plot = grid_shape.squeeze().detach().cpu()
-        # plt.title('original VS. blurred; k='+str(kernlen)+'x'+str(kernlen)+' sig='+str(sigma)+
-        #           '\nkernel_sum='+ str(kernel_sum.item())[:4] +'blurred maxval='+str(grid_shape_blurred.max().item())[:4])
-        # figure = np.hstack((raw_bulk_plot, blurred_bulk_plot))
-        # plt.imshow(figure)
-        # plt.colorbar()
-        # plt.show()
+            if debug:
+                kernel_sum = torch.sum(gaussian_filter)
+                blurred_bulk_plot = grid_shape_blurred.squeeze().detach().cpu()
+                raw_bulk_plot = grid_shape.squeeze().detach().cpu()
+                plt.title('original VS. blurred; k='+str(kernlen)+'x'+str(kernlen)+' sig='+str(sigma)+
+                          '\nkernel_sum='+ str(kernel_sum.item())[:4] +'blurred maxval='+str(grid_shape.max().item())[:4])
+                figure = np.hstack((raw_bulk_plot, blurred_bulk_plot))
+                plt.imshow(figure)
+                plt.colorbar()
+                plt.show()
 
         top = feat_top
         right = feat_left
