@@ -159,6 +159,7 @@ def check_datastream_shuffle(data_stream, rand_index=42, title=None):
 				plot = np.hstack((receptor.squeeze().detach().cpu(), ligand.squeeze().detach().cpu()))
 				plots.append(plot)
 			counter += 1
+	plt.title(title)
 	plt.imshow(np.vstack((plots)))
 	plt.show()
 
