@@ -177,7 +177,7 @@ if __name__=='__main__':
 	valid_datapath = '../Datasets/interaction_valid_50pool.pkl'
 	test_datapath = '../Datasets/interaction_test_50pool.pkl'
 
-	number_of_pairs = 100
+	number_of_pairs = 50
 	start = timeit.default_timer()
 	train_stream = get_interaction_stream(train_datapath, number_of_pairs=number_of_pairs, randomstate=None)
 	valid_stream = get_interaction_stream(valid_datapath, number_of_pairs=number_of_pairs, randomstate=None)
