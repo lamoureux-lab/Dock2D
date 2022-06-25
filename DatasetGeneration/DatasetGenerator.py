@@ -393,8 +393,8 @@ class DatasetGenerator:
         plt.figure(figsize=(8,6))
         protein_pool_prefix_title = ' '.join(protein_pool_prefix.split('_'))
         plt.title('Energies '+protein_pool_prefix_title)
-        y1, x1, _ = plt.hist(energies_list, alpha=0.33)
-        y2, x2, _ = plt.hist(free_energies, alpha=0.33)
+        y1, x1, _ = plt.hist(energies_list, alpha=0.33, bins=60)
+        y2, x2, _ = plt.hist(free_energies, alpha=0.33, bins=60)
         plt.xlabel('energies')
         plt.ylabel('counts')
         ymax = max(max(y1.max(), y2.max()), max(y1.max(), y2.max()))+1

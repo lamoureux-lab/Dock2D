@@ -116,7 +116,7 @@ class UtilityFunctions():
         if gaussian_blur_bulk:
             debug = False
             kernlen=5
-            sigma=0.25
+            sigma=1
             padding = kernlen//2
             gaussian_filter = self.gaussian2D(kernlen=kernlen, mean=0, sigma=sigma, a=1, gaussian_norm=True).view(1, 1, kernlen, kernlen).cuda()
 
