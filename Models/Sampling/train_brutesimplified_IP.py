@@ -42,11 +42,13 @@ if __name__ == '__main__':
     # experiment = 'BS_lr-2_30ep_latest_400poolcheck'
 
     # experiment = 'BS_negativeEnergy'
-    experiment = 'BS_negativeEnergy_nohardcodedsigns'
+    # experiment = 'BS_negativeEnergy_nohardcodedsigns'
+
+    experiment = 'BS_IP_finaldataset'
 
     ######################
     train_epochs = 30
-    lr = 10 ** -2
+    lr = 10 ** -3
     #####################
     padded_dim = 100
     num_angles = 1
@@ -56,7 +58,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(
