@@ -109,8 +109,8 @@ def get_docking_stream(data_path, shuffle=True, max_size=None, num_workers=0):
 		sampler = RandomSampler(dataset)
 	else:
 		sampler = None
-	trainloader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers)
-	return trainloader
+	train_loader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers)
+	return train_loader
 
 
 def get_interaction_stream(data_path, number_of_pairs=None, randomstate=None, num_workers=0):
@@ -136,8 +136,8 @@ def get_interaction_stream(data_path, number_of_pairs=None, randomstate=None, nu
 	else:
 		sampler = RandomSampler(dataset)
 
-	trainloader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers)
-	return trainloader
+	train_loader = torch.utils.data.DataLoader(dataset, sampler=sampler, batch_size=1, num_workers=num_workers)
+	return train_loader
 
 
 def check_datastream_shuffle(data_stream, rand_index=42, title=None):
