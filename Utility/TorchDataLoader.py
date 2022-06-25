@@ -118,7 +118,7 @@ def get_interaction_stream(data_path, number_of_pairs=None, randomstate=None, nu
 	Get interaction data as a torch data stream, specifying `N` as `number_of_pairs` which results in
 	:math:`\\frac{N(N+1)}{2}` unique interactions.
 	The fact of interaction data stream shuffles examples when selecting `number_of_pairs` from the entire dataset,
-	as well as shuffles the data stream before each epoch.
+	as well as shuffles the selected data stream before each epoch.
 
 	.. note::
 		For a resumable data stream (e.g. for the SampleBuffer in Monte Carlo fact of interaction),
@@ -140,7 +140,7 @@ def get_interaction_stream(data_path, number_of_pairs=None, randomstate=None, nu
 	return trainloader
 
 
-def check_datastream_shuffle(data_stream, rand_index=42):
+def check_datastream_shuffle(data_stream, rand_index=42, title=None):
 	"""
 	Check that interaction stream is shuffled at stream level (for Monte Carlo `FI_MC`)
 	and not at epoch level (each epoch needs to be the same for use with sample buffer).
@@ -172,9 +172,9 @@ if __name__=='__main__':
 
 	randomstate = np.random.RandomState(42)
 
-	train_datapath = '../Datasets/interaction_train_100pool.pkl'
-	valid_datapath = '../Datasets/interaction_valid_100pool.pkl'
-	test_datapath = '../Datasets/interaction_test_100pool.pkl'
+	train_datapath = '../Datasets/interaction_train_50pool.pkl'
+	valid_datapath = '../Datasets/interaction_valid_50pool.pkl'
+	test_datapath = '../Datasets/interaction_test_50pool.pkl'
 
 	number_of_pairs = 100
 	start = timeit.default_timer()
@@ -185,8 +185,8 @@ if __name__=='__main__':
 	print('Total time to load all 3 datasets:', end-start)
 
 	rand_index = randomstate.randint(0, len(train_stream))
-	print('Plots should be DIFFERENT shapes at this index...')
-	check_datastream_shuffle(train_stream, rand_index=rand_index)
-	print('Plots should be SAME shapes at this index...')
+	title = 'Plots should be DIFFERENT shapes at this index'
+	check_datastream_shuffle(train_stream, rand_index=rand_index, title=title)
+	title = 'Plots should be SAME shapes at this index'
 	train_stream = get_interaction_stream(train_datapath, number_of_pairs=number_of_pairs, randomstate=randomstate)
-	check_datastream_shuffle(train_stream, rand_index=rand_index)
+	check_datastream_shuffle(train_stream, rand_index=rand_index, title=title)
