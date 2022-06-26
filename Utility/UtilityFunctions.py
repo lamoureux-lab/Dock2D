@@ -156,7 +156,7 @@ class UtilityFunctions():
         curr_grid = F.affine_grid(R, size=repr.size(), align_corners=True).type(torch.float)
         return F.grid_sample(repr, curr_grid, align_corners=True)
 
-    def plot_rotation_energysurface(self, fft_score, pred_txy, num_angles=360, stream_name=None, plot_count=0, format='png'):
+    def plot_rotation_energysurface(self, fft_score, pred_txy, num_angles=360, stream_name=None, plot_count=0, plot_pub=False):
         """
         Plot the lowest energy translation index from `fft_score` per rotation angle as an energy surface curve.
 
@@ -168,13 +168,13 @@ class UtilityFunctions():
         """
         plt.close()
         mintxy_energies = []
-        if num_angles == 1:
-            minimumEnergy = fft_score[pred_txy[0], pred_txy[1]].detach().cpu()
+        # if num_angles == 1:
+        #     minimumEnergy = fft_score[pred_txy[0], pred_txy[1]].detach().cpu()
+        #     mintxy_energies.append(minimumEnergy)
+        # else:
+        for i in range(num_angles):
+            minimumEnergy = fft_score[i, pred_txy[0], pred_txy[1]].detach().cpu()
             mintxy_energies.append(minimumEnergy)
-        else:
-            for i in range(num_angles):
-                minimumEnergy = fft_score[i, pred_txy[0], pred_txy[1]].detach().cpu()
-                mintxy_energies.append(minimumEnergy)
 
         fig = plt.figure(figsize=(8,5))
         plt.rcParams['axes.xmargin'] = 0
@@ -183,14 +183,20 @@ class UtilityFunctions():
 
         axarr = fig.add_subplot(1,1,1)
         xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
-        plt.xticks(np.linspace(-np.pi, np.pi, 5, endpoint=True))
+        plt.xticks(np.round(np.linspace(-np.pi, np.pi, 5, endpoint=True), decimals=2))
         plt.xlim([-np.pi, np.pi])
         plt.plot(xrange, mintxy_energies)
+        if plot_pub:
+            format = 'pdf'
+        else:
+            format = 'png'
+            plt.title('Best Scoring Translation Energy Surface')
+
         hardmin_minEnergies = stream_name + '_energysurface' + '_example' + str(plot_count)
-        plt.title('Best Scoring Translation Energy Surface')
         plt.ylabel('Energy')
         plt.xlabel('Rotation (rads)')
         plt.savefig('Figs/EnergySurfaces/' + hardmin_minEnergies + '.'+format, format=format)
+        # plt.show()
 
     def plot_MCsampled_energysurface(self, free_energies_visited_indices, accumulated_free_energies, acceptance_rate, stream_name=None, interaction=None, plot_count=0, epoch=0):
         """
@@ -400,46 +406,7 @@ class UtilityFunctions():
             print('crossterm', str(crosstermW.item())[:6])
             print('bulk', str(bulkW.item())[:6])
         plt.close()
-        # plt.figure(figsize=(8, 8))
-        # if rec_feat.shape[-1] < receptor.shape[-1]:
-        #     pad_size = (receptor.shape[-1] - rec_feat.shape[-1]) // 2
-        #     if rec_feat.shape[-1] % 2 == 0:
-        #         rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        #         lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        #     else:
-        #         rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size + 1, pad_size, pad_size + 1]), mode='constant',
-        #                          value=0)
-        #         lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size + 1, pad_size, pad_size + 1]), mode='constant',
-        #                          value=0)
 
-        # pad_size = (receptor.shape[-1]) // 2
-        # receptor = F.pad(receptor, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        # ligand = F.pad(ligand, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        # rec_feat = F.pad(rec_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-        # lig_feat = F.pad(lig_feat, pad=([pad_size, pad_size, pad_size, pad_size]), mode='constant', value=0)
-
-        # pad_size3x = pad_size*3
-        # receptor = receptor[:, pad_size:pad_size3x, pad_size:pad_size3x]
-        # ligand = ligand[:, pad_size:pad_size3x, pad_size:pad_size3x]
-        # rec_feat = rec_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
-        # lig_feat = lig_feat[:, pad_size:pad_size3x, pad_size:pad_size3x]
-
-        # rec_input_plot = np.hstack((receptor.squeeze().t().detach().cpu(), rec_bound.squeeze().t().detach().cpu()))
-        # lig_input_plot = np.hstack((ligand.squeeze().t().detach().cpu(), lig_bound.squeeze().t().detach().cpu()))
-
-        # plt.imshow(rec_input_plot, cmap='gist_heat_r')
-        # plt.colorbar()
-        # plt.show()
-
-        # rec_feat_plot = np.hstack((rec_input_plot,
-        #                       rec_feat[0].squeeze().t().detach().cpu(),
-        #                       rec_feat[1].squeeze().t().detach().cpu()))
-        # lig_feat_plot = np.hstack((lig_input_plot,
-        #                       lig_feat[0].squeeze().t().detach().cpu(),
-        #                       lig_feat[1].squeeze().t().detach().cpu()))
-        #
-        # norm = colors.CenteredNorm(vcenter=0.0) # center normalized color scale
-        # stacked_image = np.vstack((rec_feat_plot, lig_feat_plot))
 
         rec_bulk, rec_bound = self.make_boundary(receptor.view(50,50))
         lig_bulk, lig_bound = self.make_boundary(ligand.view(50,50))
@@ -448,11 +415,6 @@ class UtilityFunctions():
 
         rec_feat_bulk, rec_feat_bound = rec_feat[0].squeeze().t().detach().cpu(), rec_feat[1].squeeze().t().detach().cpu()
         lig_feat_bulk, lig_feat_bound = lig_feat[0].squeeze().t().detach().cpu(), lig_feat[1].squeeze().t().detach().cpu()
-
-        # print(rec_bulk.shape, lig_bulk.shape)
-        # print(rec_bound.shape, lig_bound.shape)
-        # print(rec_feat_bulk.shape, lig_feat_bulk.shape)
-        # print(rec_feat_bound.shape, lig_feat_bound.shape)
 
         figs_list = [[rec_bulk, rec_bound], [rec_feat_bulk, rec_feat_bound], [lig_bulk, lig_bound], [lig_feat_bulk, lig_feat_bound]]
         rows, cols = 2, 2
@@ -467,10 +429,6 @@ class UtilityFunctions():
         # aspect = None
         cmap_data = 'binary'
         cmap_feats = 'seismic'
-        # cmap_feats = 'binary'
-        # cmap_feats = 'Spectral'
-        # cmap_feats = 'coolwarm'
-        # cmap_feats = 'PiYG'
 
         # plt.tight_layout()
         for i in range(rows):
@@ -512,50 +470,6 @@ class UtilityFunctions():
                         # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
                         cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right')#, ticks=tick_list)
                         # cb2.set_ticklabels(list(map(str, tick_list)))
-
-                # if j == 0: #left column
-                #     loc = 'left'
-                #     if i == 0: #first row
-                #         ax[i,j].set_title('input')
-                #         im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
-                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
-                #     if i == 1:#second row
-                #         ax[i,j].set_title('learned bulk')
-                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm, extent=extent, aspect=aspect)
-                #         # ticks = np.array([data.min(), data.max()])
-                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
-                #
-                # else: #right column
-                #     loc = 'right'
-                #     if i == 0: #first row
-                #         ax[i,j].set_title('boundary')
-                #         im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
-                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
-                #     if i == 1:#second row
-                #         ax[i,j].set_title('learned boundary')
-                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm, extent=extent, aspect=aspect)
-                #         # ticks = np.array([data.min(), data.max()])
-                #         cb = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=loc)
-
-        # plt.imshow(stacked_image, cmap='cividis', norm=norm)  # plot scale limits
-        # # plt.colorbar()
-        # plt.colorbar(shrink=0.5, location='left')
-        # plt.title('Input', loc='left')
-        # plt.title('F1_bulk')
-        # plt.title('F2_bound', loc='right')
-        # plt.grid(False)
-        # plt.tick_params(
-        #     axis='x',  # changes apply to the x-axis
-        #     which='both',  # both major and minor ticks are affected
-        #     bottom=False,  # ticks along the bottom edge are off
-        #     top=False,  # ticks along the top edge are off
-        #     labelbottom=False)  # labels along the bottom
-        # plt.tick_params(
-        #     axis='y',
-        #     which='both',
-        #     left=False,
-        #     right=False,
-        #     labelleft=False)
 
         plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png', format='png')
         # plt.show()

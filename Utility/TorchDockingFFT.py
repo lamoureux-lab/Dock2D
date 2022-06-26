@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 
 import matplotlib.pylab as plt
+from matplotlib import gridspec
 import seaborn as sea
 sea.set_style("whitegrid")
 
@@ -210,8 +211,24 @@ class TorchDockingFFT:
         cmap = 'gist_heat_r'
         # cmap = 'seismic'
 
+
+        # fig = plt.figure(figsize=(8,5))
+        # plt.rcParams['axes.xmargin'] = 0
+        # plt.rcParams['axes.ymargin'] = 0.05
+        # rcParams.update({'font.size': 14})
+
+        # axarr = fig.add_subplot(1,1,1)
+
         if plot_pub:
             plt.close()
+
+            mintxy_energies = []
+            num_angles = 360
+            shifted_txy = pred_txy + fft_score.shape[-1]//2 ## shift translations to match swapped quadrants
+            for i in range(num_angles):
+                minimumEnergy = fft_score[i, shifted_txy[0], shifted_txy[1]].detach().cpu()
+                mintxy_energies.append(minimumEnergy)
+
             receptor = receptor * 2
             pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
                                                     pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy(),
@@ -220,18 +237,30 @@ class TorchDockingFFT:
             pair = pair[25:125, 25:125]
             pair = np.clip(pair, a_min=0, a_max=2)
             energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
-            fig, (ax1, ax2) = plt.subplots(1, 2)
+
+            gs = gridspec.GridSpec(4, 4)
+            # gs.update(wspace=0.0, hspace=0.0)
+            ax1 = plt.subplot(gs[3:, :])
+            ax2 = plt.subplot(gs[:3, :2])
+            ax3 = plt.subplot(gs[:3, 2:])
             ax1.grid(False)
-            ax2.grid(False)
-            ax1.axis('off')
-            ax2.axis('off')
-            ax1.imshow(pair.transpose(), cmap=cmap)
+            ax2.set_axis_off()
+            ax3.set_axis_off()
+            plt.subplots_adjust(wspace=0, hspace=-0.15)
+
+            xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
+            ax1.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
+            ax1.set_xlim([-np.pi, np.pi])
+            ax1.plot(xrange, mintxy_energies)
+            ax1.set_ylabel('Energy')
+            ax1.set_xlabel('Rotation (rads)')
+
+            ax2.imshow(pair.transpose(), cmap=cmap)
             vmin = energy_slice.min()
             vmax = energy_slice.max()
             norm = mcolors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
-            cax = ax2.imshow(energy_slice.transpose(), cmap='seismic', norm=norm)
+            cax = ax3.imshow(energy_slice.transpose(), cmap='seismic', norm=norm)
             tick_list = [vmin, 0.0, vmax]
-            plt.subplots_adjust(wspace=-0.1, hspace=0)
 
             def rounder(x):
                 if x > 0:
@@ -243,12 +272,8 @@ class TorchDockingFFT:
             vminoffset = 10
             vmaxoffset = 100
             tick_list_pos = [i+vminoffset if i < 0 else i+0 if i==0 else i-vmaxoffset for i in tick_list]
-            # print(tick_list)
-            # print(tick_list_pos)
 
-            # tick_list = np.linspace(tick_list[0], tick_list[-1], 5)
-            cb = fig.colorbar(cax, shrink=0.4, ticks=tick_list_pos)
-            # for t in cb.ax.get_yticklabels(): print('ticks', t.get_text())
+            cb = plt.colorbar(cax, shrink=0.5, ticks=tick_list_pos)
             cb.set_ticklabels(list(map(str, tick_list_rounded)))
 
         else:
@@ -271,7 +296,7 @@ if __name__ == '__main__':
     from tqdm import tqdm
     import matplotlib.colors as mcolors
 
-    plot_pub = False
+    plot_pub = True
     dataset = '../Datasets/docking_train_50pool.pkl'
     max_size = None
     data_stream = get_docking_stream(dataset, shuffle=False, max_size=max_size)
@@ -302,6 +327,8 @@ if __name__ == '__main__':
         angle=None
         fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bulk, weight_crossterm, weight_bound)
         rot, trans = FFT.extract_transform(fft_score)
-        lowest_energy = fft_score[rot.long(), trans[0], trans[1]].detach().cpu()
+        if swap_quadrants:
+            trans += fft_score.shape[-1]//2
+
         FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=plot_pub)
         counter += 1
