@@ -227,9 +227,10 @@ class TorchDockingFFT:
                                                     interaction_fact=True)
 
             pair = pair[25:125, 25:125]
-            pair = np.clip(pair, a_min=0, a_max=2)
+            # pair = np.clip(pair, a_min=0, a_max=2)
+            # cmap = cm.get_cmap('gist_heat_r', 10)
             energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
-
+            plt.figure(figsize=(8,6))
             gs = gridspec.GridSpec(4, 4)
             # gs.update(wspace=0.0, hspace=0.0)
             ax1 = plt.subplot(gs[3:, :])
@@ -238,15 +239,18 @@ class TorchDockingFFT:
             ax1.grid(False)
             ax2.set_axis_off()
             ax3.set_axis_off()
-            plt.subplots_adjust(wspace=0, hspace=-0.15)
+            plt.subplots_adjust(wspace=0.20, hspace=-0.20)
 
             xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
             ax1.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
             ax1.set_xlim([-np.pi, np.pi])
             ax1.plot(xrange, mintxy_energies)
-            ax1.set_ylabel('Energy')
-            ax1.set_xlabel('Rotation (rads)')
+            # font = {'weight': 'normal',
+            #         'size': 14, }
+            ax1.set_ylabel('Energy')#, fontdict=font)
+            ax1.set_xlabel('Rotation (rads)')#, fontdict=font)
 
+            # ax2.imshow(pair.transpose(), cmap=cmap)
             ax2.imshow(pair.transpose(), cmap=cmap)
             vmin = energy_slice.min()
             vmax = energy_slice.max()
@@ -287,6 +291,9 @@ if __name__ == '__main__':
     from Dock2D.Utility.TorchDataLoader import get_docking_stream
     from tqdm import tqdm
     import matplotlib.colors as mcolors
+    from matplotlib import rcParams
+    rcParams.update({'font.size': 14})
+
 
     plot_pub = True
     dataset = '../Datasets/docking_train_50pool.pkl'
@@ -297,6 +304,7 @@ if __name__ == '__main__':
     FFT = TorchDockingFFT(padded_dim=100, num_angles=360, swap_plot_quadrants=swap_quadrants)
     UtilityFuncs = UtilityFunctions()
     weight_bulk, weight_crossterm, weight_bound = 100, -10, -10
+
 
     # plot_of_interest = 35
     counter = 0

@@ -274,10 +274,14 @@ class UtilityFunctions():
 
         inputshapes = receptor_copy + ligand_copy
 
-        gt_rot = (gt_rot * 180.0/np.pi)
-        gt_transformlig = self.rotate_gridligand(ligand_copy, gt_rot)
-        gt_transformlig = self.translate_gridligand(gt_transformlig, gt_txy[0], gt_txy[1])
+        # gt_rot = (gt_rot * 180.0/np.pi)
+        # gt_transformlig = self.rotate_gridligand(ligand_copy, gt_rot)
+        gt_transformlig = self.rotate(torch.tensor(ligand_copy).unsqueeze(0).unsqueeze(0), torch.tensor(gt_rot).unsqueeze(0))
+        gt_transformlig = np.clip(self.translate_gridligand(gt_transformlig.squeeze().detach().cpu(), gt_txy[0], gt_txy[1]), a_min=0, a_max=1)
+        receptor_copy = np.clip(receptor_copy, a_min=0, a_max=2)
+
         gt_transformlig += receptor_copy
+        gt_transformlig[gt_transformlig > 2.05] = 0.5
 
         if pred_txy is not None and pred_rot is not None:
             pred_rot = (pred_rot * 180.0 / np.pi)
@@ -290,8 +294,8 @@ class UtilityFunctions():
             pair, ligand_copy = abs(gt_transformlig), abs(ligand_copy)
             return pair, ligand_copy
         elif interaction_fact:
-            pair = np.clip(gt_transformlig, a_min=0, a_max=2)
-            return pair
+            # pair = np.clip(gt_transformlig, a_min=0, a_max=2)
+            return gt_transformlig
         else:
             pair = np.vstack((gt_transformlig, inputshapes))
 
