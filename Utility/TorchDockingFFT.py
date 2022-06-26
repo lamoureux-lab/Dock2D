@@ -211,14 +211,6 @@ class TorchDockingFFT:
         cmap = 'gist_heat_r'
         # cmap = 'seismic'
 
-
-        # fig = plt.figure(figsize=(8,5))
-        # plt.rcParams['axes.xmargin'] = 0
-        # plt.rcParams['axes.ymargin'] = 0.05
-        # rcParams.update({'font.size': 14})
-
-        # axarr = fig.add_subplot(1,1,1)
-
         if plot_pub:
             plt.close()
 
