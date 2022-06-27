@@ -86,7 +86,7 @@ class DatasetGenerator:
         self.testset_pool_stats = None
 
         self.plot_accepted_rejected_examples = False
-        self.plot_interacting_examples = False
+        self.plot_interacting_examples = True
 
         ## Paths
         self.pool_savepath = 'PoolData/'
@@ -101,8 +101,8 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
         self.UtilityFuncs = UtilityFunctions()
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 400
-        self.testpool_num_proteins = 400
+        self.trainpool_num_proteins = 50
+        self.testpool_num_proteins = 50
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
@@ -322,6 +322,7 @@ class DatasetGenerator:
                                                             rot.detach().cpu(),
                                                             trans.detach().cpu(),
                                                             interaction_fact=True)
+                    pair = pair[20:130, 20:130]
                     plot_data_interacting.append(pair)
                     interacting_FE.append(free_energy)
                     visited_indices.append(receptor_index)
@@ -333,6 +334,7 @@ class DatasetGenerator:
                                                             rot.detach().cpu(),
                                                             trans.detach().cpu(),
                                                             interaction_fact=True)
+                    pair = pair[20:130, 20:130]
                     plot_data_noninteracting.append(pair)
                     noninteracting_FE.append(free_energy)
                     visited_indices.append(receptor_index)
@@ -351,16 +353,16 @@ class DatasetGenerator:
         midpoint = (examples_to_plot*spacer)//2
         font = {'weight': 'bold',
                 'size': 20,}
-        plt.text(midpoint-3*len(' interacting '), -0.1*spacer, 'interacting', fontdict=font)
-        plt.text(midpoint-3*len(' non-interacting '), 0.9*spacer, 'non-interacting', fontdict=font)
+        plt.text(midpoint-2*len(' interacting '), -0.1*spacer, 'interacting', fontdict=font)
+        plt.text(midpoint-2*len(' non-interacting '), 0.9*spacer, 'non-interacting', fontdict=font)
         # plt.text(0, 0, s=''.join(str(interacting_FE).split(',')[1:-1]))
         # plt.text(0, 100, s=''.join(str(noninteracting_FE).split(',')[1:-1]))
 
         font = {'weight': 'normal',
                 'size': 20,}
         for i in range(examples_to_plot):
-            plt.text((i+1)*spacer-offset, 0.1*spacer, str(interacting_FE[i]), fontdict=font)
-            plt.text((i+1)*spacer-offset, 1.1*spacer, str(noninteracting_FE[i]), fontdict=font)
+            plt.text((i+1)*spacer-offset, 0.05*spacer, str(interacting_FE[i]), fontdict=font)
+            plt.text((i+1)*spacer-offset, 1.05*spacer, str(noninteracting_FE[i]), fontdict=font)
 
         cmap = 'gist_heat_r'
         plt.imshow(plot, cmap=cmap)

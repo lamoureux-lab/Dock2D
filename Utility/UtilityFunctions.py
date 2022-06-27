@@ -276,7 +276,9 @@ class UtilityFunctions():
 
         # gt_rot = (gt_rot * 180.0/np.pi)
         # gt_transformlig = self.rotate_gridligand(ligand_copy, gt_rot)
-        gt_transformlig = self.rotate(torch.tensor(ligand_copy).unsqueeze(0).unsqueeze(0), torch.tensor(gt_rot).unsqueeze(0))
+        ligand_copy = torch.tensor(ligand_copy, dtype=torch.float).unsqueeze(0).unsqueeze(0)
+        gt_rot = gt_rot.clone().unsqueeze(0)
+        gt_transformlig = self.rotate(ligand_copy, gt_rot)
         gt_transformlig = np.clip(self.translate_gridligand(gt_transformlig.squeeze().detach().cpu(), gt_txy[0], gt_txy[1]), a_min=0, a_max=1)
         receptor_copy = np.clip(receptor_copy, a_min=0, a_max=2)
 
