@@ -99,7 +99,7 @@ class UtilityFunctions():
 
         return output_volume
 
-    def make_boundary(self, grid_shape, gaussian_blur_bulk=False):
+    def make_boundary(self, grid_shape, gaussian_blur_bulk=True):
         """
         Create the boundary feature for data generation and unit testing.
 
@@ -114,8 +114,8 @@ class UtilityFunctions():
         feat_left = F.conv2d(grid_shape, weight=sobel_left, padding=1)
 
         if gaussian_blur_bulk:
-            debug = False
-            kernlen=5
+            debug = True
+            kernlen=25
             sigma=1
             padding = kernlen//2
             gaussian_filter = self.gaussian2D(kernlen=kernlen, mean=0, sigma=sigma, a=1, gaussian_norm=True).view(1, 1, kernlen, kernlen).cuda()
@@ -128,7 +128,7 @@ class UtilityFunctions():
                 blurred_bulk_plot = grid_shape_blurred.squeeze().detach().cpu()
                 raw_bulk_plot = grid_shape.squeeze().detach().cpu()
                 plt.title('original VS. blurred; k='+str(kernlen)+'x'+str(kernlen)+' sig='+str(sigma)+
-                          '\nkernel_sum='+ str(kernel_sum.item())[:4] +'blurred maxval='+str(grid_shape.max().item())[:4])
+                          '\nkernel_sum='+ str(kernel_sum.item())[:4] +' blurred maxval='+str(grid_shape.max().item())[:4])
                 figure = np.hstack((raw_bulk_plot, blurred_bulk_plot))
                 plt.imshow(figure)
                 plt.colorbar()

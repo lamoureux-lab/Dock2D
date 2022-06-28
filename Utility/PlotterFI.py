@@ -47,7 +47,7 @@ class PlotterFI:
         if show:
             plt.show()
 
-    def plot_deltaF_distribution(self, filename=None, plot_epoch=None, xlim=None, binwidth=1, show=False, save=True, plot_pub=False):
+    def plot_deltaF_distribution(self, filename=None, plot_epoch=None, xlim=250, binwidth=1, show=False, save=True, plot_pub=False):
         """
         Plot the labeled free energies of interacting and non-interacting shape pairs as a histogram,
         with a vertical line demarcating the learned `F_0` interaction decision threshold, if applicable.
@@ -61,14 +61,18 @@ class PlotterFI:
         :return:
         """
         plt.close()
+
         # Plot free energy distribution of all samples across epoch
         if not filename:
             filename = self.logfile_savepath+self.logtraindF_prefix+str(plot_epoch)+ self.experiment +'.txt'
         dataframe = pd.read_csv(filename, sep='\t', header=0, names=['F', 'F_0', 'Label'])
 
-        fig, ax = plt.subplots(figsize=(10,10))
+        plt.figure(figsize=(8,6))
         if not plot_pub:
-            plt.suptitle('deltaF distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
+            plt.title('deltaF distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
+            format = 'png'
+        else:
+            format = 'pdf'
 
         labels = sorted(dataframe.Label.unique())
         F = dataframe['F']
@@ -78,9 +82,6 @@ class PlotterFI:
         # print(F.shape)
 
         if len(labels) > 1:
-            # print('len(hist_data)', len(hist_data))
-            # print('len(hist_data[0])', len(hist_data[0]))
-            # print('len(hist_data[1])', len(hist_data[1]))
             y1, x1, _ = plt.hist(hist_data[0], label=labels, bins=bins, rwidth=binwidth, color=['r'], alpha=0.25)
             y2, x2, _ = plt.hist(hist_data[1], label=labels, bins=bins, rwidth=binwidth, color=['g'], alpha=0.25)
             ymax = max(max(y1), max(y2)) + 1
@@ -97,17 +98,17 @@ class PlotterFI:
             ymax = y1.max() + 1
 
         plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=ymax, linestyles='dashed', label='F_0', colors='k')
-        plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10})
-
+        plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10}, loc='upper left')
 
         if xlim:
-            ax.set_xlim([-xlim, 0])
-        ax.set_ylabel('Training set counts')
-        ax.set_xlabel('Free Energy (F)')
-        ax.grid(visible=True)
+            plt.xlim([-xlim, 0])
+        plt.ylabel('counts')
+        plt.xlabel('free energy (F)')
+        plt.grid(visible=False)
+        plt.margins(x=None)
 
         if save:
-            plt.savefig('Figs/FI_deltaF_distribution_plots/deltaFplot_epoch'+ str(plot_epoch) + '_' + self.experiment + '.png', format='png')
+            plt.savefig('Figs/FI_deltaF_distribution_plots/deltaFplot_epoch'+ str(plot_epoch) + '_' + self.experiment + '.'+format, format=format)
         if show:
             plt.show()
 
