@@ -223,7 +223,7 @@ class TorchDockingFFT:
 
             receptor = receptor * 2
             pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
-                                                    pred_rot.detach().cpu().numpy(), pred_txy.detach().cpu().numpy(),
+                                                    gt_rot.detach().cpu(), gt_txy.detach().cpu().numpy(),
                                                     interaction_fact=True)
 
             pair = pair[25:125, 25:125]
@@ -247,8 +247,9 @@ class TorchDockingFFT:
             ax1.plot(xrange, mintxy_energies)
             # font = {'weight': 'normal',
             #         'size': 14, }
-            ax1.set_ylabel('Energy')#, fontdict=font)
-            ax1.set_xlabel('Rotation (rads)')#, fontdict=font)
+            ax1.set_ylabel('energy')#, fontdict=font)
+            ax1.set_xlabel(r'rotation $(\mathrm{\phi})$')#, fontdict=font)
+            ax1.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
 
             # ax2.imshow(pair.transpose(), cmap=cmap)
             ax2.imshow(pair.transpose(), cmap=cmap)
@@ -257,6 +258,8 @@ class TorchDockingFFT:
             norm = mcolors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
             cax = ax3.imshow(energy_slice.transpose(), cmap='seismic', norm=norm)
             tick_list = [vmin, 0.0, vmax]
+
+
 
             def rounder(x):
                 if x > 0:
@@ -316,11 +319,6 @@ if __name__ == '__main__':
         ligand = ligand.squeeze()
         gt_rot = gt_rot.squeeze()
         gt_txy = gt_txy.squeeze()
-
-        receptor = receptor.cuda()
-        ligand = ligand.cuda()
-        gt_rot = gt_rot.cuda()
-        gt_txy = gt_txy.cuda()
 
         receptor_stack = UtilityFuncs.make_boundary(receptor)
         ligand_stack = UtilityFuncs.make_boundary(ligand)

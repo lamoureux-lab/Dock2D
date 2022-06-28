@@ -99,7 +99,7 @@ class UtilityFunctions():
 
         return output_volume
 
-    def make_boundary(self, grid_shape, gaussian_blur_bulk=True):
+    def make_boundary(self, grid_shape, gaussian_blur_bulk=False):
         """
         Create the boundary feature for data generation and unit testing.
 
@@ -114,7 +114,7 @@ class UtilityFunctions():
         feat_left = F.conv2d(grid_shape, weight=sobel_left, padding=1)
 
         if gaussian_blur_bulk:
-            debug = True
+            debug = False
             kernlen=25
             sigma=1
             padding = kernlen//2
