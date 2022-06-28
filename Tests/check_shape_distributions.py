@@ -257,15 +257,15 @@ class ShapeDistributions:
 if __name__ == "__main__":
 
     data_path = '../DatasetGeneration/PoolData/'
-
+    plot_pub = True
     debug = False
 
     num_proteins = 400
     trainvalidset_protein_pool = data_path+'trainvalidset_protein_pool' + str(num_proteins) + '.pkl'
     rcParams.update({'font.size': 15})
-    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params(debug=debug, plot_pub=False)
+    ShapeDistributions(trainvalidset_protein_pool, 'trainset', show=True).plot_shapes_and_params(debug=debug, plot_pub=plot_pub)
 
     num_proteins = 400
     testset_protein_pool = data_path+'testset_protein_pool' + str(num_proteins) + '.pkl'
     rcParams.update({'font.size': 20})
-    ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params(debug=debug, plot_pub=False)
+    ShapeDistributions(testset_protein_pool, 'testset', show=True).plot_shapes_and_params(debug=debug, plot_pub=plot_pub)
