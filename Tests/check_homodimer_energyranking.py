@@ -17,7 +17,7 @@ def homodimer_vs_heterodimer(setname, interaction=False, plot_all_poses=False):
     # heterodimer_Elist = []
     # Energy_list = []
 
-    weight_bound, weight_crossterm, weight_bulk = 10, 20, 200
+    weight_bulk, weight_crossterm, weight_bound = 100, -10, -10
     angle = None
     interacting_example = False
     gt_rot, gt_txy = None, None
