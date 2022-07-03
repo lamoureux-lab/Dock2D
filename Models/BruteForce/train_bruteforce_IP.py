@@ -24,17 +24,15 @@ if __name__ == '__main__':
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     ######################
-    max_size = 1000
+    max_size = 100
     train_stream = get_docking_stream(trainset, max_size=max_size)
-    valid_stream = get_docking_stream(validset,  max_size=max_size)
-    test_stream = get_docking_stream(testset, max_size=max_size)
+    valid_stream = get_docking_stream(validset,  max_size=1000)
+    test_stream = get_docking_stream(testset, max_size=1000)
     ######################
-    # experiment = 'BF_check_code_consolidated_10ep'
-    # experiment = 'BF_manuscript_30ep'
-    # experiment = 'BF_lr-3_30ep'
-    experiment = 'BF_lr-3_30ep_latest_400poolcheck'
+    experiment = 'BF_IP_finaldataset_100ex'
+    # experiment = 'docking_scratch_BF_FI_finaldataset_100pairs_500ep'
     ######################
-    plotting = True
+    plotting = False
 
     train_epochs = 30
     learning_rate = 10 ** -3
@@ -47,7 +45,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True, plotting=plotting)
     ######################
     ### Train model from beginning, evaluate if valid_stream and/or test_stream passed in
-    # Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
+    Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
@@ -55,7 +53,7 @@ if __name__ == '__main__':
 
     # ### Evaluate model on chosen dataset only and plot at chosen epoch and dataset frequency
     Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                        resume_training=True, resume_epoch=30, train_epochs=1)
+                        resume_training=True, resume_epoch=train_epochs, train_epochs=1)
 
     ## Plot loss and RMSDs from current experiment
     PlotterIP(experiment).plot_loss(show=True)

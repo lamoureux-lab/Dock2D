@@ -24,10 +24,10 @@ if __name__ == '__main__':
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     ######################
-    max_size = 1000
+    max_size = 100
     train_stream = get_docking_stream(trainset, max_size=max_size)
-    valid_stream = get_docking_stream(validset, max_size=max_size)
-    test_stream = get_docking_stream(testset, max_size=max_size)
+    valid_stream = get_docking_stream(validset, max_size=1000)
+    test_stream = get_docking_stream(testset, max_size=1000)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
     # experiment = 'BS_check_code_consolidated_10ep'
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(
@@ -66,9 +66,9 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ### Resume training for validation sets
-    # Trainer.run_trainer(
-    #     train_epochs=1, train_stream=None, valid_stream=valid_stream, #test_stream=valid_stream,
-    #     resume_training=True, resume_epoch=train_epochs)
+    Trainer.run_trainer(
+        train_epochs=10, train_stream=None, valid_stream=valid_stream, #test_stream=valid_stream,
+        resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
     plotting = False
