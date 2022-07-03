@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/home/sb1638/')  # path for cluster
+
 from Dock2D.Models.TrainerFI import *
 import random
 from Dock2D.Utility.TorchDataLoader import get_interaction_stream
@@ -8,8 +11,6 @@ from Dock2D.Models.model_sampling import SamplingModel
 from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 
 if __name__ == '__main__':
-    import sys
-    sys.path.append('/home/sb1638/') # path for cluster
     #################################################################################
     # Datasets
     trainset = '../../Datasets/interaction_train_400pool.pkl'
