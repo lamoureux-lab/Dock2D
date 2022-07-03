@@ -18,6 +18,7 @@ if __name__ == '__main__':
     #########################
     #### initialization of random seeds
     random_seed = 42
+    # randomstate = np.random.RandomState(random_seed)
     np.random.seed(random_seed)
     torch.manual_seed(random_seed)
     random.seed(random_seed)
@@ -28,20 +29,14 @@ if __name__ == '__main__':
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
     number_of_pairs = 100
-    train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs)
+    train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs)#, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=number_of_pairs)
     test_stream = get_interaction_stream(testset, number_of_pairs=number_of_pairs)
     ######################
-    # experiment = 'BF_FI_check_consolidated'
-    # experiment = 'BF_FI_manuscript_30ep'
-    # experiment = 'BF_FI_check_traineval_10ep'
-
-    # experiment = 'BF_FI_train2death'
-    # experiment = 'BF_FI_500ep_latest_400poolcheck'
-
-    # experiment = 'BF_FI_latest_400poolcheck_F0BFvolume'
-    experiment = 'BF_FI_latest_400poolcheck_F0BFvol_dataLSEvol'
-
+    # experiment = 'BF_FI_finaldataset_50pairs'
+    # experiment = 'BF_FI_finaldataset_50pairs_noRandomstate'
+    # experiment = 'BF_FI_finaldataset_100pairs_noRandomstate'
+    experiment = 'BF_FI_finaldataset_100pairs_500ep'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -78,12 +73,12 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
-    Trainer.run_trainer(resume_training=True, resume_epoch=800, train_epochs=100, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(resume_training=True, resume_epoch=845, train_epochs=155, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ## Validate model at chosen epoch
     Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                        resume_training=True, resume_epoch=900)
+                        resume_training=True, resume_epoch=1000)
     #
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss(show=True)
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=900, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=1000, show=True)
