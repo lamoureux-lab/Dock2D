@@ -27,25 +27,12 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
-    number_of_pairs = 50
+    number_of_pairs = 100
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
-    valid_stream = get_interaction_stream(validset, number_of_pairs=100)
-    test_stream = get_interaction_stream(testset, number_of_pairs=100)
+    valid_stream = get_interaction_stream(validset, number_of_pairs=1000)
+    test_stream = get_interaction_stream(testset, number_of_pairs=1000)
     ######################
-    # experiment = 'MC_FI_test_-logdim^2ofEACHunvisited'
-    # experiment = 'MC_FI_steps=50_-logdim^2ofEACHunvisited'
-
-    # experiment = 'MC_FI_test_F_0_prime_5ep'
-    # experiment = 'MC_FI_test_singleparam_F_0_prime_5ep'
-    # experiment = 'MC_FI_defaultcomparision_5ep'
-    # experiment = 'MC_FI_defaultcomparision_10ep'
-    # experiment = 'MC_FI_defaultcomparision_NO_FPRIME_10ep'
-    # experiment = 'MC_FI_FPRIME_log100^2_20ep'
-    # experiment = 'MC_FI_defaultcomparision_NO_FPRIME_20ep'
-
-    experiment = 'MC_FI_FPRIME_init-log100^2_100ep'
-
-
+    experiment = 'MC_FI_finaldataset_100pairs_1000ep'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -56,7 +43,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 100
+    train_epochs = 1000
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
