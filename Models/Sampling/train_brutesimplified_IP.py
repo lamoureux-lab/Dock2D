@@ -24,30 +24,18 @@ if __name__ == '__main__':
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     ######################
-    max_size = 100
+    max_size = 1000
     train_stream = get_docking_stream(trainset, max_size=max_size)
-    valid_stream = get_docking_stream(validset, max_size=1000)
-    test_stream = get_docking_stream(testset, max_size=1000)
+    valid_stream = get_docking_stream(validset, max_size=None)
+    test_stream = get_docking_stream(testset, max_size=None)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
-    # experiment = 'BS_check_code_consolidated_10ep'
-    # experiment = 'BS_check_singlecrossterm_10ep'
-
-    # experiment = 'BS_lr-2_30ep'
-    # experiment = 'BS_lr-3_30ep'
-    # experiment = 'BS_lr-4_30ep'
-
-    # experiment = 'BS_lr-2_10ep_check_NoNormPool'
-    # experiment = 'BS_lr-2_10ep_latest_400poolcheck'
-    # experiment = 'BS_lr-2_30ep_latest_400poolcheck'
-
-    # experiment = 'BS_negativeEnergy'
-    # experiment = 'BS_negativeEnergy_nohardcodedsigns'
-
-    experiment = 'BS_IP_finaldataset'
+    # experiment = 'BS_IP_finaldataset'
+    # experiment = 'BS_IP_finaldataset_100pairs_100ep'
+    experiment = 'BS_IP_finaldataset_1000pairs_100ep'
 
     ######################
-    train_epochs = 30
+    train_epochs = 100
     lr = 10 ** -3
     #####################
     padded_dim = 100
@@ -66,24 +54,25 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ### Resume training for validation sets
-    Trainer.run_trainer(
-        train_epochs=10, train_stream=None, valid_stream=valid_stream, #test_stream=valid_stream,
-        resume_training=True, resume_epoch=train_epochs)
+    # Trainer.run_trainer(
+    #     train_epochs=10, train_stream=None, valid_stream=valid_stream, #test_stream=valid_stream,
+    #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
     plotting = False
-    start = 1
-    stop = 30
-    eval_angles = 360
-    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
-    eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
-    EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
-                            BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
-    for epoch in range(start, stop):
-        if stop-1 == epoch:
-            plotting = True
-        EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                                resume_training=True, resume_epoch=epoch)
+    start = train_epochs-1
+    stop = train_epochs
+
+    # eval_angles = 360
+    # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
+    # eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
+    # EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
+    #                         BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
+    # for epoch in range(start, stop):
+    #     if stop-1 == epoch:
+    #         plotting = True
+    #     EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+    #                             resume_training=True, resume_epoch=epoch)
 
     ## Plot loss and RMSDs from current experiment
     PlotterIP(experiment).plot_loss(ylim=None, show=True)
