@@ -32,8 +32,8 @@ if __name__ == '__main__':
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
     number_of_pairs = 100
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
-    valid_stream = get_interaction_stream(validset, number_of_pairs=1000)
-    test_stream = get_interaction_stream(testset, number_of_pairs=1000)
+    valid_stream = get_interaction_stream(validset, number_of_pairs=None)
+    test_stream = get_interaction_stream(testset, number_of_pairs=None)
     ######################
     experiment = 'MC_FI_finaldataset_100pairs_1000ep'
     ##################### Load and freeze/unfreeze params (training, no eval)
