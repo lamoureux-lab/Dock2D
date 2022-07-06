@@ -29,10 +29,9 @@ if __name__ == '__main__':
     valid_stream = get_docking_stream(validset,  max_size=None)
     test_stream = get_docking_stream(testset, max_size=None)
     ######################
-    # experiment = 'BF_IP_finaldataset_100ex'
     # experiment = 'docking_scratch_BF_FI_finaldataset_100pairs_500ep'
-    # experiment = 'BS_IP_finaldataset_100pairs_100ep'
-    experiment = 'BS_IP_finaldataset_1000pairs_100ep'
+    # experiment = 'BF_IP_finaldataset_100pairs_100ep'
+    experiment = 'BF_IP_finaldataset_1000pairs_100ep'
     ######################
     plotting = False
 

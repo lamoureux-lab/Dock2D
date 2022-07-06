@@ -30,24 +30,21 @@ if __name__ == '__main__':
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
     number_of_pairs = 100
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs)#, randomstate=randomstate)
-    valid_stream = get_interaction_stream(validset, number_of_pairs=number_of_pairs)
-    test_stream = get_interaction_stream(testset, number_of_pairs=number_of_pairs)
+    valid_stream = get_interaction_stream(validset, number_of_pairs=None)
+    test_stream = get_interaction_stream(testset, number_of_pairs=None)
     ######################
-    # experiment = 'BF_FI_finaldataset_50pairs'
-    # experiment = 'BF_FI_finaldataset_50pairs_noRandomstate'
-    # experiment = 'BF_FI_finaldataset_100pairs_noRandomstate'
-    experiment = 'BF_FI_finaldataset_100pairs_500ep'
+    experiment = 'BF_FI_finaldataset_100pairs_1000ep'
+    # experiment = 'BF_FI_finaldataset_100pairs_expC_BFIP_1000ex100ep'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
-    # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
-    path_pretrain = 'Log/FINAL_CHECK_DOCKING30.th'
+    path_pretrain = 'Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
     # training_case = 'A' # CaseA: train with docking model frozen
     # training_case = 'B' # CaseB: train with docking model unfrozen
     # training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 500
+    train_epochs = 100
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
