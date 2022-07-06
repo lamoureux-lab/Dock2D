@@ -69,11 +69,11 @@ if __name__ == '__main__':
               FI_MC=True)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    # Trainer.run_trainer(resume_training=True, resume_epoch=15, train_epochs=5,
-    #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(resume_training=True, resume_epoch=55, train_epochs=945,
+                                               train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force evaluation)
     eval_angles = 360
