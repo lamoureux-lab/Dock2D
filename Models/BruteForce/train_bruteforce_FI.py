@@ -33,15 +33,15 @@ if __name__ == '__main__':
     valid_stream = get_interaction_stream(validset, number_of_pairs=None)
     test_stream = get_interaction_stream(testset, number_of_pairs=None)
     ######################
-    experiment = 'BF_FI_finaldataset_100pairs_1000ep'
-    # experiment = 'BF_FI_finaldataset_100pairs_expC_BFIP_1000ex100ep'
+    # experiment = 'BF_FI_finaldataset_100pairs_1000ep'
+    experiment = 'BF_FI_finaldataset_100pairs_expC_BFIP_1000ex100ep'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     path_pretrain = 'Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
     # training_case = 'A' # CaseA: train with docking model frozen
     # training_case = 'B' # CaseB: train with docking model unfrozen
-    # training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
-    training_case = 'scratch' # Case scratch: train everything from scratch
+    training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
+    # training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
     train_epochs = 100
@@ -73,9 +73,9 @@ if __name__ == '__main__':
     # Trainer.run_trainer(resume_training=True, resume_epoch=845, train_epochs=155, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ## Validate model at chosen epoch
-    Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                        resume_training=True, resume_epoch=1000)
+    # Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+    #                     resume_training=True, resume_epoch=1000)
     #
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     PlotterFI(experiment).plot_loss(show=True)
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=1000, show=True)
+    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=100, show=True, xlim=1000)

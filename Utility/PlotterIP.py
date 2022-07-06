@@ -20,7 +20,7 @@ class PlotterIP:
             print('no experiment name given')
             sys.exit()
 
-    def plot_loss(self, ylim=None, show=False, save=True):
+    def plot_loss(self, ylim=None, show=False, save=True, plot_combined=False):
         """
         Plot the current interaction pose (IP) experiments loss curve.
         The plot will plot all epochs present in the log file.
@@ -29,26 +29,33 @@ class PlotterIP:
         :param show: show the plot in a window
         :param save: save the plot at specified path
         """
-        plt.close()
+        # plt.close()
+
         #LOSS WITH ROTATION
-        train = pd.read_csv(self.logfile_savepath+'log_loss_TRAINset_'+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
-        valid = pd.read_csv(self.logfile_savepath+'log_loss_VALIDset_'+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
-        test = pd.read_csv(self.logfile_savepath+'log_loss_TESTset_'+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
+        train_name = self.logfile_savepath+'log_loss_TRAINset_'+ self.experiment +'.txt'
+        valid_name = self.logfile_savepath+'log_loss_VALIDset_'+ self.experiment +'.txt'
+        test_name = self.logfile_savepath+'log_loss_TESTset_'+ self.experiment +'.txt'
+        train = pd.read_csv(train_name, sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
+        if exists(train_name) and exists(test_name):
+            valid = pd.read_csv(valid_name, sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
+            test = pd.read_csv(test_name, sep='\t', header=1, names=['Epoch', 'Loss', 'RMSD'])
 
         fig, ax = plt.subplots(2, figsize=(20,10))
-        ax[0].plot(train['Epoch'].to_numpy(), train['RMSD'].to_numpy())
-        ax[0].plot(valid['Epoch'].to_numpy(), valid['RMSD'].to_numpy())
-        ax[0].plot(test['Epoch'].to_numpy(), test['RMSD'].to_numpy())
-        ax[0].legend(('train RMSD', 'valid RMSD', 'test RMSD'))
+        line_rmsd, = ax[0].plot(train['Epoch'].to_numpy(), train['RMSD'].to_numpy())
+        if exists(train_name) and exists(test_name):
+            ax[0].plot(valid['Epoch'].to_numpy(), valid['RMSD'].to_numpy())
+            ax[0].plot(test['Epoch'].to_numpy(), test['RMSD'].to_numpy())
+            ax[0].legend(('train RMSD', 'valid RMSD', 'test RMSD'))
 
         ax[0].set_title('Loss: ' + self.experiment)
         ax[0].set_ylabel('RMSD')
         ax[0].grid(visible=True)
 
-        ax[1].plot(train['Epoch'].to_numpy(), train['Loss'].to_numpy())
-        ax[1].plot(valid['Epoch'].to_numpy(), valid['Loss'].to_numpy())
-        ax[1].plot(test['Epoch'].to_numpy(), test['Loss'].to_numpy())
-        ax[1].legend(('train loss', 'valid loss', 'test loss'))
+        line_loss, = ax[1].plot(train['Epoch'].to_numpy(), train['Loss'].to_numpy())
+        if exists(valid_name) and exists(test_name):
+            ax[1].plot(valid['Epoch'].to_numpy(), valid['Loss'].to_numpy())
+            ax[1].plot(test['Epoch'].to_numpy(), test['Loss'].to_numpy())
+            ax[1].legend(('train loss', 'valid loss', 'test loss'))
 
         ax[1].set_xlabel('epochs')
         ax[1].set_ylabel('loss')
@@ -65,8 +72,9 @@ class PlotterIP:
 
         if save:
             plt.savefig('Figs/IP_loss_plots/lossplot_'+self.experiment+'.png')
-        if show:
+        if show and not plot_combined:
             plt.show()
+        return line_loss
 
     def plot_rmsd_distribution(self, plot_epoch=1, show=False, save=True):
         """
@@ -136,7 +144,32 @@ class PlotterIP:
 
 if __name__ == "__main__":
     loadpath = 'Log/losses/IP_loss/'
-    experiment = 'BF_IP_NEWDATA_CHECK_400pool_30ep'
-    Plotter = PlotterIP(experiment, logfile_savepath=loadpath)
-    Plotter.plot_loss(show=True)
-    Plotter.plot_rmsd_distribution(plot_epoch=30, show=True)
+    # experiment = 'BF_IP_NEWDATA_CHECK_400pool_30ep'
+    experiments_list = [
+                       'BF_IP_finaldataset_1000pairs_100ep',
+                       'BF_IP_finaldataset_100pairs_100ep',
+                       'BS_IP_finaldataset_1000pairs_100ep',
+                       'BS_IP_finaldataset_100pairs_100ep',
+                       ]
+    fig_data = []
+    for experiment in experiments_list:
+        Plotter = PlotterIP(experiment, logfile_savepath=loadpath)
+        line_loss = Plotter.plot_loss(show=True, plot_combined=True)
+        # Plotter.plot_rmsd_distribution(plot_epoch=100, show=True)
+        fig_data.append(line_loss)
+        plt.close()
+
+    # plt.close()
+    plt.figure(figsize=(10,5))
+    color_style = ['b-', 'b--', 'r-', 'r--']
+
+    for i in range(len(fig_data)):
+        plt.plot(fig_data[i].get_data()[0], fig_data[i].get_data()[1], color_style[i], )
+
+    plt.margins(x=None)
+    plt.legend(['BruteForce IP 1000pairs', 'BruteForce IP 100pairs', 'BruteSimplified IP 1000pairs', 'BruteSimplified IP 100pairs'])
+    plt.ylabel('loss')
+    plt.xlabel('epochs')
+    plt.xlim([0,100])
+    plt.savefig('Figs/IP_loss_plots/sup_combined_IP_loss_plot.pdf', format='pdf')
+    plt.show()

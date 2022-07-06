@@ -46,15 +46,15 @@ if __name__ == '__main__':
     Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True, plotting=plotting)
     ######################
     ### Train model from beginning, evaluate if valid_stream and/or test_stream passed in
-    # Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
     #                     resume_training=True, resume_epoch=13, train_epochs=17)
 
     # ### Evaluate model on chosen dataset only and plot at chosen epoch and dataset frequency
-    # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #                     resume_training=True, resume_epoch=train_epochs, train_epochs=1)
+    Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+                        resume_training=True, resume_epoch=train_epochs, train_epochs=1)
 
     ## Plot loss and RMSDs from current experiment
     PlotterIP(experiment).plot_loss(show=True)
