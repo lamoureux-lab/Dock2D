@@ -264,8 +264,8 @@ class UtilityFunctions():
             receptor_copy = np.pad(receptor_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
             ligand_copy = np.pad(ligand_copy, ((padding, padding), (padding, padding)), 'constant', constant_values=0)
         else:
-            receptor_copy = receptor * -100
-            ligand_copy = ligand * 200
+            receptor_copy = receptor * -1
+            ligand_copy = ligand * 2
 
         padding = box_size//2
         if box_size < 100:
@@ -277,19 +277,25 @@ class UtilityFunctions():
         # gt_rot = (gt_rot * 180.0/np.pi)
         # gt_transformlig = self.rotate_gridligand(ligand_copy, gt_rot)
         ligand_copy = torch.tensor(ligand_copy, dtype=torch.float).unsqueeze(0).unsqueeze(0)
-        gt_rot = gt_rot.clone().unsqueeze(0)
+        gt_rot = torch.tensor(gt_rot).unsqueeze(0)
         gt_transformlig = self.rotate(ligand_copy, gt_rot)
         gt_transformlig = np.clip(self.translate_gridligand(gt_transformlig.squeeze().detach().cpu(), gt_txy[0], gt_txy[1]), a_min=0, a_max=1)
-        receptor_copy = np.clip(receptor_copy, a_min=0, a_max=2)
+        receptor_copy2 = receptor_copy
+        receptor_copy2 = np.clip(receptor_copy2, a_min=0, a_max=2)
 
-        gt_transformlig += receptor_copy
+        gt_transformlig += receptor_copy2
         gt_transformlig[gt_transformlig > 2.05] = 0.5
 
         if pred_txy is not None and pred_rot is not None:
-            pred_rot = (pred_rot * 180.0 / np.pi)
-            transformligand = self.rotate_gridligand(ligand_copy, pred_rot)
-            transformligand = self.translate_gridligand(transformligand, pred_txy[0], pred_txy[1])
+            # pred_rot = pred_rot * 180.0 / np.pi
+            # transformligand = self.rotate_gridligand(ligand_copy, pred_rot)
+
+            pred_rot = torch.tensor(pred_rot).unsqueeze(0)
+            transformligand = self.rotate(ligand_copy, pred_rot)
+            transformligand = self.translate_gridligand(transformligand.squeeze().detach().cpu(), pred_txy[0], pred_txy[1])
+            # receptor_copy = receptor_copy * -100
             transformligand += receptor_copy
+            gt_transformlig += receptor_copy
 
             pair = np.vstack((gt_transformlig, inputshapes, transformligand))
         elif tiling:
@@ -299,13 +305,13 @@ class UtilityFunctions():
             # pair = np.clip(gt_transformlig, a_min=0, a_max=2)
             return gt_transformlig
         else:
-            pair = np.vstack((gt_transformlig, inputshapes))
+            pair = np.vstack((gt_transformlig*2, inputshapes))
 
         return pair
 
     def rotate_gridligand(self, ligand, rotation_angle):
         """
-        Rotate grid image in degrees using `scipy.ndimage.rotate()` for :func:`plot_assembly()`
+        Rotate grid image in degrees using `scipy.ndimage.rotate()`, an alternative rotation function for :func:`plot_assembly()`
 
         :param ligand: grid image of ligand
         :param rotation_angle: angle in degrees
@@ -381,7 +387,7 @@ class UtilityFunctions():
         :param feat_stack: feature stack for one shape [bulk, boundary]
         :return: orthogonalized feature stack
         """
-        boundW, crosstermW, bulkW = scoring_weights
+        bulkW, crosstermW, boundW = scoring_weights
         A = torch.tensor([[boundW, crosstermW],[crosstermW, bulkW]])
         eigvals, V = torch.linalg.eig(A)
         V = V.real
@@ -402,80 +408,111 @@ class UtilityFunctions():
         :param plot_count: plotting index used in titles and filename
         :param stream_name: data stream name
         """
-        rec_feat = self.orthogonalize_feats(scoring_weights, rec_feat).squeeze()
-        lig_feat = self.orthogonalize_feats(scoring_weights, lig_feat).squeeze()
-
-        boundW, crosstermW, bulkW = scoring_weights
+        bulkW, crosstermW, boundW = scoring_weights
         if plot_count == 0:
             print('\nLearned scoring coefficients')
             print('bound', str(boundW.item())[:6])
             print('crossterm', str(crosstermW.item())[:6])
             print('bulk', str(bulkW.item())[:6])
-        plt.close()
 
+        rec_feat = self.orthogonalize_feats(scoring_weights, rec_feat).squeeze()
+        lig_feat = self.orthogonalize_feats(scoring_weights, lig_feat).squeeze()
+
+        plt.close()
 
         rec_bulk, rec_bound = self.make_boundary(receptor.view(50,50))
         lig_bulk, lig_bound = self.make_boundary(ligand.view(50,50))
+
         rec_bulk, rec_bound = rec_bulk.squeeze().t().detach().cpu(), rec_bound.squeeze().t().detach().cpu()
         lig_bulk, lig_bound = lig_bulk.squeeze().t().detach().cpu(), lig_bound.squeeze().t().detach().cpu()
+
+        raw_data_weights = (100.0, -10.0, -10.0)
+        rec_data = torch.stack((rec_bulk, rec_bound), dim=0)
+        rec_orth_data = self.orthogonalize_feats(raw_data_weights, rec_data).squeeze()
 
         rec_feat_bulk, rec_feat_bound = rec_feat[0].squeeze().t().detach().cpu(), rec_feat[1].squeeze().t().detach().cpu()
         lig_feat_bulk, lig_feat_bound = lig_feat[0].squeeze().t().detach().cpu(), lig_feat[1].squeeze().t().detach().cpu()
 
-        figs_list = [[rec_bulk, rec_bound], [rec_feat_bulk, rec_feat_bound], [lig_bulk, lig_bound], [lig_feat_bulk, lig_feat_bound]]
-        rows, cols = 2, 2
-        fig, ax = plt.subplots(rows, cols, figsize=(8,8))
-        plt.subplots_adjust(wspace=0, hspace=0)
+
+        figs_list = [[rec_bulk, rec_bound], [rec_orth_data[0,:,:], rec_orth_data[1,:,:]], [rec_feat_bulk, rec_feat_bound]]
+        rows, cols = 3, 2
+        fig, ax = plt.subplots(rows, cols, figsize=(10,10))
+        plt.subplots_adjust(wspace=-0.4, hspace=0.1)
 
         norm = colors.CenteredNorm(vcenter=0.0)  # center normalized color scale
         # norm = plt.colors.DivergingNorm(vcenter=0)
         shrink_bar = 0.8
-        # extent = [0, 100, 0, 100]
-        # extent = None
-        # aspect = None
-        cmap_data = 'binary'
+        # cmap_data = 'binary'
         cmap_feats = 'seismic'
 
-        # plt.tight_layout()
+        titles_list = [['input bulk', 'input boundary'],
+                       ['orthonormal input bulk', 'orthonormal input boundary'],
+                       ['orthonormal learned bulk', 'orthonormal learned boundary']]
+        font = {'weight': 'bold',
+                'size': 14,}
         for i in range(rows):
             for j in range(cols):
                 ax[i,j].grid(b=None)
                 ax[i,j].axis('off')
 
                 data = figs_list[i][j]
+                ax[i, j].set_title(titles_list[i][j], fontdict=font)
 
-                if j == 0: #first col
-                    # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
-                    if i == 0: #first row
-                        ax[i, j].set_title('input bulk')
-                        im = ax[i, j].imshow(data, cmap=cmap_data)
-                        tick_list = [0.0,  0.5, 1.0]
-                        cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left', ticks=tick_list)
-                        cb1.set_ticklabels(list(map(str, tick_list)))
-                    if i == 1:
-                        ax[i, j].set_title('learned bulk')
-                        im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
-                        # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
-                        cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left')#, ticks=tick_list)
-                        # cb2.set_ticklabels(list(map(str, tick_list)))
+                im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
+                if j == 0:
+                    location = 'left'
                 else:
-                    # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
-                    if i == 0: #first row
-                        ax[i, j].set_title('input boundary')
-                        im = ax[i, j].imshow(data/data.max(), cmap=cmap_data)
-                        # tick_list = list(np.linspace(-data.max().item(), data.max().item(), 5, endpoint=False))
-                        tick_list = [0.0,  0.5, 1.0]
-                        cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right', ticks=tick_list)
-                        cb1.set_ticklabels(list(map(str, tick_list)))
-                        # cb1.set_ticks(list(map(str, tick_list)))
-                        # cb1.set_ticks(tick_list)
+                    location = 'right'
+                plt.colorbar(im, ax=ax[i,j], shrink=shrink_bar, location=location)
 
-                    if i == 1:
-                        ax[i, j].set_title('learned boundary')
-                        im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
-                        # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
-                        cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right')#, ticks=tick_list)
-                        # cb2.set_ticklabels(list(map(str, tick_list)))
+                # if i == 0:
+                #     tick_list = [0.0, 0.25, 0.50, 0.75, 1.0]
+                # else:
+                #     tick_list = [data.min().round().item(), data.min().round().item()/2, (data.min()+data.max()).item()/2, data.max().round().item()/2, data.max().round().item()]
+                #
+                # cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=location)  # , ticks=tick_list)
+                # cb1.set_ticklabels(list(map(str, tick_list)))
+                # if i == 1:
+                #     tick_list = [-1.0, 0.5, 0.0, 0.5, 1.0]
+                #     cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=location)#, ticks=tick_list)
+                #     cb1.set_ticklabels(list(map(str, tick_list)))
+                # else:
+                #     plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=location)
+
+                # if j == 0: #first col
+                #     # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
+                #     if i == 0: #first row
+                #         ax[i, j].set_title('input bulk')
+                #         print(data.shape)
+                #         im = ax[i, j].imshow(data, cmap=cmap_data, norm=norm)
+                #         # tick_list = [0.0,  0.5, 1.0]
+                #         cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left')#, ticks=tick_list)
+                #         # cb1.set_ticklabels(list(map(str, tick_list)))
+                #     if i == 1:
+                #         ax[i, j].set_title('learned bulk')
+                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
+                #         # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
+                #         cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left')#, ticks=tick_list)
+                #         # cb2.set_ticklabels(list(map(str, tick_list)))
+                # else:
+                #     # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
+                #     if i == 0: #first row
+                #         ax[i, j].set_title('input boundary')
+                #         im = ax[i, j].imshow(data, cmap=cmap_data, norm=norm)
+                #         # im = ax[i, j].imshow(data/data.max(), cmap=cmap_data)
+                #         # tick_list = list(np.linspace(-data.max().item(), data.max().item(), 5, endpoint=False))
+                #         # tick_list = [0.0,  0.5, 1.0]
+                #         cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right')#, ticks=tick_list)
+                #         # cb1.set_ticklabels(list(map(str, tick_list)))
+                #         # cb1.set_ticks(list(map(str, tick_list)))
+                #         # cb1.set_ticks(tick_list)
+                #
+                #     if i == 1:
+                #         ax[i, j].set_title('learned boundary')
+                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
+                #         # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
+                #         cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right')#, ticks=tick_list)
+                #         # cb2.set_ticklabels(list(map(str, tick_list)))
 
         plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png', format='png')
         # plt.show()

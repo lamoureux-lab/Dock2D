@@ -26,13 +26,13 @@ if __name__ == '__main__':
     ######################
     max_size = 1000
     train_stream = get_docking_stream(trainset, max_size=max_size)
-    valid_stream = get_docking_stream(validset, max_size=None)
-    test_stream = get_docking_stream(testset, max_size=None)
+    valid_stream = get_docking_stream(validset, max_size=None, shuffle=False)
+    test_stream = get_docking_stream(testset, max_size=None, shuffle=False)
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
     ######################
     # experiment = 'BS_IP_finaldataset'
-    experiment = 'BS_IP_finaldataset_100pairs_100ep'
-    # experiment = 'BS_IP_finaldataset_1000pairs_100ep'
+    # experiment = 'BS_IP_finaldataset_100pairs_100ep'
+    experiment = 'BS_IP_finaldataset_1000pairs_100ep'
 
     ######################
     train_epochs = 100
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
-    plotting = False
+    plotting = True
     start = train_epochs-1
     stop = train_epochs
 

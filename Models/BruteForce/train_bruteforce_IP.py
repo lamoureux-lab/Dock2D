@@ -26,14 +26,14 @@ if __name__ == '__main__':
     ######################
     max_size = 1000
     train_stream = get_docking_stream(trainset, max_size=max_size)
-    valid_stream = get_docking_stream(validset,  max_size=None)
-    test_stream = get_docking_stream(testset, max_size=None)
+    valid_stream = get_docking_stream(validset,  max_size=None, shuffle=False)
+    test_stream = get_docking_stream(testset, max_size=None, shuffle=False)
     ######################
     # experiment = 'docking_scratch_BF_FI_finaldataset_100pairs_500ep'
     # experiment = 'BF_IP_finaldataset_100pairs_100ep'
     experiment = 'BF_IP_finaldataset_1000pairs_100ep'
     ######################
-    plotting = False
+    plotting = True
 
     train_epochs = 100
     learning_rate = 10 ** -3
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True, plotting=plotting)
     ######################
     ### Train model from beginning, evaluate if valid_stream and/or test_stream passed in
-    Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
