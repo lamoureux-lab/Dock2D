@@ -72,7 +72,7 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    Trainer.run_trainer(resume_training=True, resume_epoch=55, train_epochs=945,
+    Trainer.run_trainer(resume_training=True, resume_epoch=123, train_epochs=877,
                                                train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force evaluation)
