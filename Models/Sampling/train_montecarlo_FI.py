@@ -72,17 +72,17 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    Trainer.run_trainer(resume_training=True, resume_epoch=123, train_epochs=877,
+    Trainer.run_trainer(resume_training=True, resume_epoch=186, train_epochs=100,
                                                train_stream=train_stream, valid_stream=None, test_stream=None)
 
-    ### Evaluate model at chosen epoch (Brute force evaluation)
-    eval_angles = 360
-    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
-    eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
-    TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
-                                  ).run_trainer(resume_training=True, resume_epoch=1, train_epochs=1,
-                                                train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
+    # ### Evaluate model at chosen epoch (Brute force evaluation)
+    # eval_angles = 360
+    # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
+    # eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
+    # TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
+    #                               ).run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
+    #                                             train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
-    PlotterFI(experiment).plot_loss(show=show)
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=show)
+    # PlotterFI(experiment).plot_loss(show=show)
+    # PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=show)
