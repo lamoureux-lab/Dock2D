@@ -1,27 +1,56 @@
-from torch import optim
 import torch.autograd.profiler as profiler
 
-from Dock2D.Models.BruteForce.train_bruteforce_docking import BruteForceDockingTrainer, Docking, get_docking_stream
+from Dock2D.Models.TrainerIP import *
+import random
+from Dock2D.Utility.TorchDataLoader import get_docking_stream
+from torch import optim
+from Dock2D.Models.model_sampling import SamplingModel
+from Dock2D.Utility.TorchDockingFFT import TorchDockingFFT
 
-if __name__ == "__main__":
-    experiment = 'BF_IP_FINAL_DATASET_400pool_1000ex_30ep'
-
+if __name__ == '__main__':
+    #################################################################################
+    # Datasets
+    trainset = '../Datasets/docking_train_400pool.pkl'
+    validset = '../Datasets/docking_valid_400pool.pkl'
+    ### testing set
+    testset = '../Datasets/docking_test_400pool.pkl'
+    #########################
+    #### initialization of random seeds
+    random_seed = 42
+    np.random.seed(random_seed)
+    torch.manual_seed(random_seed)
+    random.seed(random_seed)
+    torch.cuda.manual_seed(random_seed)
+    torch.backends.cudnn.deterministic = True
+    torch.cuda.set_device(0)
+    # torch.autograd.set_detect_anomaly(True)
     ######################
-    trainset = '../Datasets/docking_train_400pool'
+    max_size = 10
+    train_stream = get_docking_stream(trainset, max_size=max_size)
+    # valid_stream = get_docking_stream(validset,  max_size=None, shuffle=False)
+    # test_stream = get_docking_stream(testset, max_size=None, shuffle=False)
+    ######################
+    experiment = 'BF_IP_profiler_check'
+    ######################
+    plotting = False
 
     train_epochs = 1
-    lr = 10 ** -4
-    model = Docking().to(device=0)
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    train_stream = get_docking_stream(trainset+'.pkl', max_size=10)
+    learning_rate = 10 ** -3
+
+    padded_dim = 100
+    num_angles = 360
+    BFdockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
+    model = SamplingModel(BFdockingFFT, IP=True).to(device=0)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True, plotting=plotting)
 
     ### warm-up
-    BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
+    Trainer.run_trainer(
         train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     #### run profiler
     with profiler.profile(with_stack=True, profile_memory=True) as prof:
-        BruteForceDockingTrainer(model, optimizer, experiment).run_trainer(
+        Trainer.run_trainer(
             train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     print(prof.key_averages().table(sort_by='self_cpu_time_total'))
