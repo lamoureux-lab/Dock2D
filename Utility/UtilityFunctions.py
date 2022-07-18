@@ -459,60 +459,12 @@ class UtilityFunctions():
                 ax[i, j].set_title(titles_list[i][j], fontdict=font)
 
                 im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
+
                 if j == 0:
                     location = 'left'
                 else:
                     location = 'right'
                 plt.colorbar(im, ax=ax[i,j], shrink=shrink_bar, location=location)
-
-                # if i == 0:
-                #     tick_list = [0.0, 0.25, 0.50, 0.75, 1.0]
-                # else:
-                #     tick_list = [data.min().round().item(), data.min().round().item()/2, (data.min()+data.max()).item()/2, data.max().round().item()/2, data.max().round().item()]
-                #
-                # cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=location)  # , ticks=tick_list)
-                # cb1.set_ticklabels(list(map(str, tick_list)))
-                # if i == 1:
-                #     tick_list = [-1.0, 0.5, 0.0, 0.5, 1.0]
-                #     cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=location)#, ticks=tick_list)
-                #     cb1.set_ticklabels(list(map(str, tick_list)))
-                # else:
-                #     plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location=location)
-
-                # if j == 0: #first col
-                #     # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
-                #     if i == 0: #first row
-                #         ax[i, j].set_title('input bulk')
-                #         print(data.shape)
-                #         im = ax[i, j].imshow(data, cmap=cmap_data, norm=norm)
-                #         # tick_list = [0.0,  0.5, 1.0]
-                #         cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left')#, ticks=tick_list)
-                #         # cb1.set_ticklabels(list(map(str, tick_list)))
-                #     if i == 1:
-                #         ax[i, j].set_title('learned bulk')
-                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
-                #         # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
-                #         cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='left')#, ticks=tick_list)
-                #         # cb2.set_ticklabels(list(map(str, tick_list)))
-                # else:
-                #     # im = ax[i, j].imshow(data, cmap=cmap_data, extent=extent, aspect=aspect)
-                #     if i == 0: #first row
-                #         ax[i, j].set_title('input boundary')
-                #         im = ax[i, j].imshow(data, cmap=cmap_data, norm=norm)
-                #         # im = ax[i, j].imshow(data/data.max(), cmap=cmap_data)
-                #         # tick_list = list(np.linspace(-data.max().item(), data.max().item(), 5, endpoint=False))
-                #         # tick_list = [0.0,  0.5, 1.0]
-                #         cb1 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right')#, ticks=tick_list)
-                #         # cb1.set_ticklabels(list(map(str, tick_list)))
-                #         # cb1.set_ticks(list(map(str, tick_list)))
-                #         # cb1.set_ticks(tick_list)
-                #
-                #     if i == 1:
-                #         ax[i, j].set_title('learned boundary')
-                #         im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
-                #         # tick_list = [data.min().round().item(), 0, -data.min().round().item()]
-                #         cb2 = plt.colorbar(im, ax=ax[i, j], shrink=shrink_bar, location='right')#, ticks=tick_list)
-                #         # cb2.set_ticklabels(list(map(str, tick_list)))
 
         plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png', format='png')
         # plt.show()
