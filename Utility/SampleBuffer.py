@@ -3,7 +3,7 @@ import numpy as np
 
 
 class SampleBuffer:
-    def __init__(self, num_examples, max_pos=360):
+    def __init__(self, num_examples, max_pos=1):
         """
         Initialize a sample buffer (dictionary of lists) used to store and retrieve values per example, across epochs.
 
@@ -62,6 +62,7 @@ class SampleBuffer:
             self.buffer[i].append((sample))
             if len(self.buffer[i]) > self.max_pos:
                 self.buffer[i].pop(0)
+            # print('alpha buffer_idx_len', len(self.buffer[i]))
 
     def get_free_energies_indices(self, index, samples_per_example=1, device='cuda'):
         """
@@ -81,6 +82,7 @@ class SampleBuffer:
                 samples = torch.tensor([[]])
             else:
                 samples = self.buffer[i][-1]
+            # print('FE buffer_idx_len', buffer_idx_len)
 
         samples = torch.unique(samples).unsqueeze(0).to(device=device)
         return samples
@@ -96,3 +98,6 @@ class SampleBuffer:
         samples = samples.clone().detach().float().to(device='cpu')
         i = index.item()
         self.buffer[i].append((samples))
+
+        if len(self.buffer[i]) > self.max_pos:
+            self.buffer[i].pop(0)

@@ -255,7 +255,7 @@ class SamplingModel(nn.Module):
 
             rand_rot = 0
             for i in range(self.random_walk_steps):
-                if torch.rand(1) >= 0.5:
+                if torch.rand(1).float() >= 0.5:
                     rand_rot += self.rot_step
                 else:
                     rand_rot -= self.rot_step

@@ -30,12 +30,16 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
-    number_of_pairs = 100
+    number_of_pairs = 4
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=None)
     test_stream = get_interaction_stream(testset, number_of_pairs=None)
     ######################
-    experiment = 'MC_FI_finaldataset_100pairs_1000ep'
+    # experiment = 'MC_FI_finaldataset_100pairs_1000ep'
+    # experiment = 'MC_FI_finaldataset_4pairs_buffertest'
+    # experiment = 'MC_FI_finaldataset_2pairs_buffertest'
+    # experiment = 'MC_FI_finaldataset_4pairs_buffertest_maxpos1'
+    experiment = 'MC_FI_finaldataset_4pairs_buffertest_maxpos1_10steps'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
@@ -46,14 +50,14 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 1000
+    train_epochs = 20
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 10
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
 
     debug = False
-    plotting = False
+    plotting = True
     show = False
 
     interaction_model = Interaction().to(device=0)
@@ -69,19 +73,19 @@ if __name__ == '__main__':
               FI_MC=True)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    # Trainer.run_trainer(resume_training=True, resume_epoch=186, train_epochs=100,
-    #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
-
+    Trainer.run_trainer(resume_training=True, resume_epoch=train_epochs, train_epochs=1,
+                                               train_stream=train_stream, valid_stream=None, test_stream=None)
+    #
     # ### Evaluate model at chosen epoch (Brute force evaluation)
-    eval_angles = 360
-    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
-    eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
-    TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
-                                  ).run_trainer(resume_training=True, resume_epoch=230, train_epochs=1,
-                                                train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
+    # eval_angles = 360
+    # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
+    # eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
+    # TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
+    #                               ).run_trainer(resume_training=True, resume_epoch=230, train_epochs=1,
+    #                                             train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     # PlotterFI(experiment).plot_loss(show=show)
