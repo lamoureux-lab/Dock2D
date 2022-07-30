@@ -85,6 +85,7 @@ class SampleBuffer:
             # print('FE buffer_idx_len', buffer_idx_len)
 
         samples = torch.unique(samples).unsqueeze(0).to(device=device)
+        # print(samples)
         return samples
 
     def push_free_energies_indices(self, samples, index):
