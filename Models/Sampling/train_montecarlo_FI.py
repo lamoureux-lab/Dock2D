@@ -64,7 +64,7 @@ if __name__ == '__main__':
     train_epochs = 20
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
-    sample_steps = 1
+    sample_steps = 2
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
 
     debug = False
