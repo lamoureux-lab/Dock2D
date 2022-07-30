@@ -61,7 +61,7 @@ if __name__ == '__main__':
     training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
-    train_epochs = 20
+    train_epochs = 1000
     lr_interaction = 10 ** -1
     lr_docking = 10 ** -4
     sample_steps = 2
