@@ -1,6 +1,6 @@
 import torch
 import sys
-# sys.path.append('/home/sb1638/') ## path for cluster
+sys.path.append('/home/sb1638/') ## path for cluster
 
 import numpy as np
 from tqdm import tqdm

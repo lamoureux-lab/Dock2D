@@ -1,5 +1,5 @@
 import sys
-# sys.path.append('/home/sb1638/')  # path for cluster
+sys.path.append('/home/sb1638/')  # path for cluster
 
 from Dock2D.Models.TrainerFI import *
 import random

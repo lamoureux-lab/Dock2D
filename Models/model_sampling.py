@@ -1,6 +1,6 @@
 import sys
 
-# sys.path.append('/home/sb1638/')
+sys.path.append('/home/sb1638/')
 
 import torch
 from torch import optim
