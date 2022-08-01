@@ -13,6 +13,6 @@
 #SBATCH --export=ALL
 
 pwd
-#export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-echo 'past export'
-srun -N1 -n1 python train_montecarlo_FI.py;
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+
+srun python train_montecarlo_FI.py;
