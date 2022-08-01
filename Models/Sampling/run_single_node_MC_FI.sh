@@ -15,4 +15,4 @@
 pwd
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-srun -N1 -n1 python train_montecarlo_FI.py;
+srun -N1 -n1 python /home/sb1638/Dock2D/Models/Sampling/train_montecarlo_FI.py;
