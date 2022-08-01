@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_1sample'
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_2sample'
 
-    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample'
+    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
