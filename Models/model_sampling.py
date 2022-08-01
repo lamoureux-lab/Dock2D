@@ -117,7 +117,7 @@ class SamplingModel(nn.Module):
         self.FI_BF = FI_BF
         self.FI_MC = FI_MC
 
-        self.random_walk_steps = 1000
+        self.random_walk_steps = 100
         self.rot_step = 0.01745329251
 
     def forward(self, receptor, ligand, alpha=None, free_energies_visited=None, sig_alpha=None, plot_count=1, stream_name='trainset', plotting=False,
