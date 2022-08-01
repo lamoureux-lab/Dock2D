@@ -1,5 +1,6 @@
 #!/bin/bash
-#SBATCH --partition=p_ccib_1
+##SBATCH --partition=p_ccib_1
+#SBATCH --partition=gpu
 #SBATCH --job-name=MCFI_2samp_1000ep
 #SBATCH --nodes=1
 ##SBATCH --ntasks=1
@@ -14,7 +15,5 @@
 
 pwd
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-
-module load python
 
 srun -N1 -n1 python train_montecarlo_FI.py;
