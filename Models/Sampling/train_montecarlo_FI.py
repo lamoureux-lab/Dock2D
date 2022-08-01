@@ -1,6 +1,8 @@
 import sys
 sys.path.append('/home/sb1638/')  # path for cluster
 
+print(sys.path)
+
 from Dock2D.Models.TrainerFI import *
 import random
 from Dock2D.Utility.TorchDataLoader import get_interaction_stream
