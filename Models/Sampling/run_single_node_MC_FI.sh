@@ -13,7 +13,7 @@
 #SBATCH --output=slurm_log/slurm.%N.%j.%x.out
 #SBATCH --error=slurm_log/slurm.%N.%j.%x.err
 #SBATCH --export=ALL
-#SBATCH --nodelist=gpuc002
+##SBATCH --nodelist=gpuc002
 
 pwd
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
