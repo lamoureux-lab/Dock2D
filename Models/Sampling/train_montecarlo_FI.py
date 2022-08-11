@@ -87,15 +87,15 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    Trainer.run_trainer(resume_training=True, resume_epoch=133, train_epochs=(1000-133),
+    Trainer.run_trainer(resume_training=True, resume_epoch=308, train_epochs=(1000-308),
                                                train_stream=train_stream, valid_stream=None, test_stream=None)
     #
-    # ### Evaluate model at chosen epoch (Brute force evaluation)
+    # # ### Evaluate model at chosen epoch (Brute force evaluation)
     # eval_angles = 360
     # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     # eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
     # TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
-    #                               ).run_trainer(resume_training=True, resume_epoch=100, train_epochs=1,
+    #                               ).run_trainer(resume_training=True, resume_epoch=308, train_epochs=1,
     #                                             train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
