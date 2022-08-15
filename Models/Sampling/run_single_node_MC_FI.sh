@@ -9,7 +9,7 @@
 #SBATCH --gres=gpu:2 # Number of GPUs
 #SBATCH --constraint=volta
 ##SBATCH --constraint=oarc
-#SBATCH --time=3-00:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --output=slurm_log/slurm.%N.%j.%x.out
 #SBATCH --error=slurm_log/slurm.%N.%j.%x.err
 #SBATCH --export=ALL
