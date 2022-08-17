@@ -1,7 +1,8 @@
 import torch
 import torch.nn.functional as F
 
-import matplotlib.pylab as plt
+import matplotlib.pyplot as plt
+from matplotlib import patches
 from matplotlib import gridspec
 import seaborn as sea
 sea.set_style("whitegrid")
@@ -188,11 +189,11 @@ class TorchDockingFFT:
         else:
             return score
 
-    def check_fft_predictions(self, fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=False):
+    def check_fft_predictions(self, energies, receptor, ligand, gt_rot, gt_txy, plot_pub=False):
         """
         Test function to see how fft scores looks from raw, unlearned, bulk and boundary features used in dataset generation.
 
-        :param fft_score: computed fft scores
+        :param energies: computed fft energies
         :param receptor: receptor shape grid image
         :param ligand: ligand shape grid image
         :param gt_rot: ground truth rotation
@@ -200,8 +201,7 @@ class TorchDockingFFT:
         """
         print('\n'+'*'*50)
 
-        pred_rot, pred_txy = self.extract_transform(fft_score)
-        energies = fft_score
+        pred_rot, pred_txy = self.extract_transform(energies)
         rmsd_out = RMSD(ligand, gt_rot, gt_txy, pred_rot, pred_txy).calc_rmsd()
         print('extracted predicted indices', pred_rot, pred_txy)
         print('gt indices', gt_rot, gt_txy)
@@ -215,65 +215,154 @@ class TorchDockingFFT:
             plt.close()
 
             mintxy_energies = []
+            free_energies = []
             num_angles = 360
-            shifted_txy = pred_txy + fft_score.shape[-1]//2 ## shift translations to match swapped quadrants
+            shifted_txy_min = pred_txy + fft_score.shape[-1]//2 ## shift translations to match swapped quadrants
             for i in range(num_angles):
-                minimumEnergy = fft_score[i, shifted_txy[0], shifted_txy[1]].detach().cpu()
+                rotation_slice = energies[i, :, :]
+                minimumEnergy_index = torch.argmin(rotation_slice)
+                minimumEnergy = rotation_slice.flatten()[minimumEnergy_index].detach().cpu()
+
+                # minimumEnergy = energies[i, shifted_txy_min[0], shifted_txy_min[1]].detach().cpu()
                 mintxy_energies.append(minimumEnergy)
+                free_energies.append(-torch.logsumexp(-rotation_slice, dim=(0,1)).detach().cpu())
 
-            receptor = receptor * 2
-            pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
-                                                    gt_rot.detach().cpu(), gt_txy.detach().cpu().numpy(),
-                                                    interaction_fact=True)
 
-            pair = pair[25:125, 25:125]
-            # pair = np.clip(pair, a_min=0, a_max=2)
-            # cmap = cm.get_cmap('gist_heat_r', 10)
-            energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
-            plt.figure(figsize=(8,6))
+
+
+            fig = plt.figure(figsize=(8,6))
             gs = gridspec.GridSpec(4, 4)
             # gs.update(wspace=0.0, hspace=0.0)
-            ax1 = plt.subplot(gs[3:, :])
-            ax2 = plt.subplot(gs[:3, :2])
-            ax3 = plt.subplot(gs[:3, 2:])
-            ax1.grid(False)
-            ax2.set_axis_off()
+            ax2 = plt.subplot(gs[3:, :]) ## free energy curve
+            # ax1 = plt.subplot(gs[3:5, :], sharex=ax2) ## minimum energy curve
+
+            ax3 = plt.subplot(gs[:3, :1]) ## minimum energy pose
+            ax4 = plt.subplot(gs[:3, 1:2]) ## maximum energy pose
+            ax5 = plt.subplot(gs[:3, 2:3]) ## minimum energy pose
+            ax6 = plt.subplot(gs[:3, 3:]) ## maximum energy pose
+
+            # ax1.grid(False)
+            ax2.grid(False)
             ax3.set_axis_off()
+            ax4.set_axis_off()
+            ax5.set_axis_off()
+            ax6.set_axis_off()
             plt.subplots_adjust(wspace=0.20, hspace=-0.20)
 
+            ### minimum energy curve
+            # xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
+            # # ax1.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
+            # # ax1.set_xticklabels(None)
+            # ax1.set_xlim([-np.pi, np.pi])
+            # ax1.plot(xrange, mintxy_energies)
+            # # font = {'weight': 'normal',
+            # #         'size': 14, }
+            # ax1.set_ylabel('E')#, fontdict=font)
+            # # ax1.set_xlabel(r'$(\mathrm{\phi})$')#, fontdict=font)
+            # ax1.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
+
+            ### free energy curve
             xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
-            ax1.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
-            ax1.set_xlim([-np.pi, np.pi])
-            ax1.plot(xrange, mintxy_energies)
+            # ax2.set_xticks(xrange*np.pi/180)
+
+            ax2.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
+            ax2.set_xticklabels([r'$\mathrm{-\pi}$',r'$0$',r'$\mathrm{\pi}$' ])
+
+
+            ax2.set_xlim([-np.pi, np.pi])
+            # ax2.plot(xrange, free_energies)
+            total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
+            ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, colors='r', linestyles='solid')
+            ax2.plot(xrange, mintxy_energies)
             # font = {'weight': 'normal',
             #         'size': 14, }
-            ax1.set_ylabel('energy')#, fontdict=font)
-            ax1.set_xlabel(r'rotation $(\mathrm{\phi})$')#, fontdict=font)
-            ax1.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
+            # ax2.set_ylabel('F')#, fontdict=font)
+            ax2.set_ylabel('Energy')
+            ax2.set_xlabel(r'$(\mathrm{\phi})$')#, fontdict=font)
+            ax2.legend(['Free Energies', 'Minimum Energies'])
+            # ax2.legend(['Free Energies', 'Energy at ground truth translation index'])
+            ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
 
-            # ax2.imshow(pair.transpose(), cmap=cmap)
-            ax2.imshow(pair.transpose(), cmap=cmap)
-            vmin = energy_slice.min()
-            vmax = energy_slice.max()
-            norm = mcolors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
-            cax = ax3.imshow(energy_slice.transpose(), cmap='seismic', norm=norm)
-            tick_list = [vmin, 0.0, vmax]
+            ### minimum energy slice
+            # ax3.imshow(pair.transpose(), cmap=cmap)
+
+            # ## best pose correlation
+            # min_energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
+            # vmin = min_energy_slice.min()
+            # vmax = min_energy_slice.max()
+            # norm = mcolors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
+            # cax = ax3.imshow(min_energy_slice.transpose(), cmap='seismic', norm=norm)
+            # tick_list = [vmin, 0.0, vmax]
+
+            # def rounder(x):
+            #     if x > 0:
+            #        return x if x % 100 == 0 else x + 100 - x % 100
+            #     else:
+            #        return x if x % -100 == 0 else x + -100 - x % -100
+            #
+            # tick_list_rounded = [int(rounder(x)) for x in tick_list]
+            # vminoffset = 10
+            # vmaxoffset = 100
+            # tick_list_pos = [i+vminoffset if i < 0 else i+0 if i==0 else i-vmaxoffset for i in tick_list]
+            #
+            # cb = plt.colorbar(cax, shrink=0.5, ticks=tick_list_pos)
+            # cb.set_ticklabels(list(map(str, tick_list_rounded)))
+
+            # receptor = receptor * 2
+            # pair_min = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
+            #                                             pred_rot.detach().cpu(), pred_txy.detach().cpu().numpy(),
+            #                                             interaction_fact=True)
+            # pair_min = pair_min[25:125, 25:125]
 
 
+            ## rotation indices of interest --> 155, 230, 306
+            def deg_to_rad(deg):
+                return (deg - 180) * np.pi/180
+            def rad_to_deg(rad):
+                return (int(np.round(rad * 180/np.pi)) + 180) % 360
+            rots_of_interest = [rad_to_deg(pred_rot.detach().cpu().numpy()), 155, 230, 306]
+            pred_rots = [pred_rot.detach().cpu().numpy(), deg_to_rad(155), deg_to_rad(230), deg_to_rad(306)]
+            pairs_of_interest = []
+            receptor = receptor * 2
 
-            def rounder(x):
-                if x > 0:
-                   return x if x % 100 == 0 else x + 100 - x % 100
-                else:
-                   return x if x % -100 == 0 else x + -100 - x % -100
+            # Add line from one subplot to the other
+            rec_bottom = [53, 69]
+            lig_arrow_pos_list = []
 
-            tick_list_rounded = [int(rounder(x)) for x in tick_list]
-            vminoffset = 10
-            vmaxoffset = 100
-            tick_list_pos = [i+vminoffset if i < 0 else i+0 if i==0 else i-vmaxoffset for i in tick_list]
+            for i in range(len(rots_of_interest)):
 
-            cb = plt.colorbar(cax, shrink=0.5, ticks=tick_list_pos)
-            cb.set_ticklabels(list(map(str, tick_list_rounded)))
+                rot_slice = energies[rots_of_interest[i], :, :]
+                _, pred_txy = self.extract_transform(rot_slice)
+                print(rots_of_interest[i])
+                print(pred_rots[i])
+                print(pred_txy)
+                pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
+                                                            pred_rots[i], pred_txy.detach().cpu(),
+                                                            interaction_fact=True)
+                pair = pair[25:125, 25:125]
+                pairs_of_interest.append(pair)
+                minimumEnergy_index = torch.argmin(rot_slice)
+                minimumEnergy = rot_slice.flatten()[minimumEnergy_index].detach().cpu()
+                # min_energies_of_interest.append(minimumEnergy)
+
+                lig_arrow_pos_list.append([pred_rots[i], minimumEnergy])
+
+            # ConnectionPatch handles the transform internally so no need to get fig.transFigure
+            ax_list = [ax3, ax4, ax5, ax6]
+            for i in range(len(lig_arrow_pos_list)):
+                ax_list[i].imshow(pairs_of_interest[i].transpose(), cmap=cmap)
+                arrow = patches.ConnectionPatch(
+                    rec_bottom,
+                    lig_arrow_pos_list[i],
+                    coordsA=ax_list[i].transData,
+                    coordsB=ax2.transData,
+                    # Default shrink parameter is 0 so can be omitted
+                    color="black",
+                    arrowstyle="-|>",  # "normal" arrow
+                    mutation_scale=20,  # controls arrow head size
+                    linewidth=2,
+                )
+                fig.patches.append(arrow)
 
         else:
             plt.close()
@@ -300,7 +389,8 @@ if __name__ == '__main__':
 
     plot_pub = True
     dataset = '../Datasets/docking_train_50pool.pkl'
-    max_size = None
+    # max_size = None
+    max_size = 5
     data_stream = get_docking_stream(dataset, shuffle=False, max_size=max_size)
 
     swap_quadrants = True
@@ -308,25 +398,25 @@ if __name__ == '__main__':
     UtilityFuncs = UtilityFunctions()
     weight_bulk, weight_crossterm, weight_bound = 100, -10, -10
 
-
-    # plot_of_interest = 35
+    plot_of_interest = 3 # rotation indices of interest --> 155, 230, 306
+    # plot_of_interest = None
     counter = 0
     for data in tqdm(data_stream):
-        # if counter == plot_of_interest:
-        receptor, ligand, gt_rot, gt_txy = data
+        if counter == plot_of_interest or not plot_of_interest:
+            receptor, ligand, gt_rot, gt_txy = data
 
-        receptor = receptor.squeeze()
-        ligand = ligand.squeeze()
-        gt_rot = gt_rot.squeeze()
-        gt_txy = gt_txy.squeeze()
+            receptor = receptor.squeeze()
+            ligand = ligand.squeeze()
+            gt_rot = gt_rot.squeeze()
+            gt_txy = gt_txy.squeeze()
 
-        receptor_stack = UtilityFuncs.make_boundary(receptor)
-        ligand_stack = UtilityFuncs.make_boundary(ligand)
-        angle=None
-        fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bulk, weight_crossterm, weight_bound)
-        rot, trans = FFT.extract_transform(fft_score)
-        if swap_quadrants:
-            trans += fft_score.shape[-1]//2
+            receptor_stack = UtilityFuncs.make_boundary(receptor)
+            ligand_stack = UtilityFuncs.make_boundary(ligand)
+            angle=None
+            fft_score = FFT.dock_rotations(receptor_stack, ligand_stack, angle, weight_bulk, weight_crossterm, weight_bound)
+            rot, trans = FFT.extract_transform(fft_score)
+            if swap_quadrants:
+                trans += fft_score.shape[-1]//2
 
-        FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=plot_pub)
+            FFT.check_fft_predictions(fft_score, receptor, ligand, gt_rot, gt_txy, plot_pub=plot_pub)
         counter += 1
