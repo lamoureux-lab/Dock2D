@@ -217,7 +217,7 @@ class TorchDockingFFT:
             mintxy_energies = []
             free_energies = []
             num_angles = 360
-            shifted_txy_min = pred_txy + fft_score.shape[-1]//2 ## shift translations to match swapped quadrants
+            shifted_txy_min = pred_txy + energies.shape[-1]//2 ## shift translations to match swapped quadrants
             for i in range(num_angles):
                 rotation_slice = energies[i, :, :]
                 minimumEnergy_index = torch.argmin(rotation_slice)
@@ -227,19 +227,15 @@ class TorchDockingFFT:
                 mintxy_energies.append(minimumEnergy)
                 free_energies.append(-torch.logsumexp(-rotation_slice, dim=(0,1)).detach().cpu())
 
-
-
-
-            fig = plt.figure(figsize=(8,6))
-            gs = gridspec.GridSpec(4, 4)
+            fig = plt.figure(figsize=(10, 5))
+            gs = gridspec.GridSpec(6, 4)
             # gs.update(wspace=0.0, hspace=0.0)
             ax2 = plt.subplot(gs[3:, :]) ## free energy curve
             # ax1 = plt.subplot(gs[3:5, :], sharex=ax2) ## minimum energy curve
-
             ax3 = plt.subplot(gs[:3, :1]) ## minimum energy pose
-            ax4 = plt.subplot(gs[:3, 1:2]) ## maximum energy pose
-            ax5 = plt.subplot(gs[:3, 2:3]) ## minimum energy pose
-            ax6 = plt.subplot(gs[:3, 3:]) ## maximum energy pose
+            ax4 = plt.subplot(gs[:3, 1:2]) ## local min 1 energy pose
+            ax5 = plt.subplot(gs[:3, 2:3]) ## local min 2 energy pose
+            ax6 = plt.subplot(gs[:3, 3:]) ## local min 3 energy pose
 
             # ax1.grid(False)
             ax2.grid(False)
@@ -268,7 +264,7 @@ class TorchDockingFFT:
             ax2.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
             ax2.set_xticklabels([r'$\mathrm{-\pi}$',r'$0$',r'$\mathrm{\pi}$' ])
 
-
+            ax2.set_ylim([-120, 2])
             ax2.set_xlim([-np.pi, np.pi])
             # ax2.plot(xrange, free_energies)
             total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
@@ -279,7 +275,7 @@ class TorchDockingFFT:
             # ax2.set_ylabel('F')#, fontdict=font)
             ax2.set_ylabel('Energy')
             ax2.set_xlabel(r'$(\mathrm{\phi})$')#, fontdict=font)
-            ax2.legend(['Free Energies', 'Minimum Energies'])
+            ax2.legend(['free energy', 'minimum energies'], loc='upper left', prop={'size': 8})
             # ax2.legend(['Free Energies', 'Energy at ground truth translation index'])
             ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
 
@@ -314,7 +310,6 @@ class TorchDockingFFT:
             #                                             interaction_fact=True)
             # pair_min = pair_min[25:125, 25:125]
 
-
             ## rotation indices of interest --> 155, 230, 306
             def deg_to_rad(deg):
                 return (deg - 180) * np.pi/180
@@ -326,7 +321,7 @@ class TorchDockingFFT:
             receptor = receptor * 2
 
             # Add line from one subplot to the other
-            rec_bottom = [53, 69]
+            rec_arrow_start = []
             lig_arrow_pos_list = []
 
             for i in range(len(rots_of_interest)):
@@ -343,7 +338,11 @@ class TorchDockingFFT:
                 pairs_of_interest.append(pair)
                 minimumEnergy_index = torch.argmin(rot_slice)
                 minimumEnergy = rot_slice.flatten()[minimumEnergy_index].detach().cpu()
-                # min_energies_of_interest.append(minimumEnergy)
+                # XYind = torch.remainder(minimumEnergy_index, self.padded_dim ** 2)
+                # print(XYind)
+                # rec_arrow_start.append(np.round(XYind.detach().cpu()))
+                rec_arrow_start.append(pred_txy.detach().cpu() + self.padded_dim//2)
+                # print(rec_arrow_start)
 
                 lig_arrow_pos_list.append([pred_rots[i], minimumEnergy])
 
@@ -352,7 +351,7 @@ class TorchDockingFFT:
             for i in range(len(lig_arrow_pos_list)):
                 ax_list[i].imshow(pairs_of_interest[i].transpose(), cmap=cmap)
                 arrow = patches.ConnectionPatch(
-                    rec_bottom,
+                    rec_arrow_start[i],
                     lig_arrow_pos_list[i],
                     coordsA=ax_list[i].transData,
                     coordsB=ax2.transData,
