@@ -227,15 +227,15 @@ class TorchDockingFFT:
                 mintxy_energies.append(minimumEnergy)
                 free_energies.append(-torch.logsumexp(-rotation_slice, dim=(0,1)).detach().cpu())
 
-            fig = plt.figure(figsize=(10, 5))
-            gs = gridspec.GridSpec(6, 4)
+            fig = plt.figure(figsize=(10, 6))
+            gs = gridspec.GridSpec(8, 4)
             # gs.update(wspace=0.0, hspace=0.0)
-            ax2 = plt.subplot(gs[3:, :]) ## free energy curve
+            ax2 = plt.subplot(gs[4:, :]) ## free energy curve
             # ax1 = plt.subplot(gs[3:5, :], sharex=ax2) ## minimum energy curve
-            ax3 = plt.subplot(gs[:3, :1]) ## minimum energy pose
-            ax4 = plt.subplot(gs[:3, 1:2]) ## local min 1 energy pose
-            ax5 = plt.subplot(gs[:3, 2:3]) ## local min 2 energy pose
-            ax6 = plt.subplot(gs[:3, 3:]) ## local min 3 energy pose
+            ax3 = plt.subplot(gs[:4, :1]) ## minimum energy pose
+            ax4 = plt.subplot(gs[:4, 1:2]) ## local min 1 energy pose
+            ax5 = plt.subplot(gs[:4, 2:3]) ## local min 2 energy pose
+            ax6 = plt.subplot(gs[:4, 3:]) ## local min 3 energy pose
 
             # ax1.grid(False)
             ax2.grid(False)
@@ -261,8 +261,8 @@ class TorchDockingFFT:
             xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
             # ax2.set_xticks(xrange*np.pi/180)
 
-            ax2.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
-            ax2.set_xticklabels([r'$\mathrm{-\pi}$',r'$0$',r'$\mathrm{\pi}$' ])
+            ax2.set_xticks(np.round(np.linspace(-np.pi, np.pi, 5, endpoint=True), decimals=2))
+            ax2.set_xticklabels([r'$-\pi$',r'$-\frac{\pi}{2}$',r'$0$',r'$+\frac{\pi}{2}$',r'$+\pi$' ])
 
             ax2.set_ylim([-120, 2])
             ax2.set_xlim([-np.pi, np.pi])
@@ -270,17 +270,16 @@ class TorchDockingFFT:
             total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
             ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, colors='r', linestyles='solid')
             ax2.plot(xrange, mintxy_energies)
-            # font = {'weight': 'normal',
-            #         'size': 14, }
-            # ax2.set_ylabel('F')#, fontdict=font)
+            prop = {'weight': 'bold',
+                    'size': 14, }
+            # ax2.set_ylabel('F')
             ax2.set_ylabel('Energy')
-            ax2.set_xlabel(r'$(\mathrm{\phi})$')#, fontdict=font)
-            ax2.legend(['free energy', 'minimum energies'], loc='upper left', prop={'size': 8})
+            ax2.set_xlabel(r'$\mathcal{\phi}$')#, fontdict=font)
+            # \sum_{\mathbf{t},\phi} e ^ {-E(\mathbf{t}, \phi)}
+            ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$'], loc='upper left', prop=prop)
+            # ax2.legend(['free energy', 'minimum energies'], loc='upper left', prop=prop)
             # ax2.legend(['Free Energies', 'Energy at ground truth translation index'])
             ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
-
-            ### minimum energy slice
-            # ax3.imshow(pair.transpose(), cmap=cmap)
 
             # ## best pose correlation
             # min_energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
@@ -289,7 +288,6 @@ class TorchDockingFFT:
             # norm = mcolors.TwoSlopeNorm(vmin=vmin, vcenter=0, vmax=vmax)
             # cax = ax3.imshow(min_energy_slice.transpose(), cmap='seismic', norm=norm)
             # tick_list = [vmin, 0.0, vmax]
-
             # def rounder(x):
             #     if x > 0:
             #        return x if x % 100 == 0 else x + 100 - x % 100
@@ -304,19 +302,15 @@ class TorchDockingFFT:
             # cb = plt.colorbar(cax, shrink=0.5, ticks=tick_list_pos)
             # cb.set_ticklabels(list(map(str, tick_list_rounded)))
 
-            # receptor = receptor * 2
-            # pair_min = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
-            #                                             pred_rot.detach().cpu(), pred_txy.detach().cpu().numpy(),
-            #                                             interaction_fact=True)
-            # pair_min = pair_min[25:125, 25:125]
-
-            ## rotation indices of interest --> 155, 230, 306
+            ## plot rotations of interest
+            ## rotation indices --> 155, 230, 306
             def deg_to_rad(deg):
                 return (deg - 180) * np.pi/180
+
             def rad_to_deg(rad):
-                return (int(np.round(rad * 180/np.pi)) + 180) % 360
-            rots_of_interest = [rad_to_deg(pred_rot.detach().cpu().numpy()), 155, 230, 306]
-            pred_rots = [pred_rot.detach().cpu().numpy(), deg_to_rad(155), deg_to_rad(230), deg_to_rad(306)]
+                return (int(np.floor(rad * 180/np.pi)) + 180) % 360
+            rots_of_interest = [rad_to_deg(gt_rot.detach().cpu().numpy()), 155, 230, 306]
+            pred_rots = [gt_rot.detach().cpu().numpy(), deg_to_rad(155), deg_to_rad(230), deg_to_rad(306)]
             pairs_of_interest = []
             receptor = receptor * 2
 
@@ -328,9 +322,9 @@ class TorchDockingFFT:
 
                 rot_slice = energies[rots_of_interest[i], :, :]
                 _, pred_txy = self.extract_transform(rot_slice)
-                print(rots_of_interest[i])
-                print(pred_rots[i])
-                print(pred_txy)
+                # print(rots_of_interest[i])
+                # print(pred_rots[i])
+                # print(pred_txy)
                 pair = UtilityFunctions().plot_assembly(receptor.detach().cpu(), ligand.detach().cpu().numpy(),
                                                             pred_rots[i], pred_txy.detach().cpu(),
                                                             interaction_fact=True)
@@ -338,18 +332,14 @@ class TorchDockingFFT:
                 pairs_of_interest.append(pair)
                 minimumEnergy_index = torch.argmin(rot_slice)
                 minimumEnergy = rot_slice.flatten()[minimumEnergy_index].detach().cpu()
-                # XYind = torch.remainder(minimumEnergy_index, self.padded_dim ** 2)
-                # print(XYind)
-                # rec_arrow_start.append(np.round(XYind.detach().cpu()))
                 rec_arrow_start.append(pred_txy.detach().cpu() + self.padded_dim//2)
                 # print(rec_arrow_start)
 
-                lig_arrow_pos_list.append([pred_rots[i], minimumEnergy])
+                lig_arrow_pos_list.append([pred_rots[i], minimumEnergy+1.0])
 
             # ConnectionPatch handles the transform internally so no need to get fig.transFigure
             ax_list = [ax3, ax4, ax5, ax6]
             for i in range(len(lig_arrow_pos_list)):
-                ax_list[i].imshow(pairs_of_interest[i].transpose(), cmap=cmap)
                 arrow = patches.ConnectionPatch(
                     rec_arrow_start[i],
                     lig_arrow_pos_list[i],
@@ -359,9 +349,14 @@ class TorchDockingFFT:
                     color="black",
                     arrowstyle="-|>",  # "normal" arrow
                     mutation_scale=20,  # controls arrow head size
-                    linewidth=2,
+                    linewidth=3,
+                    zorder=0
                 )
                 fig.patches.append(arrow)
+                ax_list[i].zorder = 10
+                ax_list[i].imshow(pairs_of_interest[i].transpose(), cmap=cmap)
+
+            plt.tight_layout()
 
         else:
             plt.close()
@@ -388,8 +383,8 @@ if __name__ == '__main__':
 
     plot_pub = True
     dataset = '../Datasets/docking_train_50pool.pkl'
-    # max_size = None
-    max_size = 5
+    max_size = None
+    # max_size = 5
     data_stream = get_docking_stream(dataset, shuffle=False, max_size=max_size)
 
     swap_quadrants = True
@@ -397,7 +392,7 @@ if __name__ == '__main__':
     UtilityFuncs = UtilityFunctions()
     weight_bulk, weight_crossterm, weight_bound = 100, -10, -10
 
-    plot_of_interest = 3 # rotation indices of interest --> 155, 230, 306
+    plot_of_interest = 29 # rotation indices of interest --> 155, 230, 306
     # plot_of_interest = None
     counter = 0
     for data in tqdm(data_stream):
