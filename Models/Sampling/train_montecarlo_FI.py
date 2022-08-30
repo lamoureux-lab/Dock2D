@@ -53,12 +53,12 @@ if __name__ == '__main__':
     experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
-    # path_pretrain = 'Log/RECODE_CHECK_BFDOCKING_30epochsend.th'
-    path_pretrain = 'Log/FINAL_CHECK_DOCKING30.th'
+    # path_pretrain = 'Log/FINAL_CHECK_DOCKING30.th'
+    path_pretrain = '../BruteForce/Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
     # training_case = 'A' # CaseA: train with docking model frozen
     # training_case = 'B' # CaseB: train with docking model unfrozen
-    # training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
-    training_case = 'scratch' # Case scratch: train everything from scratch
+    training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
+    # training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
     train_epochs = 1000
@@ -84,11 +84,11 @@ if __name__ == '__main__':
               FI_MC=True)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    Trainer.run_trainer(resume_training=True, resume_epoch=598, train_epochs=(1000-598),
-                                               train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(resume_training=True, resume_epoch=598, train_epochs=(1000-598),
+    #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Evaluate model at chosen epoch (Brute force evaluation)
     # eval_angles = 360

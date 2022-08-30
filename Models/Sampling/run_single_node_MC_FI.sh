@@ -1,7 +1,9 @@
 #!/bin/bash
 #SBATCH --partition=p_ccib_1
 ##SBATCH --partition=gpu
-#SBATCH --job-name=MCFI_2samp_1000ep
+##SBATCH --job-name=MCFI_2samp_1000ep
+#SBATCH --job-name=expC_MCFI_2samp
+
 #SBATCH --nodes=1
 ##SBATCH --ntasks=1
 #SBATCH --tasks-per-node=1
