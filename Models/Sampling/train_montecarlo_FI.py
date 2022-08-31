@@ -50,14 +50,14 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_1sample'
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_2sample'
 
-    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps' ## same suffix name for scratch and expC
+    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps' ## same suffix name for scratch and expC and expB
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     # path_pretrain = 'Log/FINAL_CHECK_DOCKING30.th'
     path_pretrain = '../BruteForce/Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
     # training_case = 'A' # CaseA: train with docking model frozen
-    # training_case = 'B' # CaseB: train with docking model unfrozen
-    training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
+    training_case = 'B' # CaseB: train with docking model unfrozen
+    # training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
     # training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
@@ -90,12 +90,12 @@ if __name__ == '__main__':
     # Trainer.run_trainer(resume_training=True, resume_epoch=598, train_epochs=(1000-598),
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
-    ### Evaluate model at chosen epoch (Brute force evaluation)
+    # ## Evaluate model at chosen epoch (Brute force evaluation)
     # eval_angles = 360
     # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     # eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
     # TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
-    #                               ).run_trainer(resume_training=True, resume_epoch=594, train_epochs=1,
+    #                               ).run_trainer(resume_training=True, resume_epoch=362, train_epochs=1,
     #                                             train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
