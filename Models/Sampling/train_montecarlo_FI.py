@@ -55,8 +55,8 @@ if __name__ == '__main__':
     ### path to pretrained docking model
     # path_pretrain = 'Log/FINAL_CHECK_DOCKING30.th'
     path_pretrain = '../BruteForce/Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
-    # training_case = 'A' # CaseA: train with docking model frozen
-    training_case = 'B' # CaseB: train with docking model unfrozen
+    training_case = 'A' # CaseA: train with docking model frozen
+    # training_case = 'B' # CaseB: train with docking model unfrozen
     # training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
     # training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
     # eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
     # TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
-    #                               ).run_trainer(resume_training=True, resume_epoch=362, train_epochs=1,
+    #                               ).run_trainer(resume_training=True, resume_epoch=887, train_epochs=1,
     #                                             train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
