@@ -23,7 +23,7 @@ if __name__ == '__main__':
     torch.manual_seed(random_seed)
     random.seed(random_seed)
     torch.cuda.manual_seed(random_seed)
-    torch.backends.cudnn.deterministic = True
+    # torch.backends.cudnn.deterministic = True
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     #########################

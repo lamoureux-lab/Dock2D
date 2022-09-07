@@ -25,7 +25,7 @@ if __name__ == '__main__':
     torch.manual_seed(random_seed)
     random.seed(random_seed)
     torch.cuda.manual_seed(random_seed)
-    torch.backends.cudnn.deterministic = True
+    # torch.backends.cudnn.deterministic = True
     torch.cuda.set_device(0)
     # torch.autograd.set_detect_anomaly(True)
     #########################
@@ -84,19 +84,19 @@ if __name__ == '__main__':
               FI_MC=True)
     ######################
     ### Train model from beginning
-    Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
     # Trainer.run_trainer(resume_training=True, resume_epoch=598, train_epochs=(1000-598),
     #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
-    # ## Evaluate model at chosen epoch (Brute force evaluation)
-    # eval_angles = 360
-    # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
-    # eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
-    # TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
-    #                               ).run_trainer(resume_training=True, resume_epoch=887, train_epochs=1,
-    #                                             train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
+    ## Evaluate model at chosen epoch (Brute force evaluation)
+    eval_angles = 360
+    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
+    eval_model = SamplingModel(evalFFT, FI_MC=True).to(device=0)
+    TrainerFI(eval_model, docking_optimizer, interaction_model, interaction_optimizer, experiment, FI_MC=True
+                                  ).run_trainer(resume_training=True, resume_epoch=1000, train_epochs=1,
+                                                train_stream=None, valid_stream=valid_stream, test_stream=test_stream)
 
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     # PlotterFI(experiment).plot_loss(show=show)
