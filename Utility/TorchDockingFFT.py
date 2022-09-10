@@ -245,6 +245,12 @@ class TorchDockingFFT:
             ax6.set_axis_off()
             plt.subplots_adjust(wspace=0.20, hspace=-0.20)
 
+            prop_legend = {'weight': 'bold',
+                    'size': 14, }
+            prop_labels = {'weight': 'bold',
+                    'size': 18, }
+            prop_phi = {'weight': 'bold',
+                    'size': 24, }
             ### minimum energy curve
             # xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
             # # ax1.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
@@ -262,23 +268,18 @@ class TorchDockingFFT:
             # ax2.set_xticks(xrange*np.pi/180)
 
             ax2.set_xticks(np.round(np.linspace(-np.pi, np.pi, 5, endpoint=True), decimals=2))
-            ax2.set_xticklabels([r'$-\pi$',r'$-\frac{\pi}{2}$',r'$0$',r'$+\frac{\pi}{2}$',r'$+\pi$' ])
+            ax2.set_xticklabels([r'$-\pi$',r'$-\frac{\pi}{2}$',r'$0$',r'$+\frac{\pi}{2}$',r'$+\pi$' ], fontdict=prop_labels)
 
             ax2.set_ylim([-120, 2])
             ax2.set_xlim([-np.pi, np.pi])
-            # ax2.plot(xrange, free_energies)
             total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
             ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, colors='r', linestyles='solid')
             ax2.plot(xrange, mintxy_energies)
-            prop = {'weight': 'bold',
-                    'size': 14, }
-            # ax2.set_ylabel('F')
-            ax2.set_ylabel('Energy')
-            ax2.set_xlabel(r'$\mathcal{\phi}$')#, fontdict=font)
-            # \sum_{\mathbf{t},\phi} e ^ {-E(\mathbf{t}, \phi)}
-            ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$'], loc='upper left', prop=prop)
-            # ax2.legend(['free energy', 'minimum energies'], loc='upper left', prop=prop)
-            # ax2.legend(['Free Energies', 'Energy at ground truth translation index'])
+
+            ax2.set_ylabel('Energy', fontdict=prop_labels)
+            ax2.set_xlabel(r'$\mathcal{\phi}$', fontdict=prop_phi)
+            ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$'], loc='upper left', prop=prop_legend)
+
             ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
 
             # ## best pose correlation
@@ -357,6 +358,7 @@ class TorchDockingFFT:
                 ax_list[i].imshow(pairs_of_interest[i].transpose(), cmap=cmap)
 
             plt.tight_layout()
+            plt.savefig('')
 
         else:
             plt.close()
