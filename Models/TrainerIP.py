@@ -197,6 +197,7 @@ class TrainerIP:
                 # print(gt_rot, pred_rot)
 
             else:
+                ### Monte Carlo evaluation
                 ## for evaluation, sample buffer is necessary for Monte Carlo multi epoch eval
                 alpha = self.alpha_buffer.get_alpha(pos_idx, samples_per_example=1)
                 free_energies_visited_indices = self.free_energy_buffer.get_free_energies_indices(pos_idx)

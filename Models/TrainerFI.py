@@ -1,3 +1,4 @@
+import pandas as pd
 import torch
 from torch import optim
 import sys
@@ -42,12 +43,18 @@ class TrainerFI:
         self.logtraindF_prefix = 'log_deltaF_TRAINset_epoch'
         self.logloss_prefix = 'log_loss_TRAINset_'
         self.logAPR_prefix = 'log_validAPR_'
+        self.log_saturation_prefix = 'log_MCFI_saturation_stats'
+
+        self.saturation_dict = {}
 
         self.loss_log_header = 'Epoch\tLoss\n'
         self.loss_log_format = '%d\t%f\n'
 
         self.deltaf_log_header = 'F\tF_0\tLabel\n'
         self.deltaf_log_format = '%f\t%f\t%d\n'
+
+        # self.saturation_log_header = 'saturation\tfree_energies_visited_indices\tn'
+        # self.saturation_log_format = '%f\t%f\n'
 
         self.docking_model = docking_model
         self.interaction_model = interaction_model
@@ -218,6 +225,16 @@ class TrainerFI:
 
                 # print('BUFFER PUSH: free_energies_visited_indices', free_energies_visited_indices)
                 # print('BUFFER PUSH: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
+
+                with torch.no_grad():
+                    self.saturation_dict[pos_idx.item()] = [i.item() for i in free_energies_visited_indices.squeeze()]
+                    if pos_idx == 100:
+                        df = pd.DataFrame.from_dict(self.saturation_dict, orient='index')
+                        df = df.transpose()
+                        df.to_csv(self.logfile_savepath + self.log_saturation_prefix + str(epoch) + self.experiment + '.csv',
+                                                  # sep='\t'
+                                  )
+                        sys.exit()
 
                 self.alpha_buffer.push_alpha(pred_rot, pos_idx)
                 self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)

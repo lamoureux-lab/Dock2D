@@ -15,6 +15,8 @@ class PlotterFI:
         self.logfile_savepath = logfile_savepath
         self.logtraindF_prefix = 'log_deltaF_TRAINset_epoch'
         self.logloss_prefix = 'log_loss_TRAINset_'
+        self.log_saturation_prefix = 'log_MCFI_saturation_stats'
+
         if not experiment:
             print('no experiment name given')
             self.experiment = "NOTSET"
@@ -112,6 +114,35 @@ class PlotterFI:
         if show:
             plt.show()
 
+    def plot_MCFI_saturation(self, filename=None, plot_epoch=None, show=False, save=True, plot_pub=False):
+
+        plt.close()
+
+        # Plot free energy distribution of all samples across epoch
+        if not filename:
+            filename = self.logfile_savepath+self.log_saturation_prefix+str(plot_epoch)+ self.experiment +'.csv'
+        dataframe = pd.read_csv(filename)
+
+        # plt.xlim([0, 360])
+        # dataframe.hist()
+
+        for array in dataframe.hist(bins=20):
+            for subplot in array:
+                subplot.set_xlim((0, 360))
+
+        plt.show()
+
+        # plt.figure(figsize=(8,6))
+        # if not plot_pub:
+        #     plt.title('MCFI sampling saturation distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
+        #     format = 'png'
+        # else:
+        #     format = 'pdf'
+        #
+        # if save:
+        #     plt.savefig('Figs/EnergySurfaces/saturationMCFI_epoch'+ str(plot_epoch) + '_' + self.experiment + '.'+format, format=format)
+        # if show:
+        #     plt.show()
 
 if __name__ == "__main__":
     ### Unit test
