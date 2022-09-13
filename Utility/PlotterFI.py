@@ -123,12 +123,37 @@ class PlotterFI:
             filename = self.logfile_savepath+self.log_saturation_prefix+str(plot_epoch)+ self.experiment +'.csv'
         dataframe = pd.read_csv(filename)
 
-        # plt.xlim([0, 360])
-        # dataframe.hist()
+        saturations = []
+        for col in dataframe:
+            cur_dist = dataframe[col]
+            cur_saturation = cur_dist.count()#/360
+            print('saturation', cur_saturation)
+            saturations.append(cur_saturation)
 
-        for array in dataframe.hist(bins=20):
+        # hist = dataframe.hist()
+        # print(hist)
+
+        plt.hist(saturations)
+        # plt.title('Saturation of rotation MC FI sampling')
+        plt.title(self.experiment)
+
+        # plt.xlim([0, 1])
+        plt.xlim([0, 360])
+        plt.xlabel('unique rotations visited')
+        plt.ylabel('counts')
+        plt.show()
+
+        plt.close()
+
+        binwidth=20
+        bins = np.arange(0, 360 + binwidth, binwidth)
+
+        for array in dataframe.hist(bins=bins):
             for subplot in array:
-                subplot.set_xlim((0, 360))
+                # subplot.axis('off')
+                subplot.set_xlim([0, 360])
+                subplot.set_xticks([0, 360])
+                # subplot.set_ylim([0, 10])
 
         plt.show()
 
