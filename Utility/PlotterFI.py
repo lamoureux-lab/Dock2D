@@ -130,44 +130,46 @@ class PlotterFI:
             print('saturation', cur_saturation)
             saturations.append(cur_saturation)
 
-        # hist = dataframe.hist()
-        # print(hist)
+        binwidth = 2
+        bins = np.arange(0, 359 + binwidth, binwidth)
 
-        plt.hist(saturations)
+        x, y, _ = plt.hist(saturations, bins=bins)
         # plt.title('Saturation of rotation MC FI sampling')
-        plt.title(self.experiment)
+        # plt.title(self.experiment)
 
-        # plt.xlim([0, 1])
+        mean_saturation = np.array(saturations).mean()
+        std_dev_saturation = np.array(saturations).std()
+
+        plt.vlines(mean_saturation, ymin=0, ymax=y.max()/binwidth, colors='k', linestyles='dashed')
         plt.xlim([0, 360])
         plt.xlabel('unique rotations visited')
-        plt.ylabel('counts')
-        plt.show()
+        plt.margins(x=None, y=None)
+        plt.legend([r'$\mathcal{\mu}$ = '+str(int(mean_saturation)),
+                    r'$\mathcal{\sigma}$ = ' + str(int(std_dev_saturation)),
+                    ])
+        plt.grid(False)
 
-        plt.close()
 
-        binwidth=20
-        bins = np.arange(0, 360 + binwidth, binwidth)
-
-        for array in dataframe.hist(bins=bins):
-            for subplot in array:
-                # subplot.axis('off')
-                subplot.set_xlim([0, 360])
-                subplot.set_xticks([0, 360])
-                # subplot.set_ylim([0, 10])
-
-        plt.show()
-
-        # plt.figure(figsize=(8,6))
-        # if not plot_pub:
-        #     plt.title('MCFI sampling saturation distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
-        #     format = 'png'
-        # else:
-        #     format = 'pdf'
+        # plt.close()
+        # for array in dataframe.hist(bins=bins):
+        #     for subplot in array:
+        #         # subplot.axis('off')
+        #         subplot.set_xlim([0, 360])
+        #         subplot.set_xticks([0, 360])
+        #         # subplot.set_ylim([0, 10])
         #
-        # if save:
-        #     plt.savefig('Figs/EnergySurfaces/saturationMCFI_epoch'+ str(plot_epoch) + '_' + self.experiment + '.'+format, format=format)
-        # if show:
-        #     plt.show()
+        # plt.show()
+
+        if not plot_pub:
+            plt.title('MCFI sampling saturation distribution: epoch'+ str(plot_epoch) + ' ' + self.experiment)
+            format = 'png'
+        else:
+            format = 'pdf'
+
+        if save:
+            plt.savefig('Figs/EnergySurfaces/saturationMCFI_epoch'+ str(plot_epoch) + '_' + self.experiment + '.'+format, format=format)
+        if show:
+            plt.show()
 
 if __name__ == "__main__":
     ### Unit test

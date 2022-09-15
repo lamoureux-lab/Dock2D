@@ -228,7 +228,7 @@ class TrainerFI:
 
                 with torch.no_grad():
                     self.saturation_dict[pos_idx.item()] = [i.item() for i in free_energies_visited_indices.squeeze()]
-                    if pos_idx == 100:
+                    if pos_idx == 5050-1:
                         df = pd.DataFrame.from_dict(self.saturation_dict, orient='index')
                         df = df.transpose()
                         df.to_csv(self.logfile_savepath + self.log_saturation_prefix + str(epoch) + self.experiment + '.csv',
