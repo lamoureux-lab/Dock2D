@@ -33,7 +33,7 @@ class TrainerFI:
         """
         self.debug = debug
         self.plotting = plotting
-        self.plot_freq = 500
+        self.plot_freq = 10
         self.check_epoch = 1
         self.eval_freq = 1
         self.save_freq = 1
@@ -181,7 +181,7 @@ class TrainerFI:
         with open(loss_logfile, 'a') as fout:
             fout.write(self.loss_log_format % (epoch, avg_loss[0]))
 
-    def run_model(self, data, pos_idx, training=True, stream_name='trainset', epoch=0):
+    def run_model(self, data, pos_idx, stream_name, training=True, epoch=0):
         """
         Run a model iteration on the current example.
 
@@ -197,6 +197,9 @@ class TrainerFI:
         receptor = receptor.to(device='cuda', dtype=torch.float)
         ligand = ligand.to(device='cuda', dtype=torch.float)
         gt_interact = gt_interact.to(device='cuda', dtype=torch.float).squeeze()
+
+        print('stream_name', stream_name)
+        print('training', training)
 
         if training:
             self.docking_model.train()
@@ -244,7 +247,7 @@ class TrainerFI:
                     UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices, accumulated_free_energies, acceptance_rate,
                                                         stream_name, interaction=gt_interact, plot_count=plot_count, epoch=epoch)
             else:
-                # print('MC BF Eval')
+                print('MC BF Eval')
                 free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score_stack, acceptance_rate = self.docking_model(
                                                                                 receptor, ligand, alpha=None,
                                                                                 free_energies_visited=None,
@@ -254,7 +257,7 @@ class TrainerFI:
 
         else:
             # print('BF Training =', training)
-            fft_score_stack = self.docking_model(receptor, ligand, plotting=self.plotting, training=training)
+            fft_score_stack = self.docking_model(receptor, ligand, plot_count=plot_count, stream_name=stream_name, plotting=self.plotting, training=training)
             pred_interact, deltaF, F, F_0 = self.interaction_model(brute_force=True, fft_scores=fft_score_stack)
 
 

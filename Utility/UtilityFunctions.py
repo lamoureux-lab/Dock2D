@@ -433,7 +433,6 @@ class UtilityFunctions():
         rec_feat_bulk, rec_feat_bound = rec_feat[0].squeeze().t().detach().cpu(), rec_feat[1].squeeze().t().detach().cpu()
         lig_feat_bulk, lig_feat_bound = lig_feat[0].squeeze().t().detach().cpu(), lig_feat[1].squeeze().t().detach().cpu()
 
-
         figs_list = [[rec_bulk, rec_bound], [rec_orth_data[0,:,:], rec_orth_data[1,:,:]], [rec_feat_bulk, rec_feat_bound]]
         rows, cols = 3, 2
         fig, ax = plt.subplots(rows, cols, figsize=(10,10))
@@ -466,7 +465,9 @@ class UtilityFunctions():
                     location = 'right'
                 plt.colorbar(im, ax=ax[i,j], shrink=shrink_bar, location=location)
 
-        plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png', format='png')
+        filename = 'Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png'
+        print(filename)
+        plt.savefig(filename, format='png')
         # plt.show()
 
 

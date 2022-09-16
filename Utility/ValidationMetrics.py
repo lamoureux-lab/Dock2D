@@ -104,8 +104,9 @@ class APR:
         print('Calculating Accuracy, Precision, Recall')
         TP, FP, TN, FN = 0, 0, 0, 0
 
+        pos_idx = 0
         for data in tqdm(data_stream):
-            tp, fp, tn, fn, F, F_0, label = run_model(data, pos_idx=torch.tensor([0]), training=False)
+            tp, fp, tn, fn, F, F_0, label = run_model(data, stream_name=stream_name, pos_idx=torch.tensor(pos_idx), training=False)
             # print(tp, fp, tn,fn)
             TP += tp
             FP += fp
@@ -113,7 +114,7 @@ class APR:
             FN += fn
             with open(deltaF_logfile, 'a') as fout:
                 fout.write('%f\t%f\t%d\n' % (F, F_0, label))
-
+            pos_idx += 1
         PlotterFI(stream_name+experiment).plot_deltaF_distribution(filename=deltaF_logfile, plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
         accuracy = float(TP + TN) / float(TP + TN + FP + FN)

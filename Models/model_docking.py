@@ -50,7 +50,7 @@ class Docking(nn.Module):
             enn.NormPool(self.feat_type_out_final),
         )
 
-    def forward(self, receptor, ligand, angle=None,  training=True, plotting=False, plot_count=1, stream_name='trainset'):
+    def forward(self, receptor, ligand, angle=None,  training=False, plotting=False, plot_count=1, stream_name='trainset'):
         """
         Generates features for both receptor and ligand shapes using the SE(2)-ConvNet.
         Computes a transformation-dependent score based on the correlation of these features,
@@ -84,10 +84,14 @@ class Docking(nn.Module):
             weight_bound=self.boundW,
         )
 
+        print('in model now')
+        print('plotting', 'training', plotting, training)
         #### Plot shape features
         if plotting and not training:
+            print('plot_count', 'self.plot_freq', plot_count, self.plot_freq)
             if plot_count % self.plot_freq == 0:
                 with torch.no_grad():
+                    print('plotting features')
                     scoring_weights = (self.bulkW, self.crosstermW, self.boundW)
                     UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
                     # import matplotlib.pyplot as plt

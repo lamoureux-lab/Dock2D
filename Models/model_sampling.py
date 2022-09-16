@@ -26,7 +26,7 @@ class SamplingDocker(nn.Module):
         self.num_angles = self.dockingFFT.num_angles
         self.dockingConv = Docking(dockingFFT=self.dockingFFT, debug=debug)
 
-    def forward(self, receptor, ligand, rotation=None, plot_count=1, stream_name='trainset', plotting=False):
+    def forward(self, receptor, ligand, rotation=None, plot_count=1, stream_name='trainset', plotting=False, training=False):
         """
         Uses TorchDockingFFT() to compute feature correlations for a rotationally sampled stack of examples.
 
@@ -38,15 +38,18 @@ class SamplingDocker(nn.Module):
         :param plotting: create plots or not
         :return: `lowest_energy`, `pred_rot`, `pred_txy`, `fft_score`
         """
-        if 'trainset' not in stream_name:
-            training = False
-        else:
-            training = True
+        # if 'trainset' not in stream_name:
+        #     training = False
+        # else:
+        #     training = True
 
         if self.num_angles == 360:
             stream_name = 'BFeval_' + stream_name
         else:
             plotting = False
+
+        print('calling dockingConv')
+        print('training', 'plotting', training, plotting)
 
         fft_score = self.dockingConv(receptor, ligand, angle=rotation, plotting=plotting, training=training,
                                              plot_count=plot_count, stream_name=stream_name)
@@ -193,8 +196,8 @@ class SamplingModel(nn.Module):
             else:
                 ## brute force eval
                 self.docker.eval()
-                _, _, _, fft_score = self.docker(receptor, ligand, plot_count,
-                                                                  stream_name, plotting=plotting)
+                _, _, _, fft_score = self.docker(receptor, ligand, plot_count, plot_count=plot_count,
+                                                                  stream_name=stream_name, plotting=plotting, training=training)
 
                 return fft_score
 
@@ -203,11 +206,13 @@ class SamplingModel(nn.Module):
                 ## MC sampling for Fact of Interaction training
                 return self.montecarlo_sampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
             else:
-                # print('evaluating with bruteforce')
+                print('evaluating MC model with bruteforce')
+                print('training', training)
+                print('stream_name', stream_name)
                 ### evaluate with brute force
                 self.docker.eval()
                 lowest_energy, _, dr, fft_score = self.docker(receptor, ligand, alpha, plot_count,
-                                                              stream_name, plotting=plotting)
+                                                              stream_name, plotting=plotting, training=training)
                 current_free_energies = None
                 acceptance_rate = None
                 return lowest_energy, current_free_energies, _, dr.unsqueeze(0).clone(), fft_score, acceptance_rate
