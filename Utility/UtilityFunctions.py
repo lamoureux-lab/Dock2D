@@ -433,15 +433,30 @@ class UtilityFunctions():
         rec_feat_bulk, rec_feat_bound = rec_feat[0].squeeze().t().detach().cpu(), rec_feat[1].squeeze().t().detach().cpu()
         lig_feat_bulk, lig_feat_bound = lig_feat[0].squeeze().t().detach().cpu(), lig_feat[1].squeeze().t().detach().cpu()
 
-        figs_list = [[rec_bulk, rec_bound], [rec_orth_data[0,:,:], rec_orth_data[1,:,:]], [rec_feat_bulk, rec_feat_bound]]
-        rows, cols = 3, 2
-        fig, ax = plt.subplots(rows, cols, figsize=(10,10))
-        plt.subplots_adjust(wspace=-0.4, hspace=0.1)
+        figs_list = [
+                     [rec_bulk, rec_bound],
+                     [rec_orth_data[0,:,:],rec_orth_data[1,:,:]],
+                     # [rec_feat_bulk, rec_feat_bound]
+                     ]
 
-        norm = colors.CenteredNorm(vcenter=0.0)  # center normalized color scale
-        # norm = plt.colors.DivergingNorm(vcenter=0)
+        data_vmin = -0.01
+        data_vmax = 4.0
+
+        vmin = -10.0
+        vmax = 5.0
+
+        rows, cols = len(figs_list), len(figs_list[0])
+        fig, ax = plt.subplots(rows, cols, figsize=(10,10))
+        # plt.subplots_adjust(wspace=-0.4, hspace=0.1)
+
+        # data_norm = colors.CenteredNorm(vcenter=0.0, halfrange=2.0)  # center normalized color scale
+        # data_norm = colors.TwoSlopeNorm(vmin=data_vmin, vmax=data_vmax, vcenter=0.0)
+        feats_norm = colors.TwoSlopeNorm(vmin=vmin, vmax=vmax, vcenter=0.0)
         shrink_bar = 0.8
         # cmap_data = 'binary'
+        cmap_data = 'Greys'
+        # cmap_data = 'RdGy'
+
         cmap_feats = 'seismic'
 
         titles_list = [['input bulk', 'input boundary'],
@@ -450,6 +465,13 @@ class UtilityFunctions():
         font = {'weight': 'bold',
                 'size': 14,}
         for i in range(rows):
+            if i == 0:
+                cmap = cmap_data
+                # norm = data_norm
+                norm = None
+            else:
+                cmap = cmap_feats
+                norm = feats_norm
             for j in range(cols):
                 ax[i,j].grid(b=None)
                 ax[i,j].axis('off')
@@ -457,7 +479,7 @@ class UtilityFunctions():
                 data = figs_list[i][j]
                 ax[i, j].set_title(titles_list[i][j], fontdict=font)
 
-                im = ax[i, j].imshow(data, cmap=cmap_feats, norm=norm)
+                im = ax[i, j].imshow(data, cmap=cmap, norm=norm)
 
                 if j == 0:
                     location = 'left'
@@ -468,7 +490,7 @@ class UtilityFunctions():
         filename = 'Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png'
         print(filename)
         plt.savefig(filename, format='png')
-        # plt.show()
+        plt.show()
 
 
 if __name__ == '__main__':

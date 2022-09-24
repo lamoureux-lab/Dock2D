@@ -18,7 +18,7 @@ if __name__ == '__main__':
     #########################
     #### initialization of random seeds
     random_seed = 42
-    # randomstate = np.random.RandomState(random_seed)
+    randomstate = np.random.RandomState(random_seed)
     np.random.seed(random_seed)
     torch.manual_seed(random_seed)
     random.seed(random_seed)
@@ -33,15 +33,15 @@ if __name__ == '__main__':
     valid_stream = get_interaction_stream(validset, number_of_pairs=None)
     test_stream = get_interaction_stream(testset, number_of_pairs=None)
     ######################
-    # experiment = 'BF_FI_finaldataset_100pairs_1000ep'
-    experiment = 'BF_FI_finaldataset_100pairs_expC_BFIP_1000ex100ep'
+    experiment = 'BF_FI_finaldataset_100pairs_1000ep'
+    # experiment = 'BF_FI_finaldataset_100pairs_expC_BFIP_1000ex100ep'
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
     path_pretrain = 'Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
     # training_case = 'A' # CaseA: train with docking model frozen
     # training_case = 'B' # CaseB: train with docking model unfrozen
-    training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
-    # training_case = 'scratch' # Case scratch: train everything from scratch
+    # training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
+    training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
     train_epochs = 100
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     sample_buffer_length = max(len(train_stream), len(valid_stream), len(test_stream))
 
     debug = False
-    plotting = False
+    plotting = True
     show = False
 
     interaction_model = Interaction().to(device=0)
@@ -64,18 +64,19 @@ if __name__ == '__main__':
     docking_optimizer = optim.Adam(docking_model.parameters(), lr=lr_docking)
     Trainer = TrainerFI(docking_model, docking_optimizer, interaction_model, interaction_optimizer, experiment,
               training_case, path_pretrain,
-              FI_MC=False)
+              FI_MC=False,
+              plotting=plotting,)
     ######################
     ### Train model from beginning
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ## Resume training model at chosen epoch
     # Trainer.run_trainer(resume_training=True, resume_epoch=845, train_epochs=155, train_stream=train_stream, valid_stream=None, test_stream=None)
-    #
-    ## Validate model at chosen epoch
-    # Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #                     resume_training=True, resume_epoch=1000)
+
+    # Validate model at chosen epoch
+    Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+                        resume_training=True, resume_epoch=1000)
     #
     ### Plot loss and free energy distributions with learned F_0 decision threshold
-    PlotterFI(experiment).plot_loss(show=True)
-    PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=100, show=True, xlim=1000)
+    # PlotterFI(experiment).plot_loss(show=True)
+    # PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=100, show=True, xlim=1000)

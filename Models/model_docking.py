@@ -8,7 +8,7 @@ from e2cnn import gspaces
 
 class Docking(nn.Module):
 
-    def __init__(self, dockingFFT, plot_freq=10, debug=False):
+    def __init__(self, dockingFFT, plot_freq=1, debug=False):
         """
         Initialize parameters for Docking module and TorchDockingFFT used in the forward pass
         to generate shape features and scoring coefficients for the scoring function.

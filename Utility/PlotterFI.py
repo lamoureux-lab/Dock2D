@@ -130,8 +130,9 @@ class PlotterFI:
             print('saturation', cur_saturation)
             saturations.append(cur_saturation)
 
-        binwidth = 2
-        bins = np.arange(0, 359 + binwidth, binwidth)
+        xlimit = 180
+        binwidth = 1
+        bins = np.arange(0, xlimit + binwidth, binwidth)
 
         x, y, _ = plt.hist(saturations, bins=bins)
         # plt.title('Saturation of rotation MC FI sampling')
@@ -140,8 +141,8 @@ class PlotterFI:
         mean_saturation = np.array(saturations).mean()
         std_dev_saturation = np.array(saturations).std()
 
-        plt.vlines(mean_saturation, ymin=0, ymax=y.max()/binwidth, colors='k', linestyles='dashed')
-        plt.xlim([0, 360])
+        plt.vlines(mean_saturation, ymin=0, ymax=y.max()/2*binwidth, colors='k', linestyles='dashed')
+        plt.xlim([0, xlimit])
         plt.xlabel('unique rotations visited')
         plt.margins(x=None, y=None)
         plt.legend([r'$\mathcal{\mu}$ = '+str(int(mean_saturation)),

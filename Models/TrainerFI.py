@@ -75,6 +75,7 @@ class TrainerFI:
         # self.sigma_scheduler_initial = sigma_scheduler.get_last_lr()[0]
 
         self.UtilityFuncs = UtilityFunctions()
+        self.APR = APR()
         self.FI_MC = FI_MC
         self.BF_eval = False
 
@@ -146,14 +147,14 @@ class TrainerFI:
                         epoch) + self.experiment + '.txt'
                     with open(deltaF_logfile, 'w') as fout:
                         fout.write(self.deltaf_log_header)
-                    self.checkAPR(epoch, valid_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
+                    self.check_APR(epoch, valid_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
                 if test_stream:
                     stream_name = 'TESTset'
                     deltaF_logfile = self.logfile_savepath + stream_name + self.logtraindF_prefix + str(
                         epoch) + self.experiment + '.txt'
                     with open(deltaF_logfile, 'w') as fout:
                         fout.write(self.deltaf_log_header)
-                    self.checkAPR(epoch, test_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
+                    self.check_APR(epoch, test_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
 
     def run_epoch(self, data_stream, epoch, training=False):
         """
@@ -317,7 +318,7 @@ class TrainerFI:
             TN += 1
         return TP, FP, TN, FN
 
-    def checkAPR(self, check_epoch, datastream, stream_name=None, deltaF_logfile=None, experiment=None):
+    def check_APR(self, check_epoch, datastream, stream_name=None, deltaF_logfile=None, experiment=None):
         """
         Check accuracy, precision, recall, F1score and MCC
 
@@ -330,7 +331,7 @@ class TrainerFI:
         log_APRheader = 'Accuracy\tPrecision\tRecall\tF1score\tMCC\n'
         log_APRformat = '%f\t%f\t%f\t%f\t%f\n'
         print('Evaluating ', stream_name)
-        Accuracy, Precision, Recall, F1score, MCC = APR().calc_APR(datastream, self.run_model, check_epoch, deltaF_logfile, experiment, stream_name)
+        Accuracy, Precision, Recall, F1score, MCC = self.APR.calc_APR(datastream, self.run_model, check_epoch, deltaF_logfile, experiment, stream_name)
         with open(self.logfile_savepath + self.logAPR_prefix + self.experiment + '.txt', 'a') as fout:
             fout.write('Epoch '+str(check_epoch)+'\n')
             fout.write(log_APRheader)
