@@ -93,7 +93,8 @@ class Docking(nn.Module):
                 with torch.no_grad():
                     print('plotting features')
                     scoring_weights = (self.bulkW, self.crosstermW, self.boundW)
-                    UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
+                    UtilityFunctions().plot_model_input(receptor, ligand, plot_count)
+                    # UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
                     # import matplotlib.pyplot as plt
                     # plt.show()
         return fft_score
