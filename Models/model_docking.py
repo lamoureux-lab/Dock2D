@@ -26,6 +26,7 @@ class Docking(nn.Module):
         self.boundW = nn.Parameter(-torch.ones(1, requires_grad=True))
 
         self.dockingFFT = dockingFFT
+        self.model_name = dockingFFT.model_name
 
         self.scal = 1
         self.vec = 4
@@ -84,8 +85,6 @@ class Docking(nn.Module):
             weight_bound=self.boundW,
         )
 
-        print('in model now')
-        print('plotting', 'training', plotting, training)
         #### Plot shape features
         if plotting and not training:
             print('plot_count', 'self.plot_freq', plot_count, self.plot_freq)
@@ -94,9 +93,8 @@ class Docking(nn.Module):
                     print('plotting features')
                     scoring_weights = (self.bulkW, self.crosstermW, self.boundW)
                     UtilityFunctions().plot_model_input(receptor, ligand, plot_count)
-                    # UtilityFunctions().plot_features(rec_feat, lig_feat, receptor, ligand, scoring_weights, plot_count, stream_name)
-                    # import matplotlib.pyplot as plt
-                    # plt.show()
+                    UtilityFunctions().plot_features(rec_feat, lig_feat, scoring_weights, plot_count, stream_name, model_name=self.model_name)
+
         return fft_score
 
 

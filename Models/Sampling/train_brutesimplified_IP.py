@@ -38,10 +38,15 @@ if __name__ == '__main__':
     ######################
     train_epochs = 100
     lr = 10 ** -3
-    #####################
+    ########################
+    model_name = "BS IP"
+    debug = False
+    plotting = True
+    show = False
+    ########################
     padded_dim = 100
     num_angles = 1
-    sampledFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
+    sampledFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles, model_name=model_name)
     model = SamplingModel(sampledFFT, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=lr)
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
@@ -60,21 +65,21 @@ if __name__ == '__main__':
     #     resume_training=True, resume_epoch=train_epochs)
 
     ## Brute force evaluation and plotting
-    plotting = False
+    # plotting = False
     start = train_epochs-1
     stop = train_epochs
 
     eval_angles = 360
-    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles)
+    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles, model_name=model_name)
     eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
     EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
                             BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
-    # for epoch in range(start, stop):
-    #     if stop-1 == epoch:
-    #         plotting = True
-    #     EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #                             resume_training=True, resume_epoch=train_epochs)
+    for epoch in range(start, stop):
+        if stop-1 == epoch:
+            plotting = True
+        EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+                                resume_training=True, resume_epoch=train_epochs)
 
     ## Plot loss and RMSDs from current experiment
-    PlotterIP(experiment).plot_loss(ylim=None, show=True)
-    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=stop+1, show=True)
+    # PlotterIP(experiment).plot_loss(ylim=None, show=show)
+    # PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=stop+1, show=show)

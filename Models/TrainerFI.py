@@ -199,6 +199,13 @@ class TrainerFI:
         ligand = ligand.to(device='cuda', dtype=torch.float)
         gt_interact = gt_interact.to(device='cuda', dtype=torch.float).squeeze()
 
+        # receptor, ligand, gt_rot, gt_txy = data
+        #
+        # receptor = receptor.to(device='cuda', dtype=torch.float)
+        # ligand = ligand.to(device='cuda', dtype=torch.float)
+        # gt_rot = gt_rot.to(device='cuda', dtype=torch.float).squeeze()
+        # gt_txy = gt_txy.to(device='cuda', dtype=torch.float).squeeze()
+
         print('stream_name', stream_name)
         print('training', training)
 

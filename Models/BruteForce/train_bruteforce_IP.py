@@ -39,20 +39,24 @@ if __name__ == '__main__':
     experiment = 'BF_IP_finaldataset_10pairs_100ep'
 
     ######################
-    plotting = False
-
     train_epochs = 100
     learning_rate = 10 ** -3
 
+    ########################
+    model_name = "BF IP"
+    debug = False
+    plotting = True
+    show = False
+    ########################
     padded_dim = 100
     num_angles = 360
-    BFdockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
+    BFdockingFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles, model_name=model_name)
     model = SamplingModel(BFdockingFFT, IP=True).to(device=0)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     Trainer = TrainerIP(BFdockingFFT, model, optimizer, experiment, BF_eval=True, plotting=plotting)
     ######################
     ### Train model from beginning, evaluate if valid_stream and/or test_stream passed in
-    Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(train_epochs=train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
@@ -63,5 +67,5 @@ if __name__ == '__main__':
                         resume_training=True, resume_epoch=train_epochs, train_epochs=1)
 
     ## Plot loss and RMSDs from current experiment
-    PlotterIP(experiment).plot_loss(show=True)
-    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs+1, show=True)
+    # PlotterIP(experiment).plot_loss(show=show)
+    # PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs+1, show=show)

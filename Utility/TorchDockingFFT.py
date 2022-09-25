@@ -16,7 +16,7 @@ class TorchDockingFFT:
     """
     Utility class to perform FFT-based docking.
     """
-    def __init__(self, padded_dim, num_angles, swap_plot_quadrants=False, normalization='ortho', debug=False):
+    def __init__(self, padded_dim, num_angles, swap_plot_quadrants=False, normalization='ortho', model_name=None ,debug=False):
         """
         Initialize docking FFT based on desired usage.
 
@@ -27,6 +27,7 @@ class TorchDockingFFT:
         :param normalization: specify normalization for the `torch.fft2()` and `torch.irfft2()` operations, default is set to `ortho`
         :param debug: shows what rotations look like depending on `num_angles`
         """
+        self.model_name = model_name
         self.debug = debug
         self.swap_plot_quadrants = swap_plot_quadrants ## used only to make plotting look nice
         self.padded_dim = padded_dim

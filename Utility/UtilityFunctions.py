@@ -12,8 +12,10 @@ from matplotlib import rcParams
 
 
 class UtilityFunctions():
-    def __init__(self, experiment=None):
+    def __init__(self, experiment=None, model_name=None):
         self.experiment = experiment
+        self.model_name = model_name
+        self.fig_save_path = 'Figs/Features_and_poses/'
 
     def write_pkl(self, data, filename):
         '''
@@ -397,12 +399,12 @@ class UtilityFunctions():
         orth_feats = torch.stack([rv11, rv12], dim=0).unsqueeze(dim=0).detach()
         return orth_feats
 
-    def plot_features(self, rec_feat_list, lig_feat_list, receptor, ligand, scoring_weights, plot_count=0, stream_name='trainset'):
+    def plot_features(self, rec_feat, lig_feat, scoring_weights, plot_count=0, stream_name='trainset', model_name=None):
         """
         Plot the learned shape pair features (bulk and boundary) from the docking model from `Docking` in `model_docking.py`.
 
-        :param rec_feat_list: receptor feature stack
-        :param lig_feat_list: ligand feature stack
+        :param rec_feat: receptor feature stack
+        :param lig_feat: ligand feature stack
         :param receptor: receptor shape grid image
         :param ligand: ligand shape grid image
         :param scoring_weights: learned scoring coefficients used in scoring function
@@ -416,165 +418,96 @@ class UtilityFunctions():
             print('crossterm', str(crosstermW.item())[:6])
             print('bulk', str(bulkW.item())[:6])
 
-        # plt.close()
-        #
-        # rec_bulk, rec_bound = self.make_boundary(receptor.view(50, 50))
-        # # lig_bulk, lig_bound = self.make_boundary(ligand.view(50, 50))
-        #
-        # rec_bulk, rec_bound = rec_bulk.squeeze().t().detach().cpu(), rec_bound.squeeze().t().detach().cpu()
-        # # lig_bulk, lig_bound = lig_bulk.squeeze().t().detach().cpu(), lig_bound.squeeze().t().detach().cpu()
-        #
-        # raw_data_weights = (100.0, -10.0, -10.0)
-        # rec_data = torch.stack((rec_bulk, rec_bound), dim=0)
-        # rec_orth_data = self.orthogonalize_feats(raw_data_weights, rec_data).squeeze()
-        # rec_orth_data_bulk, rec_orth_data_bound = rec_orth_data[0,:,:], rec_orth_data[1,:,:]
-        #
-        # figs_list = [
-        #             [rec_bulk, rec_bound/rec_bound.max()],
-        #             [rec_orth_data_bulk, rec_orth_data_bound],
-        #
-        #             ]
-        #
-        # vmin = 100
-        # vmax = -100
-        # for i in figs_list[1:]:
-        #     for j in i:
-        #         flat_arr = np.array(j).flatten()
-        #         min = np.min(flat_arr)
-        #         max = np.max(flat_arr)
-        #         if max > vmax:
-        #             vmax = max
-        #         if min < vmin:
-        #             vmin = min
-        #
-        # print(vmin, vmax)
-        # feats_norm = colors.CenteredNorm(vcenter=0.0, halfrange=vmin)
-        #
-        # rows, cols = 2, 2
-        # fig_data, ax_data = plt.subplots(rows, cols, figsize=(10,10))
-        # plt.subplots_adjust(wspace=0.1, hspace=0.1)
-        # shrink_bar = 0.8
-        # cmap_data = 'Greys'
-        # cmap_orth_data = 'seismic'
-        # font = {'weight': 'bold',
-        #         'size': 14,}
-        # for i in range(rows):
-        #     if i == 0:
-        #         norm = None
-        #         cmap = cmap_data
-        #     else:
-        #         norm = feats_norm
-        #         cmap = cmap_orth_data
-        #     for j in range(cols):
-        #         ax_data[i,j].grid(b=None)
-        #         ax_data[i,j].axis('off')
-        #         data = figs_list[i][j]
-        #         im = ax_data[i, j].imshow(data, cmap=cmap, norm=norm)
-        #         location = 'right'
-        #         plt.colorbar(im, ax=ax_data[i,j], shrink=shrink_bar, location=location, )
-        #
-        # plt.show()
 
-        # figs_list = [
-        #     # [rec_bulk, rec_bound/rec_bound.max()],
-        #     # [rec_orth_data[0,:,:],rec_orth_data[1,:,:]],
-        #     [rec_feat_bulk, rec_feat_bound]
-        # ]
-        #
-        # fig_data, ax_data = plt.subplots(2, 2, figsize=(10,10))
-        # # plt.subplots_adjust(wspace=-0.4, hspace=0.1)
-        # plt.subplots_adjust(wspace=0.1, hspace=0.1)
-        # ax_data[0,0]
+        plt.close()
+        rec_feat_bulk, rec_feat_bound = rec_feat[0].squeeze().t().detach().cpu(),\
+                                        rec_feat[1].squeeze().t().detach().cpu()
+        # lig_feat_bulk, lig_feat_bound = lig_feat[0].squeeze().t().detach().cpu(), lig_feat[1].squeeze().t().detach().cpu()
 
+        rec_feat = torch.stack((rec_feat_bulk, rec_feat_bound), dim=0)
+        rec_orth_feat = self.orthogonalize_feats(scoring_weights, rec_feat).squeeze()
+        rec_orth_feat_bulk, rec_orth_feat_bound = rec_orth_feat[0, :, :], rec_orth_feat[1, :, :]
 
-        orth_rec_feat_list = []
-        orth_lig_feat_list = []
+        figs_list = [
+            [rec_orth_feat_bulk, rec_orth_feat_bound],
+        ]
 
-        for i in range(len(rec_feat_list)):
-            # rec_feat = self.orthogonalize_feats(scoring_weights, rec_feat_list[i]).squeeze()
-            # lig_feat = self.orthogonalize_feats(scoring_weights, lig_feat_list[i]).squeeze()
+        titles_list = [
+                       ['orthonormal '+model_name+' bulk', 'orthonormal '+model_name+' boundary'],
+                       ]
 
-            orth_rec_feat_list.append(self.orthogonalize_feats(scoring_weights, rec_feat_list[i]).squeeze())
-            orth_lig_feat_list.append(self.orthogonalize_feats(scoring_weights, lig_feat_list[i]).squeeze())
-
-            rec_feat_bulk, rec_feat_bound = orth_rec_feat_list[i][0].squeeze().t().detach().cpu(),\
-                                            orth_rec_feat_list[i][1].squeeze().t().detach().cpu()
-            # lig_feat_bulk, lig_feat_bound = lig_feat[0].squeeze().t().detach().cpu(), lig_feat[1].squeeze().t().detach().cpu()
-
-            figs_list = [
-                         # [rec_bulk, rec_bound/rec_bound.max()],
-                         # [rec_orth_data[0,:,:],rec_orth_data[1,:,:]],
-                         [rec_feat_bulk, rec_feat_bound]
-                         ]
-
-            vmin = 100
-            vmax = -100
-            for i in figs_list[1:]:
-                for j in i:
-                    flat_arr = np.array(j).flatten()
-                    min = np.min(flat_arr)
-                    max = np.max(flat_arr)
-                    if max > vmax:
-                        vmax = max
-                    if min < vmin:
-                        vmin = min
-
-            print(vmin, vmax)
-
-            # rows, cols = len(figs_list), len(figs_list[0])
-            # fig, ax = plt.subplots(rows, cols, figsize=(10,10))
-            # # plt.subplots_adjust(wspace=-0.4, hspace=0.1)
-            # plt.subplots_adjust(wspace=0.1, hspace=0.1)
-            #
-            # # data_norm = colors.CenteredNorm(vcenter=0.0, halfrange=2.0)  # center normalized color scale
-            # # data_norm = colors.TwoSlopeNorm(vmin=data_vmin, vmax=data_vmax, vcenter=0.0)
-            #
-            # # orth_input_norm = colors.TwoSlopeNorm(vcenter=0.0)
-            # # feats_norm = colors.TwoSlopeNorm(vmin=vmin, vmax=vmax, vcenter=0.0)
-            # feats_norm = colors.CenteredNorm(vcenter=0.0, halfrange=vmin)
-            # # feats_norm = colors.CenteredNorm(vcenter=0.0, halfrange=vmax)
-            #
-            # shrink_bar = 0.8
-            # # cmap_data = 'binary'
-            # cmap_data = 'Greys'
-            # # cmap_data = 'RdGy'
-            #
-            # cmap_feats = 'seismic'
-            #
-            # titles_list = [['input bulk', 'input boundary'],
-            #                ['orthonormal input bulk', 'orthonormal input boundary'],
-            #                ['orthonormal learned bulk', 'orthonormal learned boundary']]
-            # font = {'weight': 'bold',
-            #         'size': 14,}
-            # for i in range(rows):
-            #     if i == 0:
-            #         cmap = cmap_data
-            #         # norm = data_norm
-            #         norm = None
-            #     else:
-            #         cmap = cmap_feats
-            #         norm = feats_norm
-            #     # if i == 1:
-            #     #     norm = orth_input_norm
-            #     for j in range(cols):
-            #         ax[i,j].grid(b=None)
-            #         ax[i,j].axis('off')
-            #
-            #         data = figs_list[i][j]
-            #         ax[i, j].set_title(titles_list[i][j], fontdict=font)
-            #
-            #         im = ax[i, j].imshow(data, cmap=cmap, norm=norm)
-            #
-            #         # if j == 0 and i == 0:
-            #         #     location = 'left'
-            #         # else:
-            #         #     location = 'right'
-            #         location = 'right'
-            #         plt.colorbar(im, ax=ax[i,j], shrink=shrink_bar, location=location)
-
-        filename = 'Figs/Features_and_poses/'+stream_name+'_docking_feats'+'_example' + str(plot_count)+'.png'
+        # filename = 'Figs/Features_and_poses/' + stream_name + '_docking_feats' + '_example' + str(plot_count)
+        # print(filename)
+        filename = self.fig_save_path + model_name + stream_name + '_docking_feats' + '_example' + str(plot_count)
         print(filename)
-        plt.savefig(filename, format='png')
+
+        self.plot_feat_subplot(figs_list, titles_list, filename, format='pdf')
+
+
+    @staticmethod
+    def get_vmin_vmax(figs_list):
+        vmin = 100
+        vmax = -100
+        for i in figs_list:
+            for j in i:
+                flat_arr = np.array(j).flatten()
+                min = np.min(flat_arr)
+                max = np.max(flat_arr)
+                if max > vmax:
+                    vmax = max
+                if min < vmin:
+                    vmin = min
+        # vmin = int(vmin)
+        # vmax = int(vmax)
+        print('vmin, vmax', vmin, vmax)
+        return vmin, vmax
+
+    def plot_feat_subplot(self, figs_list, titles_list, filename, format):
+        vmin, vmax = self.get_vmin_vmax(figs_list=figs_list)
+        feats_norm = colors.CenteredNorm(vcenter=0.0, halfrange=int(vmin))
+
+        rows, cols = len(titles_list), len(titles_list[0])
+        fig_data, ax_data = plt.subplots(rows, cols,
+                                         figsize=(10, 10)
+                                         )
+        shrink_bar = 0.8
+        cmap_data = 'Greys'
+        cmap_orth = 'seismic'
+        font = {'weight': 'bold',
+                'size': 14, }
+        location = 'right'
+
+        if rows == 1:
+            feats_norm = colors.CenteredNorm(vcenter=0.0, halfrange=-15)
+            norm = feats_norm
+            cmap = cmap_orth
+            for i in range(cols):
+                ax_data[i].grid(b=None)
+                ax_data[i].axis('off')
+                data = figs_list[0][i]
+                ax_data[i].set_title(titles_list[0][i], fontdict=font)
+                im = ax_data[i].imshow(data, cmap=cmap, norm=norm)
+                cbar = plt.colorbar(im, ax=ax_data[i], shrink=shrink_bar, location=location, fraction=0.046, pad=0.04)
+                cbar.ax.locator_params(nbins=10)
+        else:
+            plt.subplots_adjust(wspace=0.05, hspace=-0.05)
+            for i in range(rows):
+                if i == 0 and len(figs_list) > 1:
+                    norm = None
+                    cmap = cmap_data
+                else:
+                    norm = feats_norm
+                    cmap = cmap_orth
+                for j in range(cols):
+                    ax_data[i, j].grid(b=None)
+                    ax_data[i, j].axis('off')
+                    data = figs_list[i][j]
+                    ax_data[i, j].set_title(titles_list[i][j], fontdict=font)
+                    im = ax_data[i, j].imshow(data, cmap=cmap, norm=norm)
+                    cbar = plt.colorbar(im, ax=ax_data[i, j], shrink=shrink_bar, location=location)
+                    cbar.ax.locator_params(nbins=5)
+
+        plt.savefig(filename+'.'+str(format), format=format)
         plt.show()
 
     def plot_model_input(self, receptor, ligand, plot_count):
@@ -603,51 +536,12 @@ class UtilityFunctions():
                        ['orthonormal input bulk', 'orthonormal input boundary'],
                        ]
 
-        vmin = 100
-        vmax = -100
-        for i in figs_list[1:]:
-            for j in i:
-                flat_arr = np.array(j).flatten()
-                min = np.min(flat_arr)
-                max = np.max(flat_arr)
-                if max > vmax:
-                    vmax = max
-                if min < vmin:
-                    vmin = min
-        # vmin = int(vmin)
-        # vmax = int(vmax)
-        print('vmin, vmax', vmin, vmax)
-        feats_norm = colors.CenteredNorm(vcenter=0.0, halfrange=int(vmin))
+        # filename = 'Figs/Features_and_poses/input_data_docking_feats'+'_example' + str(plot_count)
+        # print(filename)
 
-        rows, cols = 2, 2
-        fig_data, ax_data = plt.subplots(rows, cols, figsize=(10, 10))
-        plt.subplots_adjust(wspace=0.1, hspace=0.1)
-        shrink_bar = 0.8
-        cmap_data = 'Greys'
-        cmap_orth_data = 'seismic'
-        font = {'weight': 'bold',
-                'size': 14, }
-        for i in range(rows):
-            if i == 0:
-                norm = None
-                cmap = cmap_data
-            else:
-                norm = feats_norm
-                cmap = cmap_orth_data
-            for j in range(cols):
-                ax_data[i, j].grid(b=None)
-                ax_data[i, j].axis('off')
-                data = figs_list[i][j]
-                ax_data[i, j].set_title(titles_list[i][j], fontdict=font)
-                im = ax_data[i, j].imshow(data, cmap=cmap, norm=norm)
-                location = 'right'
-                cbar = plt.colorbar(im, ax=ax_data[i, j], shrink=shrink_bar, location=location, )
-                cbar.ax.locator_params(nbins=5)
-
-        filename = 'Figs/Features_and_poses/input_data_docking_feats'+'_example' + str(plot_count)+'.png'
+        filename = self.fig_save_path + 'input_data_docking_feats'+'_example' + str(plot_count)
         print(filename)
-        plt.savefig(filename, format='png')
-        plt.show()
+        self.plot_feat_subplot(figs_list=figs_list, titles_list=titles_list, filename=filename, format='pdf')
 
 
 if __name__ == '__main__':
