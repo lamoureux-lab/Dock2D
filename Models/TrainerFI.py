@@ -156,7 +156,7 @@ class TrainerFI:
                         fout.write(self.deltaf_log_header)
                     self.check_APR(epoch, test_stream, stream_name=stream_name, deltaF_logfile=deltaF_logfile, experiment=self.experiment)
 
-    def run_epoch(self, data_stream, epoch, training=False):
+    def run_epoch(self, data_stream, epoch, training=False, stream_name='train_stream'):
         """
          Run the model for an epoch.
 
@@ -170,7 +170,7 @@ class TrainerFI:
         with open(deltaF_logfile, 'w') as fout:
             fout.write(self.deltaf_log_header)
         for data in tqdm(data_stream):
-            train_output = [self.run_model(data, pos_idx=pos_idx, training=training, epoch=epoch)]
+            train_output = [self.run_model(data, pos_idx=pos_idx, training=training, stream_name=stream_name, epoch=epoch)]
             stream_loss.append(train_output)
             pos_idx += 1
             with open(deltaF_logfile, 'a') as fout:
