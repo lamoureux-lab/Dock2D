@@ -247,7 +247,7 @@ class TorchDockingFFT:
             plt.subplots_adjust(wspace=0.20, hspace=-0.20)
 
             prop_legend = {'weight': 'bold',
-                    'size': 12, }
+                    'size': 14, }
             prop_labels = {'weight': 'bold',
                     'size': 18, }
             prop_phi = {'weight': 'bold',
@@ -265,7 +265,7 @@ class TorchDockingFFT:
             # ax1.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
 
             ### free energy curve
-            linewidth = 2
+            linewidth = 3
             xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
             # ax2.set_xticks(xrange*np.pi/180)
 
@@ -275,14 +275,17 @@ class TorchDockingFFT:
             ax2.set_ylim([-120, 2])
             ax2.set_xlim([-np.pi, np.pi])
             total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
-            ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, colors='r', linestyles='solid')
+            ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, colors='r', linestyles='solid', linewidth=linewidth)
             ax2.plot(xrange, mintxy_energies, linewidth=linewidth)
-            ax2.plot(xrange, translation_free_energies,  linewidth=linewidth)
+            ax2.plot(xrange, translation_free_energies, linewidth=linewidth)
 
             ax2.set_ylabel('Energy', fontdict=prop_labels)
             ax2.set_xlabel(r'$\mathcal{\phi}$', fontdict=prop_phi)
-            ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$', r'$F(\phi)$'], loc='upper left', prop=prop_legend)
-
+            legend = ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$', r'$F(\phi)$'], loc='upper left', prop=prop_legend,
+                                # edgecolor=(0, 0, 0, 0.1),
+                                labelspacing=0.1)
+            legend.get_frame().set_alpha(None)
+            # legend.get_frame().set_facecolor((1, 1, 1, 0.1))
             ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed', linewidth=linewidth)
 
             # ## best pose correlation
