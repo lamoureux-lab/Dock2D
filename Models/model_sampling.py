@@ -48,8 +48,8 @@ class SamplingDocker(nn.Module):
         else:
             plotting = False
 
-        print('calling dockingConv')
-        print('training', 'plotting', training, plotting)
+        # print('calling dockingConv')
+        # print('training', 'plotting', training, plotting)
 
         fft_score = self.dockingConv(receptor, ligand, angle=rotation, plotting=plotting, training=training,
                                              plot_count=plot_count, stream_name=stream_name)

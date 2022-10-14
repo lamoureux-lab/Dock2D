@@ -21,7 +21,7 @@ class PlotterFI:
             print('no experiment name given')
             self.experiment = "NOTSET"
 
-    def plot_loss(self, show=False, save=True):
+    def plot_loss(self, show=False, save=True, plot_combined=False):
         """
         Plot the current fact-of-interaction (FI) experiments loss curve.
         The plot will plot all epochs present in the log file.
@@ -31,23 +31,24 @@ class PlotterFI:
         """
         plt.close()
         #LOSS WITH ROTATION
-        train = pd.read_csv(self.logfile_savepath+self.logloss_prefix+ self.experiment +'.txt', sep='\t', header=1, names=['Epoch', 'Loss'])
+        train = pd.read_csv(self.logfile_savepath+self.logloss_prefix+ self.experiment +'.txt', sep='\t', header=0, names=['Epoch', 'Loss'])
 
         plt.subplots(figsize=(20,10))
 
-        train_loss = plt.plot(train['Epoch'].to_numpy(), train['Loss'].to_numpy())
+        train_loss, = plt.plot(train['Epoch'].to_numpy(), train['Loss'].to_numpy())
         plt.title('log_loss_TRAINset_'+ self.experiment)
         plt.xlabel('epochs')
         plt.ylabel('loss')
-        if len(train['Loss'].to_numpy()) > 2:
-            plt.ylim([0, train['Loss'].to_numpy().max()])
+        # if len(train['Loss'].to_numpy()) > 2:
+        #     plt.ylim([0, train['Loss'].to_numpy().max()])
         plt.grid(visible=True)
         plt.xlabel('Epochs')
 
         if save:
             plt.savefig('Figs/FI_loss_plots/lossplot_'+self.experiment+'.png')
-        if show:
+        if show and not plot_combined:
             plt.show()
+        return train_loss
 
     def plot_deltaF_distribution(self, filename=None, plot_epoch=None, xlim=250, binwidth=1, show=False, save=True, plot_pub=False):
         """
@@ -172,11 +173,44 @@ class PlotterFI:
         if show:
             plt.show()
 
+# if __name__ == "__main__":
+#     ### Unit test
+#     load_path = 'Log/losses/FI_loss/'
+#     testcase = 'scratch_'
+#     experiment = testcase+'BF_FI_NEWDATA_CHECK_400pool_20000ex30ep'
+#     Plotter = PlotterFI(experiment, logfile_savepath=load_path)
+#     Plotter.plot_loss(show=True)
+#     Plotter.plot_deltaF_distribution(plot_epoch=30, show=True)
+
 if __name__ == "__main__":
-    ### Unit test
-    load_path = 'Log/losses/FI_loss/'
-    testcase = 'scratch_'
-    experiment = testcase+'BF_FI_NEWDATA_CHECK_400pool_20000ex30ep'
-    Plotter = PlotterFI(experiment, logfile_savepath=load_path)
-    Plotter.plot_loss(show=True)
-    Plotter.plot_deltaF_distribution(plot_epoch=30, show=True)
+    loadpath = 'Log/losses/FI_loss/'
+    # experiment = 'BF_IP_NEWDATA_CHECK_400pool_30ep'
+    experiments_list = [
+                       'scratch_BF_FI_finaldataset_100pairs_500ep',
+                       'C_BF_FI_finaldataset_100pairs_expC_BFIP_1000ex100ep',
+                       'C_BF_FI_finaldataset_100pairs_expC_BSIP_1000ex100ep',
+                       'scratch_MC_FI_finaldataset_100pairs_1000ep_2sample_100steps',
+                       ]
+    fig_data = []
+    for experiment in experiments_list:
+        Plotter = PlotterFI(experiment, logfile_savepath=loadpath)
+        line_loss = Plotter.plot_loss(show=True, plot_combined=True)
+        # Plotter.plot_rmsd_distribution(plot_epoch=100, show=True)
+        fig_data.append(line_loss)
+        plt.close()
+
+    # plt.close()
+    plt.figure(figsize=(10,5))
+    color_style = ['b-', 'b--', 'r-', 'r--']
+
+    for i in range(len(fig_data)):
+        plt.plot(fig_data[i].get_data()[0], fig_data[i].get_data()[1], color_style[i], )
+
+    plt.margins(x=None)
+    plt.legend(['BruteForce IF 1000pairs', 'BruteForce IP pretrain', 'BruteSimplified IP pretrained', 'MCFI 100pairs'])
+    plt.ylabel('loss')
+    plt.xlabel('epochs')
+    plt.xlim([0, 1000])
+    plt.ylim([0, 1])
+    plt.savefig('Figs/FI_loss_plots/sup_combined_FI_loss_plot_1000epoch.pdf', format='pdf')
+    plt.show()

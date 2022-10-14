@@ -30,21 +30,24 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
-    number_of_pairs = 1
-    train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
+    number_of_pairs = 100
+    train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs)#, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=None)
     # valid_stream = get_docking_stream(validset, max_size=None, shuffle=False)
     test_stream = get_interaction_stream(testset, number_of_pairs=None)
     ######################
-    experiment = 'BF_FI_finaldataset_100pairs_1000ep'
+    # experiment = 'BF_FI_finaldataset_100pairs_1000ep'
     # experiment = 'BF_FI_finaldataset_100pairs_expC_BFIP_1000ex100ep'
+    experiment = 'BF_FI_finaldataset_100pairs_expC_BSIP_1000ex100ep'
+
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
-    path_pretrain = 'Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
+    # path_pretrain = 'Log/saved_models/IP_saved/BF_IP_finaldataset_1000pairs_100ep100.th'
+    path_pretrain = 'Log/saved_models/IP_saved/BS_IP_finaldataset_1000pairs_100ep100.th'
     # training_case = 'A' # CaseA: train with docking model frozen
     # training_case = 'B' # CaseB: train with docking model unfrozen
-    # training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
-    training_case = 'scratch' # Case scratch: train everything from scratch
+    training_case = 'C' # CaseC: train with docking model SE2 CNN frozen and scoring ("a") coeffs unfrozen
+    # training_case = 'scratch' # Case scratch: train everything from scratch
     experiment = training_case + '_' + experiment
     #####################
     train_epochs = 100
@@ -56,7 +59,7 @@ if __name__ == '__main__':
     ########################
     model_name = "BF IF"
     debug = False
-    plotting = True
+    plotting = False
     show = False
     ########################
 
@@ -81,7 +84,7 @@ if __name__ == '__main__':
 
     # Validate model at chosen epoch
     Trainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                        resume_training=True, resume_epoch=1000)
+                        resume_training=True, resume_epoch=10)
     #
     ### Plot loss and free energy distributions with learned F_0 decision threshold
     # PlotterFI(experiment).plot_loss(show=True)

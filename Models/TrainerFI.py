@@ -206,8 +206,8 @@ class TrainerFI:
         # gt_rot = gt_rot.to(device='cuda', dtype=torch.float).squeeze()
         # gt_txy = gt_txy.to(device='cuda', dtype=torch.float).squeeze()
 
-        print('stream_name', stream_name)
-        print('training', training)
+        # print('stream_name', stream_name)
+        # print('training', training)
 
         if training:
             self.docking_model.train()
