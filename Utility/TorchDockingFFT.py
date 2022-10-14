@@ -216,7 +216,7 @@ class TorchDockingFFT:
             plt.close()
 
             mintxy_energies = []
-            free_energies = []
+            translation_free_energies = []
             num_angles = 360
             shifted_txy_min = pred_txy + energies.shape[-1]//2 ## shift translations to match swapped quadrants
             for i in range(num_angles):
@@ -226,7 +226,7 @@ class TorchDockingFFT:
 
                 # minimumEnergy = energies[i, shifted_txy_min[0], shifted_txy_min[1]].detach().cpu()
                 mintxy_energies.append(minimumEnergy)
-                free_energies.append(-torch.logsumexp(-rotation_slice, dim=(0,1)).detach().cpu())
+                translation_free_energies.append(-torch.logsumexp(-rotation_slice, dim=(0,1)).detach().cpu())
 
             fig = plt.figure(figsize=(10, 6))
             gs = gridspec.GridSpec(8, 4)
@@ -247,7 +247,7 @@ class TorchDockingFFT:
             plt.subplots_adjust(wspace=0.20, hspace=-0.20)
 
             prop_legend = {'weight': 'bold',
-                    'size': 14, }
+                    'size': 12, }
             prop_labels = {'weight': 'bold',
                     'size': 18, }
             prop_phi = {'weight': 'bold',
@@ -265,6 +265,7 @@ class TorchDockingFFT:
             # ax1.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
 
             ### free energy curve
+            linewidth = 2
             xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
             # ax2.set_xticks(xrange*np.pi/180)
 
@@ -275,13 +276,14 @@ class TorchDockingFFT:
             ax2.set_xlim([-np.pi, np.pi])
             total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
             ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, colors='r', linestyles='solid')
-            ax2.plot(xrange, mintxy_energies)
+            ax2.plot(xrange, mintxy_energies, linewidth=linewidth)
+            ax2.plot(xrange, translation_free_energies,  linewidth=linewidth)
 
             ax2.set_ylabel('Energy', fontdict=prop_labels)
             ax2.set_xlabel(r'$\mathcal{\phi}$', fontdict=prop_phi)
-            ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$'], loc='upper left', prop=prop_legend)
+            ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$', r'$F(\phi)$'], loc='upper left', prop=prop_legend)
 
-            ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
+            ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed', linewidth=linewidth)
 
             # ## best pose correlation
             # min_energy_slice = energies[pred_rot.long(), :, :].detach().cpu().numpy()
