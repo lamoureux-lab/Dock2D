@@ -224,8 +224,8 @@ class ShapeDistributions:
 
         ax1.imshow(shapes_plot, cmap=plt.get_cmap('gist_heat_r'))
         ax1.grid(False)
-        ax1.set_xlabel('number of points')
-        ax1.set_ylabel('alphas')
+        ax1.set_xlabel(r'$n$')
+        ax1.set_ylabel(r'$\alpha$')
         ax1.xaxis.set_major_formatter(FormatStrFormatter('%.2g'))
         ax1.yaxis.set_major_formatter(FormatStrFormatter('%.2g'))
         ax1.set_xticks(np.linspace((plot_lenx/num_cols)/2, plot_lenx-(plot_lenx/num_cols)/2, num_cols, endpoint=True))
