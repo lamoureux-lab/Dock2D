@@ -390,7 +390,8 @@ class UtilityFunctions():
         :return: orthogonalized feature stack
         """
         bulkW, crosstermW, boundW = scoring_weights
-        A = torch.tensor([[boundW, crosstermW],[crosstermW, bulkW]])
+        A = torch.tensor([[boundW, crosstermW],
+                          [crosstermW, bulkW]])
         # A = torch.tensor([[bulkW, crosstermW],[crosstermW, bulkW]])
         eigvals, V = torch.linalg.eig(A)
         V = V.real
