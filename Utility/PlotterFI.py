@@ -201,16 +201,17 @@ if __name__ == "__main__":
 
     # plt.close()
     plt.figure(figsize=(10,5))
-    color_style = ['b-', 'b--', 'r-', 'r--']
+    color_style = ['b-', 'r-', 'r--', 'b--']
 
     for i in range(len(fig_data)):
         plt.plot(fig_data[i].get_data()[0], fig_data[i].get_data()[1], color_style[i], )
 
     plt.margins(x=None)
-    plt.legend(['BruteForce IF 1000pairs', 'BruteForce IP pretrain', 'BruteSimplified IP pretrained', 'MCFI 100pairs'])
+    plt.legend(['BruteForce IF 1000pairs', 'BruteForce IP pretrain', 'BruteSimplified IP pretrain', 'Sampled IF 100pairs'])
     plt.ylabel('loss')
     plt.xlabel('epochs')
-    plt.xlim([0, 1000])
+    xlim = 100
+    plt.xlim([0, xlim])
     plt.ylim([0, 1])
-    plt.savefig('Figs/FI_loss_plots/sup_combined_FI_loss_plot_1000epoch.pdf', format='pdf')
+    plt.savefig('Figs/FI_loss_plots/sup_combined_FI_loss_plot_'+str(xlim)+'epoch.pdf', format='pdf')
     plt.show()

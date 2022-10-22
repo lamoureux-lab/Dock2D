@@ -87,8 +87,8 @@ class PlotterIP:
         plt.close()
         # Plot RMSD distribution of all samples across epoch
         train_log = self.logfile_savepath+'log_RMSDsTRAINset_epoch' + str(plot_epoch) + self.experiment + ".txt"
-        valid_log = self.logfile_savepath+'log_RMSDsVALIDset_epoch' + str(plot_epoch) + self.experiment + ".txt"
-        test_log = self.logfile_savepath+'log_RMSDsTESTset_epoch' + str(plot_epoch) + self.experiment + ".txt"
+        valid_log = self.logfile_savepath+'log_RMSDsVALIDset_epoch' + str(plot_epoch+1) + self.experiment + ".txt"
+        test_log = self.logfile_savepath+'log_RMSDsTESTset_epoch' + str(plot_epoch+1) + self.experiment + ".txt"
         train, valid, test, avg_trainRMSD, avg_validRMSD, avg_testRMSD = None, None, None, None, None, None
         subplot_count = 0
 
@@ -114,26 +114,28 @@ class PlotterIP:
         fig, ax = plt.subplots(3, figsize=(20, 10))
         plt.suptitle('RMSD distribution: epoch' + str(plot_epoch) + ' ' + self.experiment +'\n'
                       + 'train:'+ avg_trainRMSD + ' valid:' + avg_validRMSD + ' test:' + avg_testRMSD)
-        plt.legend(['train rmsd', 'valid rmsd', 'test rmsd'])
+        # plt.legend(['train rmsd', 'valid rmsd', 'test rmsd'])
         plt.xlabel('RMSD')
         binwidth=1
-        bins = np.arange(0, 100 + binwidth, binwidth)
+        xlim = 60
+        bins = np.arange(0, xlim + binwidth, binwidth)
 
+        visible_grid = False
         if train is not None:
             ax[0].hist(train['RMSD'].to_numpy(), bins=bins, color='b')
             ax[0].set_ylabel('Training set counts')
-            ax[0].grid(visible=True)
-            ax[0].set_xticks(np.arange(0, 100, 10))
+            ax[0].grid(visible=visible_grid)
+            ax[0].set_xticks(np.arange(0, xlim, 10))
         if valid is not None:
             ax[1].hist(valid['RMSD'].to_numpy(), bins=bins, color='r')
             ax[1].set_ylabel('Valid set counts')
-            ax[1].grid(visible=True)
-            ax[1].set_xticks(np.arange(0, 100, 10))
+            ax[1].grid(visible=visible_grid)
+            ax[1].set_xticks(np.arange(0, xlim, 10))
         if test is not None:
             ax[2].hist(test['RMSD'].to_numpy(), bins=bins, color='g')
             ax[2].set_ylabel('Test set counts')
-            ax[2].grid(visible=True)
-            ax[2].set_xticks(np.arange(0, 100, 10))
+            ax[2].grid(visible=visible_grid)
+            ax[2].set_xticks(np.arange(0, xlim, 10))
 
         if save:
             plt.savefig('Figs/IP_RMSD_distribution_plots/RMSDplot_epoch' + str(

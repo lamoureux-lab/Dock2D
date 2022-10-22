@@ -45,8 +45,8 @@ if __name__ == '__main__':
     ########################
     model_name = "BF IP"
     debug = False
-    plotting = True
-    show = False
+    plotting = False
+    show = True
     ########################
     padded_dim = 100
     num_angles = 360
@@ -63,9 +63,9 @@ if __name__ == '__main__':
     #                     resume_training=True, resume_epoch=13, train_epochs=17)
 
     # ### Evaluate model on chosen dataset only and plot at chosen epoch and dataset frequency
-    Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                        resume_training=True, resume_epoch=train_epochs, train_epochs=1)
+    # Trainer.run_trainer(train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+    #                     resume_training=True, resume_epoch=train_epochs, train_epochs=1)
 
     ## Plot loss and RMSDs from current experiment
     # PlotterIP(experiment).plot_loss(show=show)
-    # PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs+1, show=show)
+    PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
