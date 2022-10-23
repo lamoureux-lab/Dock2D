@@ -378,7 +378,7 @@ class UtilityFunctions():
             left=False,
             right=False,
             labelleft=False)
-        plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_pose_example' + str(plot_count) + '_RMSD' + str(rmsd_out.item())[:4] + '.png')
+        plt.savefig('Figs/Features_and_poses/'+stream_name+'_docking_pose_example' + str(plot_count.item()) + '_RMSD' + str(rmsd_out.item())[:4] + '.png')
         # plt.show()
 
     def orthogonalize_feats(self, scoring_weights, feat_stack):
@@ -442,7 +442,7 @@ class UtilityFunctions():
         filename = self.fig_save_path + model_name + stream_name + '_docking_feats' + '_example' + str(plot_count)
         print(filename)
 
-        self.plot_feat_subplot(figs_list, titles_list, filename, format='pdf')
+        self.plot_feat_subplot(figs_list, titles_list, filename, format='png')
 
 
     @staticmethod
@@ -509,7 +509,7 @@ class UtilityFunctions():
                     cbar.ax.locator_params(nbins=5)
 
         plt.savefig(filename+'.'+str(format), format=format)
-        plt.show()
+        # plt.show()
 
     def plot_model_input(self, receptor, ligand, plot_count):
         plt.close()
