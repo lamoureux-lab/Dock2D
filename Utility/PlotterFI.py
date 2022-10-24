@@ -145,6 +145,7 @@ class PlotterFI:
         plt.vlines(mean_saturation, ymin=0, ymax=y.max()/2*binwidth, colors='k', linestyles='dashed')
         plt.xlim([0, xlimit])
         plt.xlabel('unique rotations visited')
+        plt.ylabel('counts')
         plt.margins(x=None, y=None)
         plt.legend([r'$\mathcal{\mu}$ = '+str(int(mean_saturation)),
                     r'$\mathcal{\sigma}$ = ' + str(int(std_dev_saturation)),
@@ -183,6 +184,9 @@ class PlotterFI:
 #     Plotter.plot_deltaF_distribution(plot_epoch=30, show=True)
 
 if __name__ == "__main__":
+    from matplotlib import rcParams
+    rcParams.update({'font.size': 15})
+
     loadpath = 'Log/losses/FI_loss/'
     # experiment = 'BF_IP_NEWDATA_CHECK_400pool_30ep'
     experiments_list = [
@@ -210,7 +214,7 @@ if __name__ == "__main__":
     plt.legend(['BruteForce IF 1000pairs', 'BruteForce IP pretrain', 'BruteSimplified IP pretrain', 'Sampled IF 100pairs'])
     plt.ylabel('loss')
     plt.xlabel('epochs')
-    xlim = 100
+    xlim = 1000
     plt.xlim([0, xlim])
     plt.ylim([0, 1])
     plt.savefig('Figs/FI_loss_plots/sup_combined_FI_loss_plot_'+str(xlim)+'epoch.pdf', format='pdf')

@@ -112,25 +112,27 @@ class PlotterIP:
             print('test:', avg_testRMSD)
 
         fig, ax = plt.subplots(3, figsize=(20, 10))
-        plt.suptitle('RMSD distribution: epoch' + str(plot_epoch) + ' ' + self.experiment +'\n'
-                      + 'train:'+ avg_trainRMSD + ' valid:' + avg_validRMSD + ' test:' + avg_testRMSD)
+        # plt.suptitle('RMSD distribution: epoch' + str(plot_epoch) + ' ' + self.experiment +'\n'
+        #               + 'train:'+ avg_trainRMSD + ' valid:' + avg_validRMSD + ' test:' + avg_testRMSD)
         # plt.legend(['train rmsd', 'valid rmsd', 'test rmsd'])
         plt.xlabel('RMSD')
         binwidth=1
-        xlim = 60
+        xlim = 55
         bins = np.arange(0, xlim + binwidth, binwidth)
 
         visible_grid = False
         if train is not None:
             ax[0].hist(train['RMSD'].to_numpy(), bins=bins, color='b')
-            ax[0].set_ylabel('Training set counts')
+            ax[0].set_ylabel('Training set counts', labelpad=30)
             ax[0].grid(visible=visible_grid)
-            ax[0].set_xticks(np.arange(0, xlim, 10))
+            # ax[0].set_xticks(np.arange(0, xlim, 10))
+            ax[0].set_xticks([],[])
         if valid is not None:
             ax[1].hist(valid['RMSD'].to_numpy(), bins=bins, color='r')
-            ax[1].set_ylabel('Valid set counts')
+            ax[1].set_ylabel('Valid set counts', labelpad=15)
             ax[1].grid(visible=visible_grid)
-            ax[1].set_xticks(np.arange(0, xlim, 10))
+            # ax[1].set_xticks(np.arange(0, xlim, 10))
+            ax[1].set_xticks([],[])
         if test is not None:
             ax[2].hist(test['RMSD'].to_numpy(), bins=bins, color='g')
             ax[2].set_ylabel('Test set counts')
@@ -145,6 +147,9 @@ class PlotterIP:
 
 
 if __name__ == "__main__":
+    from matplotlib import rcParams
+    rcParams.update({'font.size': 15})
+
     loadpath = 'Log/losses/IP_loss/'
     # experiment = 'BF_IP_NEWDATA_CHECK_400pool_30ep'
     experiments_list = [

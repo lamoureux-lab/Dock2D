@@ -33,7 +33,9 @@ if __name__ == '__main__':
     # experiment = 'BS_IP_finaldataset'
     # experiment = 'BS_IP_finaldataset_100pairs_100ep'
     # experiment = 'BS_IP_finaldataset_1000pairs_100ep'
-    experiment = 'BS_IP_finaldataset_10pairs_100ep'
+    # experiment = 'BS_IP_finaldataset_10pairs_100ep'
+
+    experiment = 'BS_IP_finaldataset_10pairs_100ep_rep1'
 
     ######################
     train_epochs = 100
@@ -69,20 +71,22 @@ if __name__ == '__main__':
     # start = train_epochs-1
     # stop = train_epochs
 
-    eval_angles = 360
-    evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles, model_name=model_name)
-    eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
-    EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
-                            BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
-    # for epoch in range(start, stop):
-    #     if stop-1 == epoch:
-    #         plotting = True
-    #     EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-    #                             resume_training=True, resume_epoch=epoch)
-
-    EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
-                            resume_training=True, resume_epoch=train_epochs)
+    # eval_angles = 360
+    # evalFFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=eval_angles, model_name=model_name)
+    # eval_model = SamplingModel(evalFFT, IP=True).to(device=0)
+    # EvalTrainer = TrainerIP(evalFFT, eval_model, optimizer, experiment,
+    #                         BF_eval=True, plotting=plotting, sample_buffer_length=sample_buffer_length)
+    # # # for epoch in range(start, stop):
+    # # #     if stop-1 == epoch:
+    # # #         plotting = True
+    # # #     EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+    # # #                             resume_training=True, resume_epoch=epoch)
+    # #
+    # EvalTrainer.run_trainer(train_epochs=1, train_stream=None, valid_stream=valid_stream, test_stream=test_stream,
+    #                         resume_training=True, resume_epoch=train_epochs)
 
     ## Plot loss and RMSDs from current experiment
     # PlotterIP(experiment).plot_loss(ylim=None, show=show)
+    from matplotlib import rcParams
+    rcParams.update({'font.size': 15})
     PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
