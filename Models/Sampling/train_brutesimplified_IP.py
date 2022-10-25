@@ -88,5 +88,5 @@ if __name__ == '__main__':
     ## Plot loss and RMSDs from current experiment
     # PlotterIP(experiment).plot_loss(ylim=None, show=show)
     from matplotlib import rcParams
-    rcParams.update({'font.size': 15})
+    rcParams.update({'font.size': 20})
     PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)

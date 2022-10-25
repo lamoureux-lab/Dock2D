@@ -120,22 +120,25 @@ class PlotterIP:
         xlim = 55
         bins = np.arange(0, xlim + binwidth, binwidth)
 
+        # fig.text(0.06, 0.5, 'common ylabel', ha='center', va='center', rotation='vertical', labelpad=20)
+        plt.ylabel("common Y")
+
         visible_grid = False
         if train is not None:
             ax[0].hist(train['RMSD'].to_numpy(), bins=bins, color='b')
-            ax[0].set_ylabel('Training set counts', labelpad=30)
+            ax[0].set_ylabel('Training', labelpad=40)
             ax[0].grid(visible=visible_grid)
             # ax[0].set_xticks(np.arange(0, xlim, 10))
             ax[0].set_xticks([],[])
         if valid is not None:
             ax[1].hist(valid['RMSD'].to_numpy(), bins=bins, color='r')
-            ax[1].set_ylabel('Valid set counts', labelpad=15)
+            ax[1].set_ylabel('Validation', labelpad=18)
             ax[1].grid(visible=visible_grid)
             # ax[1].set_xticks(np.arange(0, xlim, 10))
             ax[1].set_xticks([],[])
         if test is not None:
             ax[2].hist(test['RMSD'].to_numpy(), bins=bins, color='g')
-            ax[2].set_ylabel('Test set counts')
+            ax[2].set_ylabel('Test')
             ax[2].grid(visible=visible_grid)
             ax[2].set_xticks(np.arange(0, xlim, 10))
 

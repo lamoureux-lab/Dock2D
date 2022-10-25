@@ -228,7 +228,7 @@ class TorchDockingFFT:
                 mintxy_energies.append(minimumEnergy)
                 translation_free_energies.append(-torch.logsumexp(-rotation_slice, dim=(0,1)).detach().cpu())
 
-            fig = plt.figure(figsize=(10, 6))
+            fig = plt.figure(figsize=(20, 8))
             gs = gridspec.GridSpec(8, 4)
             # gs.update(wspace=0.0, hspace=0.0)
             ax2 = plt.subplot(gs[4:, :]) ## free energy curve
@@ -246,12 +246,20 @@ class TorchDockingFFT:
             ax6.set_axis_off()
             plt.subplots_adjust(wspace=0.20, hspace=-0.20)
 
+            # prop_legend = {'weight': 'bold',
+            #         'size': 14, }
+            # prop_labels = {'weight': 'bold',
+            #         'size': 18, }
+            # prop_phi = {'weight': 'bold',
+            #         'size': 24, }
+
             prop_legend = {'weight': 'bold',
-                    'size': 14, }
-            prop_labels = {'weight': 'bold',
-                    'size': 18, }
-            prop_phi = {'weight': 'bold',
                     'size': 24, }
+            prop_labels = {'weight': 'bold',
+                    'size': 30, }
+            prop_phi = {'weight': 'bold',
+                    'size': 36, }
+
             ### minimum energy curve
             # xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
             # # ax1.set_xticks(np.round(np.linspace(-np.pi, np.pi, 3, endpoint=True), decimals=2))
@@ -265,7 +273,7 @@ class TorchDockingFFT:
             # ax1.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed')
 
             ### free energy curve
-            linewidth = 3
+            linewidth = 5
             xrange = np.arange(-np.pi, np.pi, 2 * np.pi / num_angles)
             # ax2.set_xticks(xrange*np.pi/180)
 
@@ -275,17 +283,21 @@ class TorchDockingFFT:
             ax2.set_ylim([-120, 2])
             ax2.set_xlim([-np.pi, np.pi])
             total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
-            ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, colors='r', linestyles='solid', linewidth=linewidth)
-            ax2.plot(xrange, mintxy_energies, linewidth=linewidth)
-            ax2.plot(xrange, translation_free_energies, linewidth=linewidth)
+            ax2.plot(xrange, mintxy_energies, linewidth=linewidth, zorder=3, linestyle='dashed', color='k')
+            ax2.plot(xrange, translation_free_energies, linewidth=linewidth, zorder=2.5, color='r')
+            ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, linestyles='solid', linewidth=linewidth, zorder=2)
 
             ax2.set_ylabel('Energy', fontdict=prop_labels)
             ax2.set_xlabel(r'$\mathcal{\phi}$', fontdict=prop_phi)
-            legend = ax2.legend([ r'$-\lnZ$', r'$\min(E_{\phi})$', r'$F(\phi)$'], loc='upper left', prop=prop_legend,
+            legend = ax2.legend([r'$\min(E_{\phi})$', r'$F(\phi)$',  r'$-\lnZ$'], loc='upper left', prop=prop_legend,
                                 # edgecolor=(0, 0, 0, 0.1),
-                                labelspacing=0.1)
+                                labelspacing=0.1,
+                                # bbox_to_anchor=(0, 1.02, 1, 0.2), #loc="lower left",
+                                # mode="expand", borderaxespad=0,
+                                )
             legend.get_frame().set_alpha(None)
-            # legend.get_frame().set_facecolor((1, 1, 1, 0.1))
+            legend.get_frame().set_facecolor((1, 1, 1, 0.8))
+
             ax2.hlines(y=0, xmin=-np.pi, xmax=np.pi, colors='k', linestyles='dashed', linewidth=linewidth)
 
             # ## best pose correlation
@@ -360,7 +372,7 @@ class TorchDockingFFT:
                     zorder=0
                 )
                 fig.patches.append(arrow)
-                ax_list[i].zorder = 10
+                ax_list[i].zorder = 1
                 ax_list[i].imshow(pairs_of_interest[i].transpose(), cmap=cmap)
 
             plt.tight_layout()
@@ -378,6 +390,7 @@ class TorchDockingFFT:
             plt.imshow(energy_slice.transpose())
             plt.colorbar()
 
+
         plt.show()
 
 
@@ -386,7 +399,7 @@ if __name__ == '__main__':
     from tqdm import tqdm
     import matplotlib.colors as mcolors
     from matplotlib import rcParams
-    rcParams.update({'font.size': 14})
+    rcParams.update({'font.size': 20})
 
 
     plot_pub = True
