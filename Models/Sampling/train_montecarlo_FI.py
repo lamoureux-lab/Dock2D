@@ -75,7 +75,7 @@ if __name__ == '__main__':
     ########################
     model_name = "MC IF"
     debug = False
-    plotting = True
+    plotting = False
     show = False
     ########################
     interaction_model = Interaction().to(device=0)
