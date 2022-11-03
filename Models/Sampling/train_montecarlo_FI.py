@@ -15,7 +15,6 @@ if __name__ == '__main__':
     # Datasets
     trainset = '../../Datasets/interaction_train_400pool.pkl'
     validset = '../../Datasets/interaction_valid_400pool.pkl'
-    # validset = '../../Datasets/docking_valid_400pool.pkl'
     ### testing set
     testset = '../../Datasets/interaction_test_400pool.pkl'
     #########################
@@ -31,7 +30,7 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
-    number_of_pairs = 1
+    number_of_pairs = 100
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=None)
     # valid_stream = get_docking_stream(validset, max_size=None, shuffle=False)
