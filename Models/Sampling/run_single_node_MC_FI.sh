@@ -23,7 +23,7 @@
 #SBATCH --job-name=99step_MCFI_2samp
 #SBATCH --tasks-per-node=1
 #SBATCH --gres=gpu:2 # Number of GPUs
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=24
 #SBATCH --constraint=oarc
 #SBATCH --mem=8000
 #SBATCH --time=3-00:00:00
