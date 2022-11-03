@@ -33,7 +33,6 @@ if __name__ == '__main__':
     number_of_pairs = 100
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=None)
-    # valid_stream = get_docking_stream(validset, max_size=None, shuffle=False)
     test_stream = get_interaction_stream(testset, number_of_pairs=None)
     ######################
     # experiment = 'MC_FI_finaldataset_100pairs_1000ep'
