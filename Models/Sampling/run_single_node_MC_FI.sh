@@ -27,7 +27,7 @@
 ### tesla
 #SBATCH --cpus-per-task=12
 #SBATCH --constraint=oarc
-#SBATCH --mem=8000
+#SBATCH --mem=6400
 #SBATCH --time=3-00:00:00
 #SBATCH --output=slurm_log/slurm.%N.%j.%x.out
 #SBATCH --error=slurm_log/slurm.%N.%j.%x.err
