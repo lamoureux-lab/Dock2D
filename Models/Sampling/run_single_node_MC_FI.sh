@@ -20,10 +20,12 @@
 ##SBATCH --export=ALL
 ##SBATCH --nodelist=gpuc002
 
+#SBATCH --partition=gpu
 #SBATCH --job-name=99step_MCFI_2samp
 #SBATCH --tasks-per-node=1
 #SBATCH --gres=gpu:2 # Number of GPUs
-#SBATCH --cpus-per-task=24
+### tesla
+#SBATCH --cpus-per-task=12
 #SBATCH --constraint=oarc
 #SBATCH --mem=8000
 #SBATCH --time=3-00:00:00
