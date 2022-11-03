@@ -79,6 +79,8 @@ class TrainerFI:
         self.FI_MC = FI_MC
         self.BF_eval = False
 
+        self.plot_saturation = False
+
     def train_model(self, train_epochs, train_stream, valid_stream, test_stream, resume_training=False,
                     resume_epoch=0):
         """
@@ -237,15 +239,16 @@ class TrainerFI:
                 # print('BUFFER PUSH: free_energies_visited_indices', free_energies_visited_indices)
                 # print('BUFFER PUSH: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
 
-                with torch.no_grad():
-                    self.saturation_dict[pos_idx.item()] = [i.item() for i in free_energies_visited_indices.squeeze()]
-                    if pos_idx == 5050-1:
-                        df = pd.DataFrame.from_dict(self.saturation_dict, orient='index')
-                        df = df.transpose()
-                        df.to_csv(self.logfile_savepath + self.log_saturation_prefix + str(epoch) + self.experiment + '.csv',
-                                                  # sep='\t'
-                                  )
-                        sys.exit()
+                if self.plot_saturation:
+                    with torch.no_grad():
+                        self.saturation_dict[pos_idx.item()] = [i.item() for i in free_energies_visited_indices.squeeze()]
+                        if pos_idx == 5050-1:
+                            df = pd.DataFrame.from_dict(self.saturation_dict, orient='index')
+                            df = df.transpose()
+                            df.to_csv(self.logfile_savepath + self.log_saturation_prefix + str(epoch) + self.experiment + '.csv',
+                                                      # sep='\t'
+                                      )
+                            sys.exit()
 
                 self.alpha_buffer.push_alpha(pred_rot, pos_idx)
                 self.free_energy_buffer.push_free_energies_indices(free_energies_visited_indices, pos_idx)
