@@ -239,6 +239,7 @@ class TrainerFI:
                 # print('BUFFER PUSH: free_energies_visited_indices', free_energies_visited_indices)
                 # print('BUFFER PUSH: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
 
+                self.plot_saturation = True
                 if self.plot_saturation:
                     with torch.no_grad():
                         self.saturation_dict[pos_idx.item()] = [i.item() for i in free_energies_visited_indices.squeeze()]
@@ -258,7 +259,7 @@ class TrainerFI:
                     UtilityFunctions(self.experiment).plot_MCsampled_energysurface(free_energies_visited_indices, accumulated_free_energies, acceptance_rate,
                                                         stream_name, interaction=gt_interact, plot_count=plot_count, epoch=epoch)
             else:
-                print('MC BF Eval')
+                # print('MC BF Eval')
                 free_energies_visited_indices, accumulated_free_energies, pred_rot, pred_txy, fft_score_stack, acceptance_rate = self.docking_model(
                                                                                 receptor, ligand, alpha=None,
                                                                                 free_energies_visited=None,

@@ -206,9 +206,9 @@ class SamplingModel(nn.Module):
                 ## MC sampling for Fact of Interaction training
                 return self.montecarlo_sampling(alpha, receptor, ligand, plot_count, stream_name, free_energies_visited)
             else:
-                print('evaluating MC model with bruteforce')
-                print('training', training)
-                print('stream_name', stream_name)
+                # print('evaluating MC model with bruteforce')
+                # print('training', training)
+                # print('stream_name', stream_name)
                 ### evaluate with brute force
                 self.docker.eval()
                 lowest_energy, _, dr, fft_score = self.docker(receptor, ligand, alpha, plot_count,
