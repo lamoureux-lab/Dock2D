@@ -106,7 +106,7 @@ if __name__ == '__main__':
     #
     # # ### Plot loss and free energy distributions with learned F_0 decision threshold
     # PlotterFI(experiment).plot_loss(show=show)
-    # PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=train_epochs, show=show)
+    # PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=114, show=show)
     # from matplotlib import rcParams
     # rcParams.update({'font.size': 15})
     # PlotterFI(experiment).plot_MCFI_saturation(plot_epoch=114, plot_pub=True, show=show)
