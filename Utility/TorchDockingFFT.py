@@ -283,13 +283,13 @@ class TorchDockingFFT:
             ax2.set_ylim([-120, 2])
             ax2.set_xlim([-np.pi, np.pi])
             total_FE = -torch.logsumexp(-energies, dim=(0,1,2)).detach().cpu()
-            ax2.plot(xrange, mintxy_energies, linewidth=linewidth, zorder=3, linestyle='dashed', color='k')
-            ax2.plot(xrange, translation_free_energies, linewidth=linewidth, zorder=2.5, color='r')
-            ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, linestyles='solid', linewidth=linewidth, zorder=2)
+            minE_1 = ax2.plot(xrange, mintxy_energies, linewidth=linewidth, zorder=2, linestyle='solid', color='r')
+            minE_1 = ax2.plot(xrange, mintxy_energies, linewidth=linewidth, zorder=3, linestyle='dashed',color='k', label='_nolegend_')
+            ax2.hlines(y=total_FE, xmin=-np.pi, xmax=np.pi, linestyles='solid', linewidth=linewidth, zorder=2, color='tab:blue')
 
             ax2.set_ylabel('Energy', fontdict=prop_labels)
             ax2.set_xlabel(r'$\mathcal{\phi}$', fontdict=prop_phi)
-            legend = ax2.legend([r'$\min(E_{\phi})$', r'$F(\phi)$',  r'$-\lnZ$'], loc='upper left', prop=prop_legend,
+            legend = ax2.legend([r'${\min}_{\bf{t}}(E)$', r'$F(\phi)$',  r'$-\lnZ$'], loc='upper left', prop=prop_legend,
                                 # edgecolor=(0, 0, 0, 0.1),
                                 labelspacing=0.1,
                                 # bbox_to_anchor=(0, 1.02, 1, 0.2), #loc="lower left",
