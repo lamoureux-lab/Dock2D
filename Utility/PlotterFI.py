@@ -211,7 +211,7 @@ if __name__ == "__main__":
         plt.plot(fig_data[i].get_data()[0], fig_data[i].get_data()[1], color_style[i], )
 
     plt.margins(x=None)
-    plt.legend(['Brute-force IF 1000pairs', 'Brute-force IP pretrain', 'Simplified IP pretrain', 'Sampled IF 100pairs'])
+    plt.legend(['Brute-force IF', 'Brute-force IP pretrain', 'Simplified IP pretrain', 'Sampled IF'])
     plt.ylabel('loss')
     plt.xlabel('epochs')
     xlim = 1000
