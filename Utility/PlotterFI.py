@@ -100,12 +100,12 @@ class PlotterFI:
             y1, x1, _ = plt.hist(hist_data, label=labels, bins=bins, color=color, rwidth=binwidth, alpha=0.25)
             ymax = y1.max() + 1
 
-        plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=ymax, linestyles='dashed', label='F_0', colors='k')
-        plt.legend(('non-interaction (-)', ' interaction (+)', 'final F_0'), prop={'size': 10}, loc='upper left')
+        plt.vlines(dataframe['F_0'].to_numpy()[-1], ymin=0, ymax=ymax, linestyles='dashed', label=r'$F_{0}$', colors='k')
+        plt.legend(('non-interaction (-)', ' interaction (+)', r'$F_{0}$'), prop={'size': 12}, loc='upper left')
 
         if xlim:
             plt.xlim([-xlim, 0])
-        plt.ylabel('counts')
+        plt.ylabel('count')
         plt.xlabel('free energy (F)')
         plt.grid(visible=False)
         plt.margins(x=None)
@@ -145,7 +145,7 @@ class PlotterFI:
         plt.vlines(mean_saturation, ymin=0, ymax=y.max()/2*binwidth, colors='k', linestyles='dashed')
         plt.xlim([0, xlimit])
         plt.xlabel('unique rotations visited')
-        plt.ylabel('counts')
+        plt.ylabel('count')
         plt.margins(x=None, y=None)
         plt.legend([r'$\mathcal{\mu}$ = '+str(int(mean_saturation)),
                     r'$\mathcal{\sigma}$ = ' + str(int(std_dev_saturation)),
@@ -211,11 +211,13 @@ if __name__ == "__main__":
         plt.plot(fig_data[i].get_data()[0], fig_data[i].get_data()[1], color_style[i], )
 
     plt.margins(x=None)
-    plt.legend(['BruteForce IF 1000pairs', 'BruteForce IP pretrain', 'BruteSimplified IP pretrain', 'Sampled IF 100pairs'])
+    plt.legend(['Brute-force IF 1000pairs', 'Brute-force IP pretrain', 'Simplified IP pretrain', 'Sampled IF 100pairs'])
     plt.ylabel('loss')
     plt.xlabel('epochs')
     xlim = 1000
-    plt.xlim([0, xlim])
+    # plt.xlim([0, xlim])
+    plt.xscale('log')
+    # plt.yscale('log')
     plt.ylim([0, 1])
     plt.savefig('Figs/FI_loss_plots/sup_combined_FI_loss_plot_'+str(xlim)+'epoch.pdf', format='pdf')
     plt.show()

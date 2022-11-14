@@ -177,7 +177,7 @@ if __name__ == "__main__":
         plt.plot(fig_data[i].get_data()[0], fig_data[i].get_data()[1], color_style[i], )
 
     plt.margins(x=None)
-    plt.legend(['BruteForce IP 1000pairs', 'BruteForce IP 100pairs', 'BruteSimplified IP 1000pairs', 'BruteSimplified IP 100pairs'])
+    plt.legend(['Brute-force IP 1000pairs', 'Brute-force IP 100pairs', 'Simplified IP 1000pairs', 'Simplified IP 100pairs'])
     plt.ylabel('loss')
     plt.xlabel('epochs')
     plt.xlim([0,100])
