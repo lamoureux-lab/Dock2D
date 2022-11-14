@@ -118,8 +118,8 @@ class TrainerFI:
 
             if train_stream:
                 self.run_epoch(train_stream, epoch, training=True)
-                PlotterFI(self.experiment).plot_loss(show=False)
-                PlotterFI(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
+                # PlotterFI(self.experiment).plot_loss(show=False)
+                # PlotterFI(self.experiment).plot_deltaF_distribution(plot_epoch=epoch, show=False, xlim=None, binwidth=1)
 
                 #### saving model while training
                 if epoch % self.save_freq == 0:

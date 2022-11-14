@@ -21,7 +21,7 @@
 ##SBATCH --nodelist=gpuc002
 
 #SBATCH --partition=gpu
-#SBATCH --job-name=ep113res99step_MCFI_2samp
+#SBATCH --job-name=ep114res99step_MCFI_2samp
 #SBATCH --tasks-per-node=1
 #SBATCH --gres=gpu:2 # Number of GPUs
 ### tesla

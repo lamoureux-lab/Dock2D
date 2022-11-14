@@ -30,7 +30,7 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     #########################
     ## number_of_pairs provides max_size of interactions: max_size = number_of_pairs*(number_of_pairs + 1)/2
-    number_of_pairs = 100
+    number_of_pairs = 1
     train_stream = get_interaction_stream(trainset, number_of_pairs=number_of_pairs, randomstate=randomstate)
     valid_stream = get_interaction_stream(validset, number_of_pairs=None)
     test_stream = get_interaction_stream(testset, number_of_pairs=None)
@@ -50,9 +50,9 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_1sample'
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_2sample'
 
-    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps' ## same suffix name for scratch and expC and expB
+    # experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps' ## same suffix name for scratch and expC and expB
     #
-    # experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_99steps'
+    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_99steps'
 
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
@@ -92,8 +92,8 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    # Trainer.run_trainer(resume_training=True, resume_epoch=113, train_epochs=1000,
-    #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
+    Trainer.run_trainer(resume_training=True, resume_epoch=113, train_epochs=1000,
+                                               train_stream=train_stream, valid_stream=None, test_stream=None)
 
     # # Evaluate model at chosen epoch (Brute force evaluation)
     # eval_angles = 360
@@ -107,6 +107,6 @@ if __name__ == '__main__':
     # # ### Plot loss and free energy distributions with learned F_0 decision threshold
     # PlotterFI(experiment).plot_loss(show=show)
     # PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=114, show=show)
-    from matplotlib import rcParams
-    rcParams.update({'font.size': 15})
-    PlotterFI(experiment).plot_MCFI_saturation(plot_epoch=1001, plot_pub=True, show=show)
+    # from matplotlib import rcParams
+    # rcParams.update({'font.size': 15})
+    # PlotterFI(experiment).plot_MCFI_saturation(plot_epoch=1001, plot_pub=True, show=show)
