@@ -105,8 +105,8 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
         self.UtilityFuncs = UtilityFunctions()
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 50
-        self.testpool_num_proteins = 50
+        self.trainpool_num_proteins = 400
+        self.testpool_num_proteins = 400
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
