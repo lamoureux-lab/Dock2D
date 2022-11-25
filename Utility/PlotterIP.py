@@ -158,8 +158,10 @@ if __name__ == "__main__":
     experiments_list = [
                        'BF_IP_finaldataset_1000pairs_100ep',
                        'BF_IP_finaldataset_100pairs_100ep',
-                       'BS_IP_finaldataset_1000pairs_100ep',
+                        'BF_IP_finaldataset_10pairs_100ep',
+                        'BS_IP_finaldataset_1000pairs_100ep',
                        'BS_IP_finaldataset_100pairs_100ep',
+                        'BS_IP_finaldataset_10pairs_100ep'
                        ]
     fig_data = []
     for experiment in experiments_list:
@@ -171,13 +173,16 @@ if __name__ == "__main__":
 
     # plt.close()
     plt.figure(figsize=(10,5))
-    color_style = ['b-', 'b--', 'r-', 'r--']
+    color_style = ['b-', 'b--', 'b.', 'r-', 'r--', 'r.']
 
     for i in range(len(fig_data)):
         plt.plot(fig_data[i].get_data()[0], fig_data[i].get_data()[1], color_style[i], )
 
     plt.margins(x=None)
-    plt.legend(['Brute-force IP 1000pairs', 'Brute-force IP 100pairs', 'Simplified IP 1000pairs', 'Simplified IP 100pairs'])
+    plt.legend(['Brute-force IP 1000pairs', 'Brute-force IP 100pairs', 'Brute-force IP 10pairs',
+                'Simplified IP 1000pairs', 'Simplified IP 100pairs', 'Simplified IP 10pairs',
+
+                ])
     plt.ylabel('loss')
     plt.xlabel('epochs')
     plt.xlim([0,100])
