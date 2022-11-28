@@ -239,7 +239,7 @@ class TrainerFI:
                 # print('BUFFER PUSH: free_energies_visited_indices', free_energies_visited_indices)
                 # print('BUFFER PUSH: free_energies_visited_indices.shape', free_energies_visited_indices.shape)
 
-                self.plot_saturation = False
+                self.plot_saturation = True
                 if self.plot_saturation:
                     with torch.no_grad():
                         self.saturation_dict[pos_idx.item()] = [i.item() for i in free_energies_visited_indices.squeeze()]
