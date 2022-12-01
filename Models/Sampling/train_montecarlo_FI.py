@@ -50,9 +50,9 @@ if __name__ == '__main__':
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_1sample'
     # experiment = 'MC_FI_finaldataset_100pairs_buffertest_maxpos1_1000steps_2sample'
 
-    # experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps' ## same suffix name for scratch and expC and expB
-    #
-    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_99steps'
+    experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_100steps' ## same suffix name for scratch and expC and expB
+
+    # experiment = 'MC_FI_finaldataset_100pairs_1000ep_2sample_99steps'
 
     ##################### Load and freeze/unfreeze params (training, no eval)
     ### path to pretrained docking model
@@ -92,8 +92,8 @@ if __name__ == '__main__':
     # Trainer.run_trainer(train_epochs, train_stream=train_stream, valid_stream=None, test_stream=None)
     #
     ### resume training model
-    Trainer.run_trainer(resume_training=True, resume_epoch=250, train_epochs=1000,
-                                               train_stream=train_stream, valid_stream=None, test_stream=None)
+    # Trainer.run_trainer(resume_training=True, resume_epoch=250, train_epochs=1000,
+    #                                            train_stream=train_stream, valid_stream=None, test_stream=None)
 
     # Evaluate model at chosen epoch (Brute force evaluation)
     # eval_angles = 360
@@ -109,4 +109,4 @@ if __name__ == '__main__':
     # PlotterFI(experiment).plot_deltaF_distribution(plot_epoch=251, show=show)
     from matplotlib import rcParams
     rcParams.update({'font.size': 15})
-    PlotterFI(experiment).plot_MCFI_saturation(plot_epoch=251, plot_pub=True, show=show)
+    PlotterFI(experiment).plot_MCFI_saturation(plot_epoch=1001, plot_pub=True, show=True)

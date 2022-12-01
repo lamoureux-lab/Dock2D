@@ -56,7 +56,7 @@ Please cite us if you use this code in your own work:
 .. code-block:: text
 
     @article{Dock2D,
-        title={{Dock2D: Toy datasets for the molecular recognition problem}},
+        title={{Dock2D: Synthetic datasets for the molecular recognition problem}},
         author={Bhadra-Lobo, Derevyanko, Lamoureux},
         booktitle={TBA},
         year={2022},
