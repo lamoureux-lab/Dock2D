@@ -50,7 +50,7 @@ The library is structured into five directories:
 Cite Us
 -------
 
-This code is part of the work done in `our paper <https://arxiv.org/abs/>`_ .
+This code is part of the work done in `our paper <https://arxiv.org/abs/2212.03456>`_ .
 Please cite us if you use this code in your own work:
 
 .. code-block:: text
@@ -58,7 +58,7 @@ Please cite us if you use this code in your own work:
     @article{Dock2D,
         title={{Dock2D: Synthetic datasets for the molecular recognition problem}},
         author={Bhadra-Lobo, Derevyanko, Lamoureux},
-        booktitle={TBA},
+        journal={arXiv preprint arxiv:2212.03456},
         year={2022},
     }
 
