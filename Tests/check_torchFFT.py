@@ -24,7 +24,7 @@ def gaussian_1d(M, mean, sigma,
     return w
 
 
-def gaussian_2D(kernel_len=50, mean=0, sigma=5, a=1, gaussian_norm=False):
+def gaussian_2d(kernel_len=50, mean=0, sigma=5, a=1, gaussian_norm=False):
     """
     Use the outer product of two gaussian vectors to create 2D gaussian
 
@@ -101,8 +101,8 @@ def run_test(
     mean2, sigma2, amp2 = mean_std_amplitudes[1]
     amp_check = amp1 * amp2
 
-    gaussian_input1 = gaussian_2D(box_size, mean=mean1, sigma=sigma1, a=amp1, gaussian_norm=gaussian_norm)
-    gaussian_input2 = gaussian_2D(box_size, mean=mean2, sigma=sigma2, a=amp2, gaussian_norm=gaussian_norm)
+    gaussian_input1 = gaussian_2d(box_size, mean=mean1, sigma=sigma1, a=amp1, gaussian_norm=gaussian_norm)
+    gaussian_input2 = gaussian_2d(box_size, mean=mean2, sigma=sigma2, a=amp2, gaussian_norm=gaussian_norm)
 
     if gaussian_norm:
         print('Gaussian norm = ', gaussian_norm)
@@ -160,7 +160,7 @@ def run_test(
 
     print('Generated FFT', fft_output)
 
-    gaussian_check = gaussian_2D(boxsize, mean=result_mean, sigma=result_sigma, a=amp_check)
+    gaussian_check = gaussian_2d(boxsize, mean=result_mean, sigma=result_sigma, a=amp_check)
     scaled_gaussiancheck = gaussian_check
     gaussian_summedvariance = ax[3].imshow(scaled_gaussiancheck, cmap=cmap, vmin=vmin, vmax=vmax)
 

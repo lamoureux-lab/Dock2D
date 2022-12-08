@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SampleBuffer &mdash; Dock2D  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/50x50_logo.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="TorchDataLoader" href="Dock2D.Utility.TorchDataLoader.html" />
+    <link rel="prev" title="PlotterIP" href="Dock2D.Utility.PlotterIP.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Dock2D
+            <img src="../../_static/medium_size_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.DatasetGeneration.html">DatasetGeneration/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.Protein.html">Protein</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.ProteinPool.html">ProteinPool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.html">DatasetGenerator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.Models.html">Models/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html">BruteForce/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_IP.html">train_bruteforce_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_FI.html">train_bruteforce_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.html">Sampling/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_brutesimplified_IP.html">train_brutesimplified_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_montecarlo_FI.html">train_montecarlo_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.TrainerIP.html">TrainerIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.TrainerFI.html">TrainerFI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.Tests.html">Tests/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_homodimer_energyranking.html">check_homodimer_energyranking.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_MC_pretrained_surface.html">check_MC_pretrained_surface.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.html">check_param_state_dict_cuda.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_shape_distributions.html">check_shape_distributions.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_torchFFT.html">check_torchFFT.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.run_pytorch_profiler.html">run_pytorch_profiler.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Dock2D.Utility.html">Utility/</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.PlotterFI.html">PlotterFI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.PlotterIP.html">PlotterIP</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SampleBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.TorchDataLoader.html">TorchDataLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.TorchDockingFFT.html">TorchDockingFFT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.UtilityFunctions.html">UtilityFunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.ValidationMetrics.html">ValidationMetrics</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Dock2D</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Dock2D.Utility.html">Utility/</a> &raquo;</li>
+      <li>SampleBuffer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/Dock2D.Utility/Dock2D.Utility.SampleBuffer.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-Dock2D.Utility.SampleBuffer">
+<span id="samplebuffer"></span><h1>SampleBuffer<a class="headerlink" href="#module-Dock2D.Utility.SampleBuffer" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Utility.SampleBuffer.SampleBuffer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.SampleBuffer.</span></span><span class="sig-name descname"><span class="pre">SampleBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_examples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.SampleBuffer.SampleBuffer" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.SampleBuffer.SampleBuffer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_examples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.SampleBuffer.SampleBuffer.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize a sample buffer (dictionary of lists) used to store and retrieve values per example, across epochs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_examples</strong> – determines the size of the sample buffer</p></li>
+<li><p><strong>max_pos</strong> – limits the size of the array at a given sample buffer index</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.SampleBuffer.SampleBuffer.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.SampleBuffer.SampleBuffer.__len__" title="Permalink to this definition"></a></dt>
+<dd><p>Overloaded to get length of values at dictionary key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>i</strong> – key index</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>length of values at key index</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.SampleBuffer.SampleBuffer.get_alpha">
+<span class="sig-name descname"><span class="pre">get_alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples_per_example</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.SampleBuffer.SampleBuffer.get_alpha" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the lastest rotation <cite>alpha</cite> for a specific interaction by example index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – position index in the data stream</p></li>
+<li><p><strong>samples_per_example</strong> – number of times to sample rotation per example</p></li>
+<li><p><strong>device</strong> – <cite>cpu</cite> or <cite>cuda</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>stack of <cite>alpha</cite> samples</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.SampleBuffer.SampleBuffer.get_free_energies_indices">
+<span class="sig-name descname"><span class="pre">get_free_energies_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples_per_example</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.SampleBuffer.SampleBuffer.get_free_energies_indices" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve the unique previously visited rotation indices for a specific interaction by example index.
+All rotations visited have an associated free energy used in Monte Carlo free energy sufrace sampling</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index</strong> – position index in the data stream</p></li>
+<li><p><strong>samples_per_example</strong> – number of times to sample rotation per example</p></li>
+<li><p><strong>device</strong> – <cite>cpu</cite> or <cite>cuda</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>stack of unique rotation indices</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.SampleBuffer.SampleBuffer.push_alpha">
+<span class="sig-name descname"><span class="pre">push_alpha</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.SampleBuffer.SampleBuffer.push_alpha" title="Permalink to this definition"></a></dt>
+<dd><p>Push sampled alpha from the model to specific sample index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samples</strong> – sample(s) to push to buffer</p></li>
+<li><p><strong>index</strong> – position index in the data stream</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.SampleBuffer.SampleBuffer.push_free_energies_indices">
+<span class="sig-name descname"><span class="pre">push_free_energies_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.SampleBuffer.SampleBuffer.push_free_energies_indices" title="Permalink to this definition"></a></dt>
+<dd><p>Push accumulated rotation indices visited from the model to specific sample index.
+All rotations visited have an associated free energy used in Monte Carlo free energy sufrace sampling</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samples</strong> – sample(s) to push to buffer</p></li>
+<li><p><strong>index</strong> – position index in the data stream</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Dock2D.Utility.PlotterIP.html" class="btn btn-neutral float-left" title="PlotterIP" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Dock2D.Utility.TorchDataLoader.html" class="btn btn-neutral float-right" title="TorchDataLoader" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
