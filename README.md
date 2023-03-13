@@ -4,17 +4,15 @@ This library is used to build a toy protein dataset and models
 to solve the tasks for molecular recognition. [See Doc(k)umentation here](https://lamoureux-lab.github.io/Dock2D/).
 
 <div style="display: flex;">
-<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/energy_surface_local_min_pose_free_energy.png" 
-alt="Energy Surface" 
-style="width:50%;height:50%;">
-
-<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset400pool_combined_shapes_params.png" 
-alt="Interacting vs Non-interaction examples" 
-style="width:20%;height:20%;">
-
-<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" 
-alt="Interacting vs Non-interaction examples" 
-style="width:50%;height:50%;">
+    <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/energy_surface_local_min_pose_free_energy.png" 
+    alt="Energy Surface" 
+    style="width:50%;height:50%;">
+    <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset400pool_combined_shapes_params.png" 
+    alt="Interacting vs Non-interaction examples" 
+    style="width:50%;height:50%;">
+    <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" 
+    alt="Interacting vs Non-interaction examples" 
+    style="width:50%;height:50%;">
 </div>
 
 [comment]: <> ([Examples of interacting vs non-interacting shapes]&#40;docs/source/testset_protein_pool50_interactionsVSnon-interactions.png&#41;)
