@@ -48,6 +48,7 @@ author = 'Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux'
 extensions = ['myst_parser',
               'sphinx.ext.autodoc',
               # 'sphinx.ext.mathbase'
+                'sphinx_rtd_theme'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
