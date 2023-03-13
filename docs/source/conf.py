@@ -14,7 +14,16 @@ import sphinx_rtd_theme
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.append(os.path.abspath('docs/.doctrees'))
+sys.path.append(os.path.abspath('docs/_sources'))
+sys.path.append(os.path.abspath('docs/_static'))
+sys.path.append(os.path.abspath('docs/api'))
+sys.path.append(os.path.abspath('docs/doctrees'))
+sys.path.append(os.path.abspath('docs/html'))
+sys.path.append(os.path.abspath('docs/source'))
+
+
+# sys.path.insert(0, os.path.abspath('../../../'))
 # sys.path.insert(0, os.path.abspath('../docs/'))
 # sys.path.insert(0, os.path.abspath('../html/'))
 # print(sys.executable)
