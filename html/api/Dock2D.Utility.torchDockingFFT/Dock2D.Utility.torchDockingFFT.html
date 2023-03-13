@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Utility.torchDockingFFT &#8212; Dock2D May 2022 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/classic.css" />
+    
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Dock2D May 2022 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Utility.torchDockingFFT</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="utility-torchdockingfft">
+<h1>Utility.torchDockingFFT<a class="headerlink" href="#utility-torchdockingfft" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-Dock2D.Utility"></span><dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyDockingDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.torchDataLoader.</span></span><span class="sig-name descname"><span class="pre">ToyDockingDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyDockingDataset" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyDockingDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyDockingDataset.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>:return values at index of interaction data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyDockingDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyDockingDataset.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path to docking dataset .pkl file.</p></li>
+<li><p><strong>max_size</strong> – number of docking examples to be loaded into data stream</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyDockingDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyDockingDataset.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns length of the dataset</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyInteractionDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.torchDataLoader.</span></span><span class="sig-name descname"><span class="pre">ToyInteractionDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyInteractionDataset" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyInteractionDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyInteractionDataset.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>:return values at index of interaction data</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyInteractionDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyInteractionDataset.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load data from .pkl dataset file. Build datastream from protein pool,
+interaction indices, and labels.
+The entire dataset is shuffled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path to interaction dataset .pkl file.</p></li>
+<li><p><strong>number_of_pairs</strong> – <p>Then sets data stream max_size based on <cite>N</cite> interaction pairs. If <cite>N == None</cite> all of the upper triangle and diagonal of the interaction pairs array are used.</p>
+<div class="math notranslate nohighlight">
+\[\frac{(N^2 - N)}{2} + N\]</div>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.ToyInteractionDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.ToyInteractionDataset.__len__" title="Permalink to this definition">¶</a></dt>
+<dd><p>:return length of the dataset</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.get_docking_stream">
+<span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.torchDataLoader.</span></span><span class="sig-name descname"><span class="pre">get_docking_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.get_docking_stream" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> – path to dataset .pkl file.</p></li>
+<li><p><strong>shuffle</strong> – shuffle must be set to False for RandomSampler()</p></li>
+<li><p><strong>max_size</strong> – number of docking examples to be loaded into data stream</p></li>
+<li><p><strong>num_workers</strong> – number of cpu threads</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>docking data stream in format of [receptor, ligand, rotation, translation] (see DatasetGeneration).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Dock2D.Utility.torchDataLoader.get_interaction_stream">
+<span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.torchDataLoader.</span></span><span class="sig-name descname"><span class="pre">get_interaction_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.torchDataLoader.get_interaction_stream" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> – path to dataset .pkl file.</p></li>
+<li><p><strong>shuffle</strong> – shuffle must be set to False for RandomSampler()</p></li>
+<li><p><strong>number_of_pairs</strong> – number of interaction pair examples to be loaded into data stream</p></li>
+<li><p><strong>num_workers</strong> – number of cpu threads</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>interaction data stream [receptor, ligand, 1 or 0] (see DatasetGeneration).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/api/Dock2D.Utility.torchDockingFFT/Dock2D.Utility.torchDockingFFT.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">Dock2D May 2022 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Utility.torchDockingFFT</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    </div>
+  </body>
+</html>

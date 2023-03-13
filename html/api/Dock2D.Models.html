@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Models/ &mdash; Dock2D  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/50x50_logo.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BruteForce/" href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html" />
+    <link rel="prev" title="DatasetGenerator" href="Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Dock2D
+            <img src="../_static/medium_size_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Dock2D.DatasetGeneration.html">DatasetGeneration/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.Protein.html">Protein</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.ProteinPool.html">ProteinPool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.html">DatasetGenerator</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Models/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html">BruteForce/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_IP.html">train_bruteforce_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_FI.html">train_bruteforce_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.html">Sampling/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_brutesimplified_IP.html">train_brutesimplified_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_montecarlo_FI.html">train_montecarlo_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.TrainerIP.html">TrainerIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.TrainerFI.html">TrainerFI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Dock2D.Tests.html">Tests/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Tests/Dock2D.Tests.check_homodimer_energyranking.html">check_homodimer_energyranking.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Tests/Dock2D.Tests.check_MC_pretrained_surface.html">check_MC_pretrained_surface.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.html">check_param_state_dict_cuda.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Tests/Dock2D.Tests.check_shape_distributions.html">check_shape_distributions.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Tests/Dock2D.Tests.check_torchFFT.html">check_torchFFT.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Tests/Dock2D.Tests.run_pytorch_profiler.html">run_pytorch_profiler.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Dock2D.Utility.html">Utility/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.PlotterFI.html">PlotterFI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.PlotterIP.html">PlotterIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.SampleBuffer.html">SampleBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.TorchDataLoader.html">TorchDataLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.TorchDockingFFT.html">TorchDockingFFT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.UtilityFunctions.html">UtilityFunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.ValidationMetrics.html">ValidationMetrics</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Dock2D</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Models/</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/Dock2D.Models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="models">
+<h1>Models/<a class="headerlink" href="#models" title="Permalink to this headline"></a></h1>
+<p>Models are split into two methodological categories, BruteForce and Sampling, for both the interaction pose (IP) and fact-of-interaction (FI) dataset tasks.
+For BruteForce, the models sample the entire space of rotations and translations.
+For Sampling, only a small subset of the transformational space is sampled.</p>
+<p>The two core models modules use <cite>torch.nn.Module</cite> <a class="reference internal" href="#Dock2D.Models.model_docking.Docking" title="Dock2D.Models.model_docking.Docking"><code class="xref py py-class docutils literal notranslate"><span class="pre">Docking()</span></code></a> and <a class="reference internal" href="#Dock2D.Models.model_interaction.Interaction" title="Dock2D.Models.model_interaction.Interaction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Interaction()</span></code></a>.</p>
+<blockquote>
+<div><p>The docking module produces docking features and scoring coefficients using an SE(2)-Convolutional Neural Network,
+and scores the produced features using <a class="reference internal" href="Dock2D.Utility/Dock2D.Utility.TorchDockingFFT.html"><span class="doc">TorchDockingFFT</span></a>.</p>
+<p>The interaction module computes a probability of interaction based on free energies learned using the docking module.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using <cite>torch.nn.Module</cite> creates special members of <cite>__init__</cite> and <cite>forward</cite>:</p>
+<dl>
+<dt><cite>__init__()</cite></dt><dd><p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
+</dd>
+<dt><cite>forward()</cite></dt><dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<p>Although the recipe for forward pass needs to be defined within this function,
+one should call the Module instance afterwards instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.
+<strong>e.g. call `Docking()` instead of `Docking().forward()`</strong>, see code for examples.</p>
+</dd>
+</dl>
+</div>
+</div></blockquote>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html">BruteForce/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_IP.html">train_bruteforce_IP.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_FI.html">train_bruteforce_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.html">Sampling/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_brutesimplified_IP.html">train_brutesimplified_IP.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_montecarlo_FI.html">train_montecarlo_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.TrainerIP.html">TrainerIP</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dock2D.Models/Dock2D.Models.TrainerFI.html">TrainerFI</a></li>
+</ul>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Models.model_docking.Docking">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Models.model_docking.</span></span><span class="sig-name descname"><span class="pre">Docking</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dockingFFT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_docking.Docking" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_docking.Docking.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dockingFFT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_docking.Docking.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize parameters for Docking module and TorchDockingFFT used in the forward pass
+to generate shape features and scoring coefficients for the scoring function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dim</strong> – dimension of final padded shape</p></li>
+<li><p><strong>num_angles</strong> – number of angles to use in FFT correlation</p></li>
+<li><p><strong>plot_freq</strong> – frequency at which to plot features</p></li>
+<li><p><strong>debug</strong> – set to True show debug verbose model</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_docking.Docking.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trainset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_docking.Docking.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Generates features for both receptor and ligand shapes using the SE(2)-ConvNet.
+Computes a transformation-dependent score based on the correlation of these features,</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\mathrm{corr}(\mathbf{t}, \phi, R, L) = \int R(\mathbf{r}) \mathbf{M}_\phi L(\mathbf{r}-\mathbf{t}) d\mathbf{r}\]</div>
+</div></blockquote>
+<p>on pairwise features, i.e. boundary:boundary, bulk:boundary, boundary:bulk, bulk:bulk.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receptor</strong> – receptor shape grid image</p></li>
+<li><p><strong>ligand</strong> – ligand shape grid image</p></li>
+<li><p><strong>training</strong> – set <cite>True</cite> for training, <cite>False</cite> for evalution.</p></li>
+<li><p><strong>plotting</strong> – create plots or not</p></li>
+<li><p><strong>plot_count</strong> – current plotting index</p></li>
+<li><p><strong>stream_name</strong> – data stream name</p></li>
+<li><p><strong>angle</strong> – single angle to rotate shape for single rotation slice FFT in sampling models</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>fft_score</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Models.model_interaction.Interaction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Models.model_interaction.</span></span><span class="sig-name descname"><span class="pre">Interaction</span></span><a class="headerlink" href="#Dock2D.Models.model_interaction.Interaction" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_interaction.Interaction.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_interaction.Interaction.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize parameters for Interaction module and free energy integral calculation.
+The learned parameter for free energy decision threshold, <span class="math notranslate nohighlight">\(F_0\)</span>, is initialized here.
+For the free energy integral, the volume used in the denominator is also initialized here.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_interaction.Interaction.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">brute_force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fft_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free_energies_visited</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_interaction.Interaction.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the difference in free energy, <span class="math notranslate nohighlight">\(\Delta F\)</span>, using either a stack of <cite>fft_scores</cite> or sampled free energies.</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[\Delta F = -\ln Z = -\ln \sum_{\mathbf{t}, \phi} e^{-E(\mathbf{t}, \phi)} - F_0\]</div>
+</div></blockquote>
+<p>then convert to a probability using a sigmoid function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>brute_force</strong> – set to True to calculate the BruteForce free energy integral using <cite>fft_scores</cite> converted to energies.</p></li>
+<li><p><strong>fft_scores</strong> – used in BruteForce free energy calculation</p></li>
+<li><p><strong>free_energies</strong> – sampling method free energy array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>pred_interact</cite>, <cite>deltaF</cite>, <cite>F</cite>, <cite>F_0</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Models.model_sampling.SamplingDocker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Models.model_sampling.</span></span><span class="sig-name descname"><span class="pre">SamplingDocker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dockingFFT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_sampling.SamplingDocker" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_sampling.SamplingDocker.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dockingFFT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_sampling.SamplingDocker.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize docking FFT and feature generation using the SE(2)-CNN.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dockingFFT</strong> – dockingFFT initialized to match dimensions of current sampling scheme</p></li>
+<li><p><strong>num_angles</strong> – If a single rotation slice correlation is desired, specify <cite>num_angles=1</cite>,
+else <cite>num_angles</cite> is the number of angles to linearly space <cite>-pi</cite> to <cite>+pi</cite></p></li>
+<li><p><strong>debug</strong> – set to True show debug verbose model and plots</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_sampling.SamplingDocker.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trainset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_sampling.SamplingDocker.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Uses TorchDockingFFT() to compute feature correlations for a rotationally sampled stack of examples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receptor</strong> – receptor shape grid image</p></li>
+<li><p><strong>ligand</strong> – ligand shape grid image</p></li>
+<li><p><strong>rotation</strong> – pass rotation for single angle correlation</p></li>
+<li><p><strong>plot_count</strong> – current plotting index</p></li>
+<li><p><strong>stream_name</strong> – data stream name</p></li>
+<li><p><strong>plotting</strong> – create plots or not</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>lowest_energy</cite>, <cite>pred_rot</cite>, <cite>pred_txy</cite>, <cite>fft_score</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Models.model_sampling.SamplingModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Models.model_sampling.</span></span><span class="sig-name descname"><span class="pre">SamplingModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dockingFFT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IP_MC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IP_LD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FI_BF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FI_MC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_sampling.SamplingModel" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_sampling.SamplingModel.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dockingFFT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IP_MC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IP_LD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FI_BF</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FI_MC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_sampling.SamplingModel.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize sampling for the two molecular recognition tasks, IP and FI.
+For IP, BruteForce (BF) and BruteSimplified (BS).
+For FI, BruteForce and MonteCarlo(MC)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Langevin dynamics (LD) code for IP is included but not reported in our work.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dockingFFT</strong> – dockingFFT initialized to match dimensions of current sampling scheme</p></li>
+<li><p><strong>num_angles</strong> – If a single rotation slice correlation is desired, specify <cite>num_angles=1</cite>,
+else <cite>num_angles</cite> is the number of angles to linearly space <cite>-pi</cite> to <cite>+pi</cite></p></li>
+<li><p><strong>sample_steps</strong> – number of samples per example</p></li>
+<li><p><strong>step_size</strong> – step size to use in the LD energy gradient based method</p></li>
+<li><p><strong>sig_alpha</strong> – sigma for rotation used in LD</p></li>
+<li><p><strong>IP</strong> – interaction pose prediction used for either BF or BS, only difference is the <cite>num_angles</cite> specified.
+If <cite>num_angles==1</cite> runs the BS model, and BF otherwise.</p></li>
+<li><p><strong>IP_MC</strong> – Interaction pose trained using BS for docking features, and evaluation using MC.</p></li>
+<li><p><strong>IP_LD</strong> – Interaction pose trained using either BS or BF and evaluated using LD</p></li>
+<li><p><strong>FI_BF</strong> – Fact of interaction trained and evaluated using BF</p></li>
+<li><p><strong>FI_MC</strong> – Fact of interaction trained using MC and evaluated using BF</p></li>
+<li><p><strong>experiment</strong> – current experiment name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.model_sampling.SamplingModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">receptor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ligand</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free_energies_visited</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trainset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.model_sampling.SamplingModel.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Run models and sampling for the two molecular recognition tasks, IP and FI.
+For IP, BruteForce (BF) and BruteSimplified (BS).
+For FI, BruteForce and MonteCarlo(MC)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>receptor</strong> – receptor shape grid image</p></li>
+<li><p><strong>ligand</strong> – ligand shape grid image</p></li>
+<li><p><strong>alpha</strong> – rotation, default is <cite>None</cite></p></li>
+<li><p><strong>free_energies_visited</strong> – free energies indices for <cite>FI_MC</cite></p></li>
+<li><p><strong>sig_alpha</strong> – sigma alpha used in LD</p></li>
+<li><p><strong>plot_count</strong> – current plotting index</p></li>
+<li><p><strong>stream_name</strong> – data stream name</p></li>
+<li><p><strong>plotting</strong> – create plots or not</p></li>
+<li><p><strong>training</strong> – train if <cite>True</cite>, else evaluate</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>depends on which model and task is being trained/evaluated</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.html" class="btn btn-neutral float-left" title="DatasetGenerator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html" class="btn btn-neutral float-right" title="BruteForce/" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

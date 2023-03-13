@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TorchDataLoader &mdash; Dock2D  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/50x50_logo.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="TorchDockingFFT" href="Dock2D.Utility.TorchDockingFFT.html" />
+    <link rel="prev" title="SampleBuffer" href="Dock2D.Utility.SampleBuffer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Dock2D
+            <img src="../../_static/medium_size_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.DatasetGeneration.html">DatasetGeneration/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.Protein.html">Protein</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.ProteinPool.html">ProteinPool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.html">DatasetGenerator</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.Models.html">Models/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html">BruteForce/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_IP.html">train_bruteforce_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_FI.html">train_bruteforce_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.html">Sampling/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_brutesimplified_IP.html">train_brutesimplified_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_montecarlo_FI.html">train_montecarlo_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.TrainerIP.html">TrainerIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models/Dock2D.Models.TrainerFI.html">TrainerFI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.Tests.html">Tests/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_homodimer_energyranking.html">check_homodimer_energyranking.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_MC_pretrained_surface.html">check_MC_pretrained_surface.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.html">check_param_state_dict_cuda.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_shape_distributions.html">check_shape_distributions.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_torchFFT.html">check_torchFFT.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.run_pytorch_profiler.html">run_pytorch_profiler.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Dock2D.Utility.html">Utility/</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.PlotterFI.html">PlotterFI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.PlotterIP.html">PlotterIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.SampleBuffer.html">SampleBuffer</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TorchDataLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.TorchDockingFFT.html">TorchDockingFFT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.UtilityFunctions.html">UtilityFunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Utility.ValidationMetrics.html">ValidationMetrics</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Dock2D</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Dock2D.Utility.html">Utility/</a> &raquo;</li>
+      <li>TorchDataLoader</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/Dock2D.Utility/Dock2D.Utility.TorchDataLoader.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-Dock2D.Utility.TorchDataLoader">
+<span id="torchdataloader"></span><h1>TorchDataLoader<a class="headerlink" href="#module-Dock2D.Utility.TorchDataLoader" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionPoseDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.TorchDataLoader.</span></span><span class="sig-name descname"><span class="pre">InteractionPoseDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionPoseDataset" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionPoseDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionPoseDataset.__getitem__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>values at index of interaction data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionPoseDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionPoseDataset.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path to docking dataset .pkl file.</p></li>
+<li><p><strong>max_size</strong> – number of docking examples to be loaded into data stream</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionPoseDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionPoseDataset.__len__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>length of the dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionFactDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.TorchDataLoader.</span></span><span class="sig-name descname"><span class="pre">InteractionFactDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomstate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionFactDataset" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionFactDataset.__getitem__">
+<span class="sig-name descname"><span class="pre">__getitem__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionFactDataset.__getitem__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>values at index of interaction data</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionFactDataset.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomstate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionFactDataset.__init__" title="Permalink to this definition"></a></dt>
+<dd><p>Load data from .pkl dataset file. Build datastream from protein pool,
+interaction indices, and labels.
+The entire dataset is shuffled.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path to interaction dataset .pkl file.</p></li>
+<li><p><strong>number_of_pairs</strong> – <p>specifies the data stream <cite>max_size</cite> as number of unique interactions.</p>
+<div class="math notranslate nohighlight">
+\[\frac{N(N+1)}{2}\]</div>
+</p></li>
+</ul>
+</dd>
+</dl>
+<p>This is based on <cite>N</cite> interaction pairs. If <cite>N == None</cite>, the entire upper triangle plus diagonal of the interaction pairs array are used.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.InteractionFactDataset.__len__">
+<span class="sig-name descname"><span class="pre">__len__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.InteractionFactDataset.__len__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>length of the dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.get_docking_stream">
+<span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.TorchDataLoader.</span></span><span class="sig-name descname"><span class="pre">get_docking_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.get_docking_stream" title="Permalink to this definition"></a></dt>
+<dd><p>Get docking data as a torch data stream that is randomly shuffled per epoch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> – path to dataset .pkl file.</p></li>
+<li><p><strong>shuffle</strong> – shuffle must be set to False for RandomSampler()</p></li>
+<li><p><strong>max_size</strong> – number of docking examples to be loaded into data stream</p></li>
+<li><p><strong>num_workers</strong> – number of cpu threads</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>docking data stream in format of [receptor, ligand, rotation, translation] (see DatasetGeneration).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="Dock2D.Utility.TorchDataLoader.get_interaction_stream">
+<span class="sig-prename descclassname"><span class="pre">Dock2D.Utility.TorchDataLoader.</span></span><span class="sig-name descname"><span class="pre">get_interaction_stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_pairs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">randomstate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Utility.TorchDataLoader.get_interaction_stream" title="Permalink to this definition"></a></dt>
+<dd><p>Get interaction data as a torch data stream, specifying <cite>N</cite> as <cite>number_of_pairs</cite> which results in
+<span class="math notranslate nohighlight">\(\frac{N(N+1)}{2}\)</span> unique interactions.
+The fact of interaction data stream shuffles examples when selecting <cite>number_of_pairs</cite> from the entire dataset,
+as well as shuffles the data stream before each epoch.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a resumable data stream (e.g. for the SampleBuffer in Monte Carlo fact of interaction),
+set the <cite>randomstate ` by specifying a `numpy.random.RandomState()</cite>,
+this will result in a one-time shuffle at data stream initialization that can be maintained across loading saved models.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_path</strong> – path to dataset .pkl file.</p></li>
+<li><p><strong>shuffle</strong> – shuffle must be set to False for RandomSampler()</p></li>
+<li><p><strong>number_of_pairs</strong> – number of interaction pair examples to be loaded into data stream</p></li>
+<li><p><strong>num_workers</strong> – number of cpu threads</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>interaction data stream [receptor, ligand, 1 or 0] (see DatasetGeneration).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Dock2D.Utility.SampleBuffer.html" class="btn btn-neutral float-left" title="SampleBuffer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Dock2D.Utility.TorchDockingFFT.html" class="btn btn-neutral float-right" title="TorchDockingFFT" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

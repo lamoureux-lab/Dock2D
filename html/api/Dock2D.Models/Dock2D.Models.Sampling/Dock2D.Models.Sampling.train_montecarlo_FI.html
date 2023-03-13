@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>train_montecarlo_FI.py &mdash; Dock2D  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/50x50_logo.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="TrainerIP" href="../Dock2D.Models.TrainerIP.html" />
+    <link rel="prev" title="train_brutesimplified_IP.py" href="Dock2D.Models.Sampling.train_brutesimplified_IP.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> Dock2D
+            <img src="../../../_static/medium_size_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../Dock2D.DatasetGeneration.html">DatasetGeneration/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.Protein.html">Protein</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.ProteinPool.html">ProteinPool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.html">DatasetGenerator</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../Dock2D.Models.html">Models/</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html">BruteForce/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_IP.html">train_bruteforce_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_FI.html">train_bruteforce_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="Dock2D.Models.Sampling.html">Sampling/</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models.Sampling.train_brutesimplified_IP.html">train_brutesimplified_IP.py</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">train_montecarlo_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models.TrainerIP.html">TrainerIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Models.TrainerFI.html">TrainerFI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Dock2D.Tests.html">Tests/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Tests/Dock2D.Tests.check_homodimer_energyranking.html">check_homodimer_energyranking.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Tests/Dock2D.Tests.check_MC_pretrained_surface.html">check_MC_pretrained_surface.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.html">check_param_state_dict_cuda.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Tests/Dock2D.Tests.check_shape_distributions.html">check_shape_distributions.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Tests/Dock2D.Tests.check_torchFFT.html">check_torchFFT.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Tests/Dock2D.Tests.run_pytorch_profiler.html">run_pytorch_profiler.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../Dock2D.Utility.html">Utility/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Utility/Dock2D.Utility.PlotterFI.html">PlotterFI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Utility/Dock2D.Utility.PlotterIP.html">PlotterIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Utility/Dock2D.Utility.SampleBuffer.html">SampleBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Utility/Dock2D.Utility.TorchDataLoader.html">TorchDataLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Utility/Dock2D.Utility.TorchDockingFFT.html">TorchDockingFFT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Utility/Dock2D.Utility.UtilityFunctions.html">UtilityFunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../Dock2D.Utility/Dock2D.Utility.ValidationMetrics.html">ValidationMetrics</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Dock2D</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../Dock2D.Models.html">Models/</a> &raquo;</li>
+          <li><a href="Dock2D.Models.Sampling.html">Sampling/</a> &raquo;</li>
+      <li>train_montecarlo_FI.py</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/Dock2D.Models/Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_montecarlo_FI.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="train-montecarlo-fi-py">
+<h1>train_montecarlo_FI.py<a class="headerlink" href="#train-montecarlo-fi-py" title="Permalink to this headline"></a></h1>
+<p>Functioning example of the script used to train the MonteCarlo model for Fact-of-Interaction (FI).</p>
+<span class="target" id="module-Dock2D.Models.Sampling.train_montecarlo_FI"></span><div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">Dock2D.Models.TrainerFI</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">Dock2D.Utility.TorchDataLoader</span> <span class="kn">import</span> <span class="n">get_interaction_stream</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">optim</span>
+<span class="kn">from</span> <span class="nn">Dock2D.Utility.PlotterFI</span> <span class="kn">import</span> <span class="n">PlotterFI</span>
+<span class="kn">from</span> <span class="nn">Dock2D.Models.model_interaction</span> <span class="kn">import</span> <span class="n">Interaction</span>
+<span class="kn">from</span> <span class="nn">Dock2D.Models.model_sampling</span> <span class="kn">import</span> <span class="n">SamplingModel</span>
+<span class="kn">from</span> <span class="nn">Dock2D.Utility.TorchDockingFFT</span> <span class="kn">import</span> <span class="n">TorchDockingFFT</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1">#################################################################################</span>
+    <span class="c1"># Datasets</span>
+    <span class="n">trainset</span> <span class="o">=</span> <span class="s1">&#39;../../Datasets/interaction_train_400pool.pkl&#39;</span>
+    <span class="n">validset</span> <span class="o">=</span> <span class="s1">&#39;../../Datasets/interaction_valid_400pool.pkl&#39;</span>
+    <span class="c1">### testing set</span>
+    <span class="n">testset</span> <span class="o">=</span> <span class="s1">&#39;../../Datasets/interaction_test_400pool.pkl&#39;</span>
+    <span class="c1">#########################</span>
+    <span class="c1">#### initialization of random seeds (here randomstate is specifically used for MonteCarlo FI)</span>
+    <span class="n">random_seed</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">randomstate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">cudnn</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># torch.autograd.set_detect_anomaly(True)</span>
+    <span class="c1">#########################</span>
+    <span class="c1">## number_of_pairs provides max_size of interactions: max_size = (number_of_pairs**2 + number_of_pairs)/2</span>
+    <span class="n">number_of_pairs</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">train_stream</span> <span class="o">=</span> <span class="n">get_interaction_stream</span><span class="p">(</span><span class="n">trainset</span><span class="p">,</span> <span class="n">number_of_pairs</span><span class="o">=</span><span class="n">number_of_pairs</span><span class="p">,</span> <span class="n">randomstate</span><span class="o">=</span><span class="n">randomstate</span><span class="p">)</span>
+    <span class="n">valid_stream</span> <span class="o">=</span> <span class="n">get_interaction_stream</span><span class="p">(</span><span class="n">validset</span><span class="p">,</span> <span class="n">number_of_pairs</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">test_stream</span> <span class="o">=</span> <span class="n">get_interaction_stream</span><span class="p">(</span><span class="n">testset</span><span class="p">,</span> <span class="n">number_of_pairs</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="c1">######################</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="s1">&#39;MC_FI_check_consolidated&#39;</span>
+    <span class="c1">##################### Load and freeze/unfreeze params (training, no eval)</span>
+    <span class="c1">### path to pretrained docking model</span>
+    <span class="c1"># path_pretrain = &#39;Log/RECODE_CHECK_BFDOCKING_30epochsend.th&#39;</span>
+    <span class="n">path_pretrain</span> <span class="o">=</span> <span class="s1">&#39;Log/FINAL_CHECK_DOCKING30.th&#39;</span>
+    <span class="c1"># training_case = &#39;A&#39; # CaseA: train with docking model frozen</span>
+    <span class="c1"># training_case = &#39;B&#39; # CaseB: train with docking model unfrozen</span>
+    <span class="c1"># training_case = &#39;C&#39; # CaseC: train with docking model SE2 CNN frozen and scoring (&quot;a&quot;) coeffs unfrozen</span>
+    <span class="n">training_case</span> <span class="o">=</span> <span class="s1">&#39;scratch&#39;</span> <span class="c1"># Case scratch: train everything from scratch</span>
+    <span class="n">experiment</span> <span class="o">=</span> <span class="n">training_case</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">experiment</span>
+    <span class="c1">#####################</span>
+    <span class="n">train_epochs</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">lr_interaction</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">lr_docking</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">4</span>
+    <span class="n">sample_steps</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">sample_buffer_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train_stream</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">valid_stream</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_stream</span><span class="p">))</span>
+
+    <span class="n">debug</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">plotting</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">show</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">interaction_model</span> <span class="o">=</span> <span class="n">Interaction</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">interaction_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">interaction_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr_interaction</span><span class="p">)</span>
+
+    <span class="n">padded_dim</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">num_angles</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">dockingFFT</span> <span class="o">=</span> <span class="n">TorchDockingFFT</span><span class="p">(</span><span class="n">padded_dim</span><span class="o">=</span><span class="n">padded_dim</span><span class="p">,</span> <span class="n">num_angles</span><span class="o">=</span><span class="n">num_angles</span><span class="p">)</span>
+    <span class="n">docking_model</span> <span class="o">=</span> <span class="n">SamplingModel</span><span class="p">(</span><span class="n">dockingFFT</span><span class="p">,</span>  <span class="n">sample_steps</span><span class="o">=</span><span class="n">sample_steps</span><span class="p">,</span> <span class="n">FI_MC</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">docking_optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">docking_model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">lr_docking</span><span class="p">)</span>
+    <span class="n">Trainer</span> <span class="o">=</span> <span class="n">TrainerFI</span><span class="p">(</span><span class="n">docking_model</span><span class="p">,</span> <span class="n">docking_optimizer</span><span class="p">,</span> <span class="n">interaction_model</span><span class="p">,</span> <span class="n">interaction_optimizer</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span>
+              <span class="n">training_case</span><span class="p">,</span> <span class="n">path_pretrain</span><span class="p">,</span> <span class="n">sample_buffer_length</span><span class="o">=</span><span class="n">sample_buffer_length</span><span class="p">,</span>
+              <span class="n">FI_MC</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1">######################</span>
+    <span class="c1">### Train model from beginning</span>
+    <span class="n">Trainer</span><span class="o">.</span><span class="n">run_trainer</span><span class="p">(</span><span class="n">train_epochs</span><span class="p">,</span> <span class="n">train_stream</span><span class="o">=</span><span class="n">train_stream</span><span class="p">,</span> <span class="n">valid_stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_stream</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1">### resume training model</span>
+    <span class="c1"># Trainer.run_trainer(resume_training=True, resume_epoch=5, train_epochs=15,</span>
+    <span class="c1">#                                            train_stream=train_stream, valid_stream=None, test_stream=None)</span>
+
+    <span class="c1">### Evaluate model at chosen epoch (Brute force or monte carlo evaluation)</span>
+    <span class="n">eval_angles</span> <span class="o">=</span> <span class="mi">360</span>
+    <span class="n">evalFFT</span> <span class="o">=</span> <span class="n">TorchDockingFFT</span><span class="p">(</span><span class="n">padded_dim</span><span class="o">=</span><span class="n">padded_dim</span><span class="p">,</span> <span class="n">num_angles</span><span class="o">=</span><span class="n">eval_angles</span><span class="p">)</span>
+    <span class="n">eval_model</span> <span class="o">=</span> <span class="n">SamplingModel</span><span class="p">(</span><span class="n">evalFFT</span><span class="p">,</span> <span class="n">FI_MC</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># # eval_model = SamplingModel(dockingFFT, num_angles=1, sample_steps=sample_steps, FI_MC=True, debug=debug).to(device=0) ## eval with monte carlo</span>
+    <span class="n">TrainerFI</span><span class="p">(</span><span class="n">eval_model</span><span class="p">,</span> <span class="n">docking_optimizer</span><span class="p">,</span> <span class="n">interaction_model</span><span class="p">,</span> <span class="n">interaction_optimizer</span><span class="p">,</span> <span class="n">experiment</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span>
+                                  <span class="p">)</span><span class="o">.</span><span class="n">run_trainer</span><span class="p">(</span><span class="n">resume_training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">resume_epoch</span><span class="o">=</span><span class="n">train_epochs</span><span class="p">,</span> <span class="n">train_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                                <span class="n">train_stream</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">valid_stream</span><span class="o">=</span><span class="n">valid_stream</span><span class="p">,</span> <span class="n">test_stream</span><span class="o">=</span><span class="n">test_stream</span><span class="p">)</span>
+
+    <span class="c1">### Plot loss and free energy distributions with learned F_0 decision threshold</span>
+    <span class="n">PlotterFI</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span><span class="o">.</span><span class="n">plot_loss</span><span class="p">()</span>
+    <span class="n">PlotterFI</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span><span class="o">.</span><span class="n">plot_deltaF_distribution</span><span class="p">(</span><span class="n">plot_epoch</span><span class="o">=</span><span class="n">train_epochs</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Dock2D.Models.Sampling.train_brutesimplified_IP.html" class="btn btn-neutral float-left" title="train_brutesimplified_IP.py" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Dock2D.Models.TrainerIP.html" class="btn btn-neutral float-right" title="TrainerIP" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

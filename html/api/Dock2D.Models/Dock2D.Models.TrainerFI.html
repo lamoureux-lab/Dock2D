@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrainerFI &mdash; Dock2D  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../../_static/50x50_logo.png"/>
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Tests/" href="../Dock2D.Tests.html" />
+    <link rel="prev" title="TrainerIP" href="Dock2D.Models.TrainerIP.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> Dock2D
+            <img src="../../_static/medium_size_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.DatasetGeneration.html">DatasetGeneration/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.Protein.html">Protein</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.ProteinPool.html">ProteinPool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.DatasetGeneration/Dock2D.DatasetGeneration.DatasetGenerator.html">DatasetGenerator</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../Dock2D.Models.html">Models/</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.html">BruteForce/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_IP.html">train_bruteforce_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models.BruteForce/Dock2D.Models.BruteForce.train_bruteforce_FI.html">train_bruteforce_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models.Sampling/Dock2D.Models.Sampling.html">Sampling/</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_brutesimplified_IP.html">train_brutesimplified_IP.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Dock2D.Models.Sampling/Dock2D.Models.Sampling.train_montecarlo_FI.html">train_montecarlo_FI.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Dock2D.Models.TrainerIP.html">TrainerIP</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">TrainerFI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.Tests.html">Tests/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_homodimer_energyranking.html">check_homodimer_energyranking.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_MC_pretrained_surface.html">check_MC_pretrained_surface.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_param_state_dict_cuda.html">check_param_state_dict_cuda.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_shape_distributions.html">check_shape_distributions.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.check_torchFFT.html">check_torchFFT.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Tests/Dock2D.Tests.run_pytorch_profiler.html">run_pytorch_profiler.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Dock2D.Utility.html">Utility/</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Utility/Dock2D.Utility.PlotterFI.html">PlotterFI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Utility/Dock2D.Utility.PlotterIP.html">PlotterIP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Utility/Dock2D.Utility.SampleBuffer.html">SampleBuffer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Utility/Dock2D.Utility.TorchDataLoader.html">TorchDataLoader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Utility/Dock2D.Utility.TorchDockingFFT.html">TorchDockingFFT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Utility/Dock2D.Utility.UtilityFunctions.html">UtilityFunctions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../Dock2D.Utility/Dock2D.Utility.ValidationMetrics.html">ValidationMetrics</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Dock2D</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../Dock2D.Models.html">Models/</a> &raquo;</li>
+      <li>TrainerFI</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/Dock2D.Models/Dock2D.Models.TrainerFI.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-Dock2D.Models.TrainerFI">
+<span id="trainerfi"></span><h1>TrainerFI<a class="headerlink" href="#module-Dock2D.Models.TrainerFI" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Dock2D.Models.TrainerFI.</span></span><span class="sig-name descname"><span class="pre">TrainerFI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docking_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docking_optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_case</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scratch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_pretrain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FI_MC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_buffer_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">docking_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">docking_optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interaction_optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_case</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'scratch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_pretrain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FI_MC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plotting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_buffer_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.__init__" title="Permalink to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>docking_model</strong> – the current docking model initialized outside the trainer</p></li>
+<li><p><strong>docking_optimizer</strong> – the docking optimizer initialized outside the trainer</p></li>
+<li><p><strong>interaction_model</strong> – the current interaction model initialized outside the trainer</p></li>
+<li><p><strong>interaction_optimizer</strong> – the interaction optimizer initialized outside the trainer</p></li>
+<li><p><strong>experiment</strong> – current experiment name</p></li>
+<li><p><strong>training_case</strong> – current training case</p></li>
+<li><p><strong>path_pretrain</strong> – path to pretrained model</p></li>
+<li><p><strong>FI_MC</strong> – set <cite>True</cite> to use MonteCarlo (MC) for FI task.</p></li>
+<li><p><strong>debug</strong> – set to True show debug verbose model</p></li>
+<li><p><strong>plotting</strong> – create plots or not</p></li>
+<li><p><strong>sample_buffer_length</strong> – number of keys in the SampleBuffer, has to be <cite>&gt;=</cite> to number of training, validation,
+or testing examples.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.check_APR">
+<span class="sig-name descname"><span class="pre">check_APR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datastream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltaF_logfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.check_APR" title="Permalink to this definition"></a></dt>
+<dd><p>Check accuracy, precision, recall, F1score and MCC</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>check_epoch</strong> – epoch to evaluate</p></li>
+<li><p><strong>datastream</strong> – data stream</p></li>
+<li><p><strong>stream_name</strong> – data stream name</p></li>
+<li><p><strong>deltaF_logfile</strong> – free energy log file name for evaluation set</p></li>
+<li><p><strong>experiment</strong> – current experiment name</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.classify">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pred_interact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gt_interact</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.classify" title="Permalink to this definition"></a></dt>
+<dd><p>Confusion matrix values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pred_interact</strong> – predicted interaction</p></li>
+<li><p><strong>gt_interact</strong> – ground truth interaction</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>confusion matrix values <cite>TP</cite>, <cite>FP</cite>, <cite>TN</cite>, <cite>FN</cite>,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.freeze_weights">
+<span class="sig-name descname"><span class="pre">freeze_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.freeze_weights" title="Permalink to this definition"></a></dt>
+<dd><p>Freeze model weights depending on the experiment training case.
+These range from A) frozen pretrained docking model,
+B) unfrozen pretrained docking model,
+C) unfrozen pretrained docking model scoring coefficients, but frozen conv net,
+D) train the docking model from scratch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.load_checkpoint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_fpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FI_MC</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.load_checkpoint" title="Permalink to this definition"></a></dt>
+<dd><p>Load saved checkpoint state dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>checkpoint_fpath</strong> – path to saved model</p></li>
+<li><p><strong>model</strong> – model to load, either docking or interaction models</p></li>
+<li><p><strong>optimizer</strong> – model optimizer</p></li>
+<li><p><strong>FI_MC</strong> – return addtionally saved values from state dict</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>model</cite>, <cite>optimizer</cite>, <cite>checkpoint[‘epoch’]</cite>, and if <cite>FI_MC==True</cite>, additionally return <cite>checkpoint[‘alpha_buffer’]</cite>, <cite>checkpoint[‘free_energy_buffer’]</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.resume_training_or_not">
+<span class="sig-name descname"><span class="pre">resume_training_or_not</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resume_training</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume_epoch</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.resume_training_or_not" title="Permalink to this definition"></a></dt>
+<dd><p>Resume training the model at specified epoch or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resume_training</strong> – set to <cite>True</cite> to resume training, <cite>False</cite> to start fresh training.</p></li>
+<li><p><strong>resume_epoch</strong> – epoch number to resume from</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>starting epoch number, 1 if <cite>resume_training is True</cite>, <cite>resume_epoch+1</cite> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.run_epoch">
+<span class="sig-name descname"><span class="pre">run_epoch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.run_epoch" title="Permalink to this definition"></a></dt>
+<dd><p>Run the model for an epoch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_stream</strong> – input data stream</p></li>
+<li><p><strong>epoch</strong> – current epoch number</p></li>
+<li><p><strong>training</strong> – set to <cite>True</cite> for training, <cite>False</cite> for evalutation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.run_model">
+<span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stream_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trainset'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.run_model" title="Permalink to this definition"></a></dt>
+<dd><p>Run a model iteration on the current example.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – training example</p></li>
+<li><p><strong>pos_idx</strong> – current example position index</p></li>
+<li><p><strong>training</strong> – set to <cite>True</cite> for training, <cite>False</cite> for evalutation.</p></li>
+<li><p><strong>stream_name</strong> – data stream name</p></li>
+<li><p><strong>epoch</strong> – epoch count used in plotting</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>loss</cite>, <cite>F</cite>, <cite>F_0</cite>, <cite>gt_interact</cite> and under evalutation, <cite>TP</cite>, <cite>FP</cite>, <cite>TN</cite>, <cite>FN</cite>, plus previously listed values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.run_trainer">
+<span class="sig-name descname"><span class="pre">run_trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_stream</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume_training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.run_trainer" title="Permalink to this definition"></a></dt>
+<dd><p>Helper function to run trainer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_epochs</strong> – number of epoch to train</p></li>
+<li><p><strong>train_stream</strong> – training set data stream</p></li>
+<li><p><strong>valid_stream</strong> – valid set data stream</p></li>
+<li><p><strong>test_stream</strong> – test set data stream</p></li>
+<li><p><strong>resume_training</strong> – resume training from a loaded model state or train fresh model</p></li>
+<li><p><strong>resume_epoch</strong> – epoch to load model and resume training</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.save_checkpoint">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">save_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.save_checkpoint" title="Permalink to this definition"></a></dt>
+<dd><p>Save current state of the model to a checkpoint dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> – checkpoint state dictionary</p></li>
+<li><p><strong>filename</strong> – name of saved file</p></li>
+<li><p><strong>model</strong> – model to save, either docking or interaction models</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.set_docking_model_state">
+<span class="sig-name descname"><span class="pre">set_docking_model_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.set_docking_model_state" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize the docking model training case.
+A) frozen pretrained docking model,
+B) unfrozen pretrained docking model,
+C) unfrozen pretrained docking model scoring coefficients, but frozen conv net,
+D) train the docking model from scratch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.Models.TrainerFI.TrainerFI.train_model">
+<span class="sig-name descname"><span class="pre">train_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_stream</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume_training</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resume_epoch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.Models.TrainerFI.TrainerFI.train_model" title="Permalink to this definition"></a></dt>
+<dd><p>Train model for specified number of epochs and data streams.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_epochs</strong> – number of epoch to train</p></li>
+<li><p><strong>train_stream</strong> – training set data stream</p></li>
+<li><p><strong>valid_stream</strong> – valid set data stream</p></li>
+<li><p><strong>test_stream</strong> – test set data stream</p></li>
+<li><p><strong>resume_training</strong> – resume training from a loaded model state or train fresh model</p></li>
+<li><p><strong>resume_epoch</strong> – epoch to load model and resume training</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Dock2D.Models.TrainerIP.html" class="btn btn-neutral float-left" title="TrainerIP" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../Dock2D.Tests.html" class="btn btn-neutral float-right" title="Tests/" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Siddharth Bhadra-Lobo, Georgy Derevyanko, Guillaume Lamoureux.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
