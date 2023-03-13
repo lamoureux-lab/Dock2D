@@ -1,13 +1,20 @@
-# Dock2D
-Predicting the physical interaction of proteins is a cornerstone problem in computational biology. New learning-based algorithms are typically trained end-to-end on protein structures extracted from the Protein Data Bank. However, these training datasets tend to be large and difficult to use for prototyping and, unlike image or natural language datasets, they are not easily interpretable by non-experts.
+Dock2D
+======
 
-In this paper we propose Dock2D-IP and Dock2D-FI, two toy datasets that can be used to select algorithms predicting protein-protein interactions (or any other type of molecular interactions). Using two-dimensional shapes as input, each example from Dock2D-FI describes the fact of interaction (FI) between two shapes and each example from Dock2D-IP describes the interaction pose (IP) of two shapes known to interact.
+<img alt="Energy Surface" height="300" src="/Dock2D/docs/source/energy_surface_local_min_pose_free_energy.png" width="500"/>
 
-We propose baselines that represent different approaches to the problem and demonstrate the potential for transfer learning across the IP prediction and FI prediction tasks.
+This library is used to build a toy protein dataset and models
+to solve the tasks for molecular recognition. See [Doc(k)umentation here](https://lamoureux-lab.github.io/Dock2D/).
 
-# Datasets 
-The generated dataset is available here:
+Cite Us
+-------
 
-The main dataset generation script is *generate_dataset.py*. Example usage:
+This code is part of the work done in [our paper](https://arxiv.org/abs/2212.03456).
+Please cite us if you use this code in your own work:
 
-Then to visualize different metrics presented in the paper you can use:
+    @article{Dock2D,
+        title={{Dock2D: Synthetic datasets for the molecular recognition problem}},
+        author={Bhadra-Lobo, Derevyanko, Lamoureux},
+        journal={arXiv preprint arxiv:2212.03456},
+        year={2022},
+    }

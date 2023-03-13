@@ -105,16 +105,13 @@ class DatasetGenerator:
         self.FFT = TorchDockingFFT(padded_dim=padded_dim, num_angles=num_angles)
         self.UtilityFuncs = UtilityFunctions()
         ## number of unique protein shapes to generate in pool
-        self.trainpool_num_proteins = 400
-        self.testpool_num_proteins = 400
+        self.trainpool_num_proteins = 50
+        self.testpool_num_proteins = 50
 
         ## proportion of training set kept for validation
         self.validation_set_cutoff = 0.8
 
         ## shape feature scoring coefficients
-        # 10, 5, 500
-        # self.weight_bound, self.weight_crossterm, self.weight_bulk = 10, 10, 100
-
         self.weight_bulk, self.weight_crossterm, self.weight_bound = 100, -10, -10
 
         ## energy cutoff for deciding if a shape interacts or not
@@ -539,109 +536,109 @@ class DatasetGenerator:
         number_of_positive_test_interactions = sum(test_interaction_set_labels)
         fraction_positive_test_interactions = number_of_positive_test_interactions/len(test_interaction_set_labels)
 
-        # ### Print dataset stats
-        # print('\nProtein Pool:', self.trainpool_num_proteins)
-        # print('Docking decision threshold ', self.docking_decision_threshold)
-        # print('Interaction decision threshold ', self.interaction_decision_threshold)
-        #
-        # print('\nRaw Training set:')
-        # print('Docking set length', len(train_docking_set))
-        # print('Interaction set length', len(train_interaction_set[-1]))
-        #
-        # print('\nRaw Validation set:')
-        # print('Docking set length', len(valid_docking_set))
-        # print('Interaction set length', len(valid_interaction_set[-1]))
-        #
-        # print('\nRaw Testing set:')
-        # print('Docking set length', len(test_docking_set))
-        # print('Interaction set length', len(test_interaction_set[-1]))
-        #
-        # ## Write protein pool summary statistics to file
-        # if not self.trainset_exists:
-        #     with open(self.poolstats_savepath + 'protein_trainpool_stats_' + str(self.trainpool_num_proteins) + 'pool.txt',
-        #               'w') as fout:
-        #         fout.write('TRAIN/VALIDATION SET PROTEIN POOL STATS')
-        #         fout.write('\nProtein Pool size=' + str(self.trainpool_num_proteins) + ':')
-        #         fout.write(
-        #             '\nTRAIN set params (alpha, number of points):\n' + str(self.train_alpha) + '\n' + str(self.train_num_points))
-        #         fout.write('\nTRAIN set probabilities: ' + '\nalphas:' + str(self.trainset_pool_stats[0]) +
-        #                    '\nnumber of points' + str(self.trainset_pool_stats[1]))
-        #
-        # if not self.testset_exists:
-        #     with open(self.poolstats_savepath + 'protein_testpool_stats_' + str(self.testpool_num_proteins) + 'pool.txt',
-        #               'w') as fout:
-        #         fout.write('TEST SET PROTEIN POOL STATS')
-        #         fout.write('\nProtein Pool size=' + str(self.testpool_num_proteins) + ':')
-        #         fout.write(
-        #             '\n\nTEST set params  (alpha, number of points):\n' + str(self.test_alpha) + '\n' + str(self.test_num_points))
-        #         fout.write('\nTEST set probabilities: ' + '\nalphas:' + str(self.testset_pool_stats[0]) +
-        #                    '\nnumber of points' + str(self.testset_pool_stats[1]))
-        #
-        # ## Write dataset summary statistics to file
-        # with open(self.datastats_savepath + 'trainvalid_dataset_stats_' + str(self.trainpool_num_proteins) + 'pool.txt',
-        #           'w') as fout:
-        #     fout.write('TRAIN DATASET STATS')
-        #     fout.write('\nProtein Pool size=' + str(self.trainpool_num_proteins) + ':')
-        #     fout.write('\nScoring Weights: Bound,Crossterm,Bulk ' + self.weight_string)
-        #     fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
-        #     fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
-        #
-        #     fout.write('\nDocking set homodimer vs heterodimer counts:')
-        #     fout.write('\nHomodimer count ' + str(train_dimer_count[0]))
-        #     fout.write('\nHeterodimer count ' + str(train_dimer_count[1]))
-        #
-        #     unique = Counter(np.around(np.array(train_gt_rotations), decimals=1))
-        #     fout.write('\nUnique rotations count:\n' + str(unique))
-        #
-        #     fout.write('\n\nRaw Training set:')
-        #     fout.write('\nDocking set length ' + str(len(train_docking_set)))
-        #     fout.write('\nInteraction set length ' + str(len(train_interaction_set[-1])))
-        #     fout.write('\nInteraction set positive example count ' + str(number_of_positive_train_interactions))
-        #     fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_train_interactions))
-        #
-        #     fout.write('\n\nRaw Validation set:')
-        #     fout.write('\nDocking set length ' + str(len(valid_docking_set)))
-        #     fout.write('\nInteraction set length ' + str(len(valid_interaction_set[-1])))
-        #     fout.write('\nInteraction set positive example count ' + str(number_of_positive_valid_interactions))
-        #     fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_valid_interactions))
-        #
-        # with open(self.datastats_savepath + 'testset_dataset_stats_' + str(self.testpool_num_proteins) + 'pool.txt', 'w') as fout:
-        #     fout.write('TEST DATASET STATS')
-        #     fout.write('\nProtein Pool size=' + str(self.testpool_num_proteins) + ':')
-        #     fout.write('\nScoring Weights: Bound,Crossterm,Bulk ' + self.weight_string)
-        #     fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
-        #     fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
-        #
-        #     fout.write('\nDocking set homodimer vs heterodimer counts:')
-        #     fout.write('\nHomodimer count ' + str(test_dimer_count[0]))
-        #     fout.write('\nHeterodimer count ' + str(test_dimer_count[1]))\
-        #
-        #     unique = Counter(np.around(np.array(test_gt_rotations), decimals=1))
-        #     fout.write('\nUnique rotations count:\n' + str(unique))
-        #
-        #     fout.write('\n\nRaw Testing set:')
-        #     fout.write('\nDocking set length ' + str(len(test_docking_set)))
-        #     fout.write('\nInteraction set length ' + str(len(test_interaction_set[-1])))
-        #     fout.write('\nInteraction set positive example count ' + str(number_of_positive_test_interactions))
-        #     fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_test_interactions))
-        #
-        # ## Save training sets
-        # docking_train_file = self.data_savepath + 'docking_train_' + str(self.trainpool_num_proteins) + 'pool.pkl'
-        # interaction_train_file = self.data_savepath + 'interaction_train_' + str(self.trainpool_num_proteins) + 'pool.pkl'
-        # UtilityFunctions().write_pkl(data=train_docking_set, filename=docking_train_file)
-        # UtilityFunctions().write_pkl(data=train_interaction_set, filename=interaction_train_file)
-        #
-        # ## Save validation sets
-        # docking_valid_file =self.data_savepath + 'docking_valid_' + str(self.trainpool_num_proteins) + 'pool.pkl'
-        # interaction_valid_file = self.data_savepath + 'interaction_valid_' + str(self.trainpool_num_proteins) + 'pool.pkl'
-        # UtilityFunctions().write_pkl(data=valid_docking_set, filename=docking_valid_file)
-        # UtilityFunctions().write_pkl(data=valid_interaction_set, filename=interaction_valid_file)
-        #
-        # ## Save testing sets
-        # docking_test_file = self.data_savepath + 'docking_test_' + str(self.testpool_num_proteins) + 'pool.pkl'
-        # interaction_test_file = self.data_savepath + 'interaction_test_' + str(self.testpool_num_proteins) + 'pool.pkl'
-        # UtilityFunctions().write_pkl(data=test_docking_set, filename=docking_test_file)
-        # UtilityFunctions().write_pkl(data=test_interaction_set, filename=interaction_test_file)
+        ### Print dataset stats
+        print('\nProtein Pool:', self.trainpool_num_proteins)
+        print('Docking decision threshold ', self.docking_decision_threshold)
+        print('Interaction decision threshold ', self.interaction_decision_threshold)
+
+        print('\nRaw Training set:')
+        print('Docking set length', len(train_docking_set))
+        print('Interaction set length', len(train_interaction_set[-1]))
+
+        print('\nRaw Validation set:')
+        print('Docking set length', len(valid_docking_set))
+        print('Interaction set length', len(valid_interaction_set[-1]))
+
+        print('\nRaw Testing set:')
+        print('Docking set length', len(test_docking_set))
+        print('Interaction set length', len(test_interaction_set[-1]))
+
+        ## Write protein pool summary statistics to file
+        if not self.trainset_exists:
+            with open(self.poolstats_savepath + 'protein_trainpool_stats_' + str(self.trainpool_num_proteins) + 'pool.txt',
+                      'w') as fout:
+                fout.write('TRAIN/VALIDATION SET PROTEIN POOL STATS')
+                fout.write('\nProtein Pool size=' + str(self.trainpool_num_proteins) + ':')
+                fout.write(
+                    '\nTRAIN set params (alpha, number of points):\n' + str(self.train_alpha) + '\n' + str(self.train_num_points))
+                fout.write('\nTRAIN set probabilities: ' + '\nalphas:' + str(self.trainset_pool_stats[0]) +
+                           '\nnumber of points' + str(self.trainset_pool_stats[1]))
+
+        if not self.testset_exists:
+            with open(self.poolstats_savepath + 'protein_testpool_stats_' + str(self.testpool_num_proteins) + 'pool.txt',
+                      'w') as fout:
+                fout.write('TEST SET PROTEIN POOL STATS')
+                fout.write('\nProtein Pool size=' + str(self.testpool_num_proteins) + ':')
+                fout.write(
+                    '\n\nTEST set params  (alpha, number of points):\n' + str(self.test_alpha) + '\n' + str(self.test_num_points))
+                fout.write('\nTEST set probabilities: ' + '\nalphas:' + str(self.testset_pool_stats[0]) +
+                           '\nnumber of points' + str(self.testset_pool_stats[1]))
+
+        ## Write dataset summary statistics to file
+        with open(self.datastats_savepath + 'trainvalid_dataset_stats_' + str(self.trainpool_num_proteins) + 'pool.txt',
+                  'w') as fout:
+            fout.write('TRAIN DATASET STATS')
+            fout.write('\nProtein Pool size=' + str(self.trainpool_num_proteins) + ':')
+            fout.write('\nScoring Weights: Bound,Crossterm,Bulk ' + self.weight_string)
+            fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
+            fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
+
+            fout.write('\nDocking set homodimer vs heterodimer counts:')
+            fout.write('\nHomodimer count ' + str(train_dimer_count[0]))
+            fout.write('\nHeterodimer count ' + str(train_dimer_count[1]))
+
+            unique = Counter(np.around(np.array(train_gt_rotations), decimals=1))
+            fout.write('\nUnique rotations count:\n' + str(unique))
+
+            fout.write('\n\nRaw Training set:')
+            fout.write('\nDocking set length ' + str(len(train_docking_set)))
+            fout.write('\nInteraction set length ' + str(len(train_interaction_set[-1])))
+            fout.write('\nInteraction set positive example count ' + str(number_of_positive_train_interactions))
+            fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_train_interactions))
+
+            fout.write('\n\nRaw Validation set:')
+            fout.write('\nDocking set length ' + str(len(valid_docking_set)))
+            fout.write('\nInteraction set length ' + str(len(valid_interaction_set[-1])))
+            fout.write('\nInteraction set positive example count ' + str(number_of_positive_valid_interactions))
+            fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_valid_interactions))
+
+        with open(self.datastats_savepath + 'testset_dataset_stats_' + str(self.testpool_num_proteins) + 'pool.txt', 'w') as fout:
+            fout.write('TEST DATASET STATS')
+            fout.write('\nProtein Pool size=' + str(self.testpool_num_proteins) + ':')
+            fout.write('\nScoring Weights: Bound,Crossterm,Bulk ' + self.weight_string)
+            fout.write('\nDocking decision threshold ' + str(self.docking_decision_threshold))
+            fout.write('\nInteraction decision threshold ' + str(self.interaction_decision_threshold))
+
+            fout.write('\nDocking set homodimer vs heterodimer counts:')
+            fout.write('\nHomodimer count ' + str(test_dimer_count[0]))
+            fout.write('\nHeterodimer count ' + str(test_dimer_count[1]))\
+
+            unique = Counter(np.around(np.array(test_gt_rotations), decimals=1))
+            fout.write('\nUnique rotations count:\n' + str(unique))
+
+            fout.write('\n\nRaw Testing set:')
+            fout.write('\nDocking set length ' + str(len(test_docking_set)))
+            fout.write('\nInteraction set length ' + str(len(test_interaction_set[-1])))
+            fout.write('\nInteraction set positive example count ' + str(number_of_positive_test_interactions))
+            fout.write('\nInteraction set positive example fraction ' + str(fraction_positive_test_interactions))
+
+        ## Save training sets
+        docking_train_file = self.data_savepath + 'docking_train_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        interaction_train_file = self.data_savepath + 'interaction_train_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        UtilityFunctions().write_pkl(data=train_docking_set, filename=docking_train_file)
+        UtilityFunctions().write_pkl(data=train_interaction_set, filename=interaction_train_file)
+
+        ## Save validation sets
+        docking_valid_file =self.data_savepath + 'docking_valid_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        interaction_valid_file = self.data_savepath + 'interaction_valid_' + str(self.trainpool_num_proteins) + 'pool.pkl'
+        UtilityFunctions().write_pkl(data=valid_docking_set, filename=docking_valid_file)
+        UtilityFunctions().write_pkl(data=valid_interaction_set, filename=interaction_valid_file)
+
+        ## Save testing sets
+        docking_test_file = self.data_savepath + 'docking_test_' + str(self.testpool_num_proteins) + 'pool.pkl'
+        interaction_test_file = self.data_savepath + 'interaction_test_' + str(self.testpool_num_proteins) + 'pool.pkl'
+        UtilityFunctions().write_pkl(data=test_docking_set, filename=docking_test_file)
+        UtilityFunctions().write_pkl(data=test_interaction_set, filename=interaction_test_file)
 
         if self.plotting:
             training_set_name = self.trainvalidset_protein_pool.split('.')[0]
