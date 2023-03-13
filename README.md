@@ -12,9 +12,11 @@ to solve the tasks for molecular recognition. [See Doc(k)umentation here](https:
     style="width:50%;height:50% clip: rect(50px, 200px, 150px, 100px);">
 </div>
 
-<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset400pool_combined_shapes_params.png" 
-alt="Interacting vs Non-interaction examples" 
-style="width:50%;height:50%;">
+[comment]: <> (<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset400pool_combined_shapes_params.png" )
+
+[comment]: <> (alt="Interacting vs Non-interaction examples" )
+
+[comment]: <> (style="width:50%;height:50%;">)
 
 [comment]: <> ([Examples of interacting vs non-interacting shapes]&#40;docs/source/testset_protein_pool50_interactionsVSnon-interactions.png&#41;)
 
