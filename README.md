@@ -9,7 +9,7 @@ to solve the tasks for molecular recognition. [See Doc(k)umentation here](https:
     style="width:48%;height:50%;">
     <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" 
     alt="Interacting vs Non-interaction examples" 
-    style="width:48%;height:40%;">
+    style="width:48%;height:30%;">
 </div>
 
 [comment]: <> (<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset400pool_combined_shapes_params.png" )
