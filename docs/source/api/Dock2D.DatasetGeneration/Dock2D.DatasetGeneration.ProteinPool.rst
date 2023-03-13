@@ -7,7 +7,7 @@ This file is saved as `.pkl` and loaded in `DatasetGenerator` to compute interac
 
 .. autoclass:: Dock2D.DatasetGeneration.ProteinPool.ParamDistribution
    :special-members: __init__
-   :members: normalize, sample
+   :members: normalize, extract_params
    :undoc-members:
 
 .. autoclass:: Dock2D.DatasetGeneration.ProteinPool.ProteinPool

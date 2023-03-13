@@ -130,6 +130,21 @@ parameter distributions, then normalize probabilities.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="Dock2D.DatasetGeneration.ProteinPool.ParamDistribution.extract_params">
+<span class="sig-name descname"><span class="pre">extract_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.DatasetGeneration.ProteinPool.ParamDistribution.extract_params" title="Permalink to this definition"></a></dt>
+<dd><p>Extracts parameters and associated probabilities e.g. <cite>[(alpha, prob),…]</cite> or <cite>[(num_points, prob),…]</cite>
+from parameter distributions used in protein shape pool generation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>param_name</strong> ([str](<cite>alpha</cite> or <cite>num_points</cite>)) – <cite>alpha</cite> or <cite>num_points</cite>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>two separate tuples of values and probabilities</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="Dock2D.DatasetGeneration.ProteinPool.ParamDistribution.normalize">
 <span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Dock2D.DatasetGeneration.ProteinPool.ParamDistribution.normalize" title="Permalink to this definition"></a></dt>
 <dd><p>Normalize probabilities from parameter distribution.</p>
