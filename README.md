@@ -1,4 +1,4 @@
-**[Dock2D: Synthetic datasets for the molecular recognition problem](https://arxiv.org/abs/2212.03456)**
+**Dock2D: Synthetic datasets for the molecular recognition problem [arXiv](https://arxiv.org/abs/2212.03456)**
 -------
 This library is used to build a toy protein dataset and models
 to solve the tasks for molecular recognition. [See Doc(k)umentation here](https://lamoureux-lab.github.io/Dock2D/).
