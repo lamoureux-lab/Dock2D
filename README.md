@@ -1,13 +1,16 @@
 **[Dock2D: Synthetic datasets for the molecular recognition problem](https://arxiv.org/abs/2212.03456)**
 -------
 This library is used to build a toy protein dataset and models
-to solve the tasks for molecular recognition. See [Doc(k)umentation here](https://lamoureux-lab.github.io/Dock2D/).
+to solve the tasks for molecular recognition. [See Doc(k)umentation here](https://lamoureux-lab.github.io/Dock2D/).
 
-![Energy Surface](docs/source/energy_surface_local_min_pose_free_energy.png)
+<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/energy_surface_local_min_pose_free_energy.png" alt="Energy Surface" style="width:50%;height:50%;">
 
-<img src="docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" alt="alt text" width="500" height="400">
 
-[Examples of interacting vs non-interacting shapes](docs/source/testset_protein_pool50_interactionsVSnon-interactions.png)
+[comment]: <> (<img alt="docs/source/energy_surface_local_min_pose_free_energy.png" src="docs/source/energy_surface_local_min_pose_free_energy.png"/>)
+
+[comment]: <> (<img src="docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" alt="alt text" width="500" height="400">)
+
+[comment]: <> ([Examples of interacting vs non-interacting shapes]&#40;docs/source/testset_protein_pool50_interactionsVSnon-interactions.png&#41;)
 
 
 Cite Us
