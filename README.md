@@ -8,7 +8,7 @@ alt="Energy Surface"
 style="width:50%;height:50%;">
 
 <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" 
-alt="Energy Surface" 
+alt="Interacting vs Non-interaction examples" 
 style="width:50%;height:50%;">
 
 [comment]: <> ([Examples of interacting vs non-interacting shapes]&#40;docs/source/testset_protein_pool50_interactionsVSnon-interactions.png&#41;)
