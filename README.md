@@ -10,7 +10,7 @@ style="width:50%;height:50%;">
 
 <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset400pool_combined_shapes_params.png" 
 alt="Interacting vs Non-interaction examples" 
-style="width:50%;height:50%;">
+style="width:20%;height:20%;">
 
 <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" 
 alt="Interacting vs Non-interaction examples" 
