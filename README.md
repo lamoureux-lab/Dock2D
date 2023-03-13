@@ -6,10 +6,10 @@ to solve the tasks for molecular recognition. [See Doc(k)umentation here](https:
 <div style="display: flex;">
     <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/energy_surface_local_min_pose_free_energy.png" 
     alt="Energy Surface" 
-    style="width:50%;height:50%;">
+    style="width:45%;height:50%;">
     <img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset_protein_pool50_interactionsVSnon-interactions.png" 
     alt="Interacting vs Non-interaction examples" 
-    style="clip: rect(50px, 50px, 100px, 100px) width:50%;height:50% ;">
+    style="width:45%;height:50% ;">
 </div>
 
 [comment]: <> (<img src="https://github.com/lamoureux-lab/Dock2D/blob/sid_docking/docs/source/testset400pool_combined_shapes_params.png" )
