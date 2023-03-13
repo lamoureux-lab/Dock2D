@@ -1,7 +1,7 @@
 Sampling/
 ================
 
-Sampling based model training that sample a subset of the space of rotations and translations.
+Sampling based model training that samples a subset of the space of rotations and translations.
 Functioning examples of scripts used to train the Sampling models are below.
 
 
