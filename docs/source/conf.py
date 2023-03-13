@@ -16,6 +16,7 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath('../../../'))
 sys.path.insert(0, os.path.abspath('../docs/'))
+sys.path.insert(0, os.path.abspath('../html/'))
 # print(sys.executable)
 
 # -- Project information -----------------------------------------------------
