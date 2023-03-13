@@ -1,10 +1,10 @@
 Dock2D
 ======
+This library is used to build a toy protein dataset and models
+to solve the tasks for molecular recognition. See [Doc(k)umentation here](https://lamoureux-lab.github.io/Dock2D/).
 
 ![Energy Surface](docs/source/energy_surface_local_min_pose_free_energy.png)
 
-This library is used to build a toy protein dataset and models
-to solve the tasks for molecular recognition. See [Doc(k)umentation here](https://lamoureux-lab.github.io/Dock2D/).
 
 Cite Us
 -------
