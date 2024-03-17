@@ -9,10 +9,10 @@ from Dock2D.Models.model_sampling import SamplingModel
 if __name__ == '__main__':
     #################################################################################
     # Datasets
-    trainset = '../../Datasets/docking_train_400pool.pkl'
-    validset = '../../Datasets/docking_valid_400pool.pkl'
+    trainset = '../../Datasets/docking_train_50pool.pkl'
+    validset = '../../Datasets/docking_valid_50pool.pkl'
     ### testing set
-    testset = '../../Datasets/docking_test_400pool.pkl'
+    testset = '../../Datasets/docking_test_50pool.pkl'
     #########################
     #### initialization of random seeds
     random_seed = 42
@@ -25,6 +25,7 @@ if __name__ == '__main__':
     # torch.autograd.set_detect_anomaly(True)
     ######################
     max_size = 10
+    # max_size = 2
     train_stream = get_docking_stream(trainset, max_size=max_size)
     valid_stream = get_docking_stream(validset, max_size=None, shuffle=False)
     test_stream = get_docking_stream(testset, max_size=None, shuffle=False)
@@ -35,7 +36,8 @@ if __name__ == '__main__':
     # experiment = 'BS_IP_finaldataset_1000pairs_100ep'
     # experiment = 'BS_IP_finaldataset_10pairs_100ep'
 
-    experiment = 'BS_IP_finaldataset_10pairs_100ep_rep1'
+    # experiment = 'BS_IP_finaldataset_10pairs_100ep_rep1'
+    experiment = 'BS_IP_finaldataset_overfitcheck_1pair_100ep'
 
     ######################
     train_epochs = 100
@@ -54,7 +56,7 @@ if __name__ == '__main__':
     Trainer = TrainerIP(sampledFFT, model, optimizer, experiment)
     ######################
     ### Train model from beginning
-    # Trainer.run_trainer(train_epochs, train_stream=train_stream)
+    Trainer.run_trainer(train_epochs, train_stream=train_stream)
 
     ### Resume training model at chosen epoch
     # Trainer.run_trainer(
@@ -86,7 +88,7 @@ if __name__ == '__main__':
     #                         resume_training=True, resume_epoch=train_epochs)
 
     ## Plot loss and RMSDs from current experiment
-    # PlotterIP(experiment).plot_loss(ylim=None, show=show)
+    PlotterIP(experiment).plot_loss(ylim=None, show=show)
     from matplotlib import rcParams
     rcParams.update({'font.size': 20})
     PlotterIP(experiment).plot_rmsd_distribution(plot_epoch=train_epochs, show=show)
